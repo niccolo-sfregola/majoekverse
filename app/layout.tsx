@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import BottomNav from "./bottomNav";
 import TopNav from "./topNav";
+import Planet from "./universoIcon";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,7 +27,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col pb-16 md:pb-0">
-        <TopNav />{children} <BottomNav />
+        <TopNav />{children} <BottomNav /> <Planet />
         </body>
     </html>
   );
