@@ -31,12 +31,13 @@ Hai già superato la parte più ostica. Da qui è costruire.
 
 **Obiettivo:** costruire tutta l'interfaccia con dati inventati scritti a mano, *senza ancora database né login*. È il modo giusto di iniziare: vedi subito i risultati e impari React/Next/Tailwind sul concreto.
 
-- [ ] Definire il **tema** in un punto solo: i colori del logo (fondo `#15133A`, blu `#2E2AB5`, lavanda `#B9A8E6`, corallo `#EF6C4E`, crema `#F6ECD8`) e i font. Così cambiarli dopo è istantaneo.
-- [ ] Creare il **guscio dell'app**: barra in basso con 4 tab (Help Desk, Eventi, Home, Profilo) + barra in alto con logo e icona "Universo".
+- [X] Definire il **tema** in un punto solo: i colori del logo (fondo `#15133A`, blu `#2E2AB5`, lavanda `#B9A8E6`, corallo `#EF6C4E`, crema `#F6ECD8`) e i font. Così cambiarli dopo è istantaneo.
+- [X] Creare il **guscio dell'app**: barra in basso con 4 tab (Help Desk, Eventi, Home, Profilo) + barra in alto con logo e icona "Universo".
 - [ ] Costruire la **Home** con dati finti: blocco "sono live / prossima live", anteprima schedule, card evento in evidenza, lista news.
 - [ ] Costruire **Universo di Joe**: descrizione breve, link ai canali (Twitch, IG, TikTok, YouTube, Discord, Telegram), sezione sponsor con codici sconto. Tutti dati statici → vittoria facile.
-- [ ] Costruire le altre schermate come **placeholder** (Eventi, Help Desk, Profilo): per ora bastano titolo + struttura.
+- [X] Costruire le altre schermate come **placeholder** (Eventi, Help Desk, Profilo): per ora bastano titolo + struttura.
 - [ ] Rendere tutto **responsive**: deve stare bene sia su telefono sia su finestra larga da PC.
+- [ ] *(opzionale, rifinitura finale — solo dopo aver finito tutto il resto della fase)* Piccola animazione di benvenuto all'avvio: il "mondo" dell'icona Universo gira, poi appare "Benvenuto nel maJoekverse!". Idea carina avuta strada facendo, ma richiede concetti (stato, overlay condizionale, timing) che vedremo più avanti — non deve bloccare il resto.
 
 **Cosa impari:** componenti React, come si dividono le schermate in pezzi, Tailwind per lo stile, il layout responsive.
 
@@ -146,4 +147,4 @@ Aggiungere tutto subito è la strada più veloce per mollare. La v1 così è **c
 
 ## Il tuo prossimo passo, adesso
 
-Fase 1, primo task: **impostare il tema e costruire il guscio con la barra di navigazione.** Quando vuoi partire, lo facciamo insieme riga per riga.
+Fase 1: tema, guscio dell'app (nav responsive mobile/desktop) e pagine placeholder fatti. Prossimo task: **costruire la Home con dati finti** (blocco live/prossima live, anteprima schedule, evento in evidenza, lista news), poi **Universo di Joe**.
