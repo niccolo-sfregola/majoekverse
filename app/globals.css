@@ -22,7 +22,7 @@
 
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--fondo);
+  color: var(--crema);
   font-family: Arial, Helvetica, sans-serif;
 }
