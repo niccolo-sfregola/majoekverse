@@ -1,4 +1,4 @@
-export default function Universo(){
+export default function Profilo() {
     return (
      <main className="flex flex-col items-center justify-center min-h-screen">
         <h1 style={{ fontSize: "2rem", fontWeight: 500 }}>Profilo</h1>

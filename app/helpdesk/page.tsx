@@ -1,4 +1,4 @@
-export default function Universo(){
+export default function HelpDesk(){
     return (
      <main className="flex flex-col items-center justify-center min-h-screen">
         <h1 style={{ fontSize: "2rem", fontWeight: 500 }}>Help Desk</h1>
