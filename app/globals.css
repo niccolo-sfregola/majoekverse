@@ -1,8 +1,9 @@
 @import "tailwindcss";
 
 :root {
-  --fondo:      #15133A;
+  --fondo:      #11102e;
   --blu:        #2E2AB5;
+  --darkblu:    #1b1872;
   --lavanda:    #B9A8E6;
   --corallo:    #EF6C4E;
   --crema:      #F6ECD8;
@@ -13,6 +14,7 @@
   --color-foreground: var(--crema);
   --color-brand-fondo: var(--fondo);
   --color-brand-blu: var(--blu);
+  --color-brand-darkblu: var(--darkblu);
   --color-brand-lavanda: var(--lavanda);
   --color-brand-corallo: var(--corallo);
   --color-brand-crema: var(--crema);
