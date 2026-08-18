@@ -14,6 +14,12 @@ const schedule = [
   { giorno: "Dom", orario: "21:00", game: "Posta del cuore di Joe" },
 ];
 
+const eventoInEvidenza = {
+  titolo: "Giveaway PS5",
+  data: "20 Agosto 2026",
+  descrizione: "In collaborazione con DUBBY, in palio una PS5. Dettagli su Discord.",
+};
+
 const news = [
   {
     icona: "🎁",
@@ -75,6 +81,26 @@ export default function Home() {
               </li>
             ))}
           </ul>
+        </div>
+      </div>
+
+      <div className="w-full px-4">
+        <div className="flex flex-col gap-2 rounded-xl p-4 bg-brand-darkblu">
+          <p className="font-semibold" style={{ color: "#F6ECD8" }}>
+            Evento in evidenza
+          </p>
+          <p style={{ color: "#F6ECD8" }}>{eventoInEvidenza.titolo}</p>
+          <p style={{ color: "#B9A8E6" }}>{eventoInEvidenza.data}</p>
+          <p style={{ color: "#B9A8E6" }}>{eventoInEvidenza.descrizione}</p>
+          <a
+            href="https://discord.com/invite/4FskPTnBts"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-xl p-2 text-center bg-brand-blu"
+            style={{ color: "#F6ECD8" }}
+          >
+            Partecipa →
+          </a>
         </div>
       </div>
 
