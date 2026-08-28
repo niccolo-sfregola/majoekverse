@@ -60,7 +60,7 @@ Hai già superato la parte più ostica. Da qui è costruire.
 
 **Fatto quando:** aggiungi una news dal pannello Supabase e — senza toccare il codice — compare nella Home. ✅
 
-**Ancora finti/da collegare:** `live.isLive` (arriva con la Fase 4, stato Twitch automatico) e `eventoInEvidenza` sulla Home (va ancora collegato alla tabella `events`, es. con una colonna `in_evidenza`).
+**Dati finti della Home — stato:** `live.isLive` → collegato (Fase 4, Twitch). `eventoInEvidenza` → sostituito con **ultimo video YouTube** (feed RSS del canale, `lib/youtube.ts`, nessuna API key). Niente più segnaposto sulla Home.
 
 ---
 
@@ -101,13 +101,24 @@ Hai già superato la parte più ostica. Da qui è costruire.
 
 **Obiettivo:** dare a Joe (e a te) un posto per inserire schedule e news dal telefono.
 
-- [ ] Aggiungere un **ruolo** admin agli utenti autorizzati (nel database).
-- [ ] Creare una sezione **Admin** con form semplici: aggiungi/modifica schedule, aggiungi/modifica news, gestisci sponsor.
-- [ ] La sezione Admin è visibile **solo** ai ruoli autorizzati, e il controllo del ruolo avviene **lato server** (non solo nascondendo il bottone).
+- [X] Ruolo admin nel database: tabella `admins` + funzione `is_admin()` + policy di scrittura (INSERT/UPDATE/DELETE solo admin) su schedule/news/events/sponsors — `supabase/admin-setup.sql`.
+- [X] Pagina `/admin` con form (Server Action) per aggiungere ed eliminare news, eventi, righe schedule, sponsor — `app/admin/page.tsx`, `app/admin/actions.ts`.
+- [X] Controllo ruolo **lato server**: `lib/auth.ts` (`isAdmin()` via RPC), `/admin` rimbalza i non-admin, ogni action richiama `assertAdmin()`, e comunque la RLS lo impone nel database.
+- [X] Link "Area Admin" nel Profilo, visibile solo agli admin.
+- [X] Modifica in-place (form pre-compilato in un `<details>`) oltre ad aggiungi/elimina, per tutte e 4 le sezioni.
+- [ ] Prova: login admin → `/admin` → aggiungi una news → compare nella Home. Login non-admin → `/admin` rimbalza.
 
 **Cosa impari:** permessi e ruoli, come si scrivono dati nel database da un form.
 
 **Fatto quando:** Joe accede, apre Admin, aggiunge una news → compare nella Home per tutti.
+
+**Idee raccolte da fare dopo (non bloccano la fase):**
+- [X] **Bottone "pubblica su Discord"** in `/admin` via webhook (`DISCORD_WEBHOOK_URL`): anteprima + "Pubblica schedule su Discord", e "Annuncia" per ogni news. `lib/discord.ts`, `lib/announce.ts`, `app/admin/announceButton.tsx`.
+- [X] Messaggio schedule bilingue IT/EN nel formato ufficiale di Joe; `schedule.giorno` → `schedule.data` (data vera), nome giorno e `dd/mm` calcolati da `lib/schedule.ts`. Migrazione: `supabase/schedule-data-column.sql`.
+- [X] Formato news su Discord: `📢 ANNUNCIO: **titolo**` + testo. Formato eventi: `📢 NUOVO EVENTO: **titolo**` + data + descrizione, con bottone "Annuncia" per ogni evento.
+- **Flusso modifica schedule** (da fare): se la schedule è già stata annunciata e poi cambia, il bottone manda solo il **diff** ("Giovedì spostato da 21:00 a 22:00") invece della schedule intera, **e** crea in automatico una news nell'app. Prima dell'invio si vede un riepilogo da confermare. Serve salvare l'ultima versione annunciata per il confronto.
+- **Ciclo settimanale schedule**: azione "nuova settimana" che azzera la schedule vecchia; con schedule vuota la Home mostra "Stiamo per caricare la schedule".
+- **Annunci con riepilogo**: premendo il bottone Discord, prima si vede un riepilogo di cosa esce (nuova schedule completa, oppure diff delle modifiche tipo "Giovedì spostato da 21:00 a 22:00"), poi conferma e invio. Richiede tracciare l'ultima versione annunciata per fare il diff.
 
 ---
 

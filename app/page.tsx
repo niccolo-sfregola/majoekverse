@@ -1,25 +1,21 @@
 import { createClient } from "@/lib/supabase/server";
 import { getStreamStatus } from "@/lib/twitch";
+import { getLatestVideo } from "@/lib/youtube";
+import { shortDayIt } from "@/lib/schedule";
 import LiveBlock from "./liveBlock";
-
-// Ancora finto: l'evento in evidenza lo colleghiamo alla tabella events più avanti.
-const eventoInEvidenza = {
-  titolo: "Giveaway PS5",
-  data: "20 Agosto 2026",
-  descrizione: "In collaborazione con DUBBY, in palio una PS5. Dettagli su Discord.",
-};
 
 export default async function Home() {
   const supabase = await createClient();
 
   const liveStatus = await getStreamStatus();
+  const ultimoVideo = await getLatestVideo();
 
   // Due letture dal database. select("*") prende tutte le colonne;
   // order() decide l'ordine delle righe.
   const { data: schedule } = await supabase
     .from("schedule")
     .select("*")
-    .order("created_at", { ascending: true });
+    .order("data", { ascending: true });
 
   const { data: news } = await supabase
     .from("news")
@@ -37,17 +33,19 @@ export default async function Home() {
             Schedule
           </p>
           <ul className="flex flex-col gap-1">
-            {schedule?.map((item) => (
-              <li
-                key={item.id}
-                className="flex justify-between gap-4"
-                style={{ color: "#B9A8E6" }}
-              >
-                <span>{item.giorno}</span>
-                <span className="hidden md:inline">{item.gioco}</span>
-                <span>{item.orario}</span>
-              </li>
-            ))}
+            {schedule
+              ?.filter((item) => item.data)
+              .map((item) => (
+                <li
+                  key={item.id}
+                  className="flex justify-between gap-4"
+                  style={{ color: "#B9A8E6" }}
+                >
+                  <span>{shortDayIt(item.data)}</span>
+                  <span className="hidden md:inline">{item.gioco}</span>
+                  <span>{item.orario}</span>
+                </li>
+              ))}
           </ul>
         </div>
       </div>
@@ -55,20 +53,28 @@ export default async function Home() {
       <div className="w-full px-4">
         <div className="flex flex-col gap-2 rounded-xl p-4 bg-brand-darkblu">
           <p className="font-semibold" style={{ color: "#F6ECD8" }}>
-            Evento in evidenza
+            Ultimo video su YouTube
           </p>
-          <p style={{ color: "#F6ECD8" }}>{eventoInEvidenza.titolo}</p>
-          <p style={{ color: "#B9A8E6" }}>{eventoInEvidenza.data}</p>
-          <p style={{ color: "#B9A8E6" }}>{eventoInEvidenza.descrizione}</p>
-          <a
-            href="https://discord.com/invite/4FskPTnBts"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-xl p-2 text-center bg-brand-blu"
-            style={{ color: "#F6ECD8" }}
-          >
-            Partecipa →
-          </a>
+          {ultimoVideo ? (
+            <a
+              href={ultimoVideo.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex flex-col gap-2"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={ultimoVideo.thumbnail}
+                alt=""
+                className="rounded-lg w-full aspect-video object-cover"
+              />
+              <p style={{ color: "#F6ECD8" }}>{ultimoVideo.title}</p>
+            </a>
+          ) : (
+            <p style={{ color: "#B9A8E6" }}>
+              Nessun video da mostrare al momento.
+            </p>
+          )}
         </div>
       </div>
 
