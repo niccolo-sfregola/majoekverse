@@ -1,16 +1,15 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { signInWithTwitch, signOut } from "@/app/auth/actions";
+import { isAdmin } from "@/lib/auth";
 import AvatarPicker from "./avatarPicker";
-
-// Il controllo del ruolo admin vero arriva alla Fase 5.
-const isAdmin = false;
-const adminActions = ["Crea evento", "Crea notizia", "Modifica schedule"];
 
 export default async function Profilo() {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  const admin = user ? await isAdmin() : false;
 
   const username =
     user?.user_metadata.nickname ??
@@ -42,23 +41,14 @@ export default async function Profilo() {
 
           <AvatarPicker />
 
-          {isAdmin ? (
-            <div className="flex flex-col items-center gap-3 rounded-xl p-4 bg-brand-darkblu w-full">
-              <p className="font-semibold" style={{ color: "#F6ECD8" }}>
-                + Aggiungi
-              </p>
-              <div className="flex flex-col gap-2 w-full">
-                {adminActions.map((azione) => (
-                  <span
-                    key={azione}
-                    className="rounded-xl p-3 bg-brand-blu"
-                    style={{ color: "#F6ECD8" }}
-                  >
-                    {azione}
-                  </span>
-                ))}
-              </div>
-            </div>
+          {admin ? (
+            <Link
+              href="/admin"
+              className="rounded-xl p-4 bg-brand-blu w-full text-center"
+              style={{ color: "#F6ECD8" }}
+            >
+              Area Admin →
+            </Link>
           ) : null}
 
           <form action={signOut}>
