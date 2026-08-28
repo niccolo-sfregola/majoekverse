@@ -22,6 +22,8 @@ export default async function Home() {
     .select("*")
     .order("created_at", { ascending: false });
 
+  const prossimeDirette = (schedule ?? []).filter((item) => item.data);
+
   return (
     <main className="flex flex-col items-center justify-center min-h-screen gap-6">
       <h1 style={{ fontSize: "2rem", fontWeight: 500 }}>maJoekverse</h1>
@@ -32,10 +34,9 @@ export default async function Home() {
           <p className="font-semibold" style={{ color: "#F6ECD8" }}>
             Schedule
           </p>
-          <ul className="flex flex-col gap-1">
-            {schedule
-              ?.filter((item) => item.data)
-              .map((item) => (
+          {prossimeDirette.length > 0 ? (
+            <ul className="flex flex-col gap-1">
+              {prossimeDirette.map((item) => (
                 <li
                   key={item.id}
                   className="flex justify-between gap-4"
@@ -46,7 +47,10 @@ export default async function Home() {
                   <span>{item.orario}</span>
                 </li>
               ))}
-          </ul>
+            </ul>
+          ) : (
+            <p style={{ color: "#B9A8E6" }}>Stiamo per caricare la schedule…</p>
+          )}
         </div>
       </div>
 
@@ -89,7 +93,9 @@ export default async function Home() {
                 <span className="text-xl">{item.icona}</span>
                 <div className="flex-1">
                   <p style={{ color: "#F6ECD8" }}>{item.titolo}</p>
-                  <p style={{ color: "#B9A8E6" }}>{item.testo}</p>
+                  <p style={{ color: "#B9A8E6", whiteSpace: "pre-line" }}>
+                    {item.testo}
+                  </p>
                 </div>
               </li>
             ))}

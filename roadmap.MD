@@ -116,9 +116,10 @@ Hai già superato la parte più ostica. Da qui è costruire.
 - [X] **Bottone "pubblica su Discord"** in `/admin` via webhook (`DISCORD_WEBHOOK_URL`): anteprima + "Pubblica schedule su Discord", e "Annuncia" per ogni news. `lib/discord.ts`, `lib/announce.ts`, `app/admin/announceButton.tsx`.
 - [X] Messaggio schedule bilingue IT/EN nel formato ufficiale di Joe; `schedule.giorno` → `schedule.data` (data vera), nome giorno e `dd/mm` calcolati da `lib/schedule.ts`. Migrazione: `supabase/schedule-data-column.sql`.
 - [X] Formato news su Discord: `📢 ANNUNCIO: **titolo**` + testo. Formato eventi: `📢 NUOVO EVENTO: **titolo**` + data + descrizione, con bottone "Annuncia" per ogni evento.
-- **Flusso modifica schedule** (da fare): se la schedule è già stata annunciata e poi cambia, il bottone manda solo il **diff** ("Giovedì spostato da 21:00 a 22:00") invece della schedule intera, **e** crea in automatico una news nell'app. Prima dell'invio si vede un riepilogo da confermare. Serve salvare l'ultima versione annunciata per il confronto.
-- **Ciclo settimanale schedule**: azione "nuova settimana" che azzera la schedule vecchia; con schedule vuota la Home mostra "Stiamo per caricare la schedule".
-- **Annunci con riepilogo**: premendo il bottone Discord, prima si vede un riepilogo di cosa esce (nuova schedule completa, oppure diff delle modifiche tipo "Giovedì spostato da 21:00 a 22:00"), poi conferma e invio. Richiede tracciare l'ultima versione annunciata per fare il diff.
+- [X] **Flusso modifica schedule**: due pulsanti nella sezione Schedule — "📢 Pubblica schedule completa" (settimana nuova, salva lo snapshot) e "📢 Annuncia modifiche" (diff vs snapshot → messaggio solo modifiche + news "Modifica alla schedule" creata in automatico). Snapshot in `schedule_announcement` (`supabase/schedule-announcement.sql`), diff in `lib/schedule-diff.ts`. Anteprima mostrata prima dell'invio = conferma.
+- [X] **Ciclo settimanale schedule**: pulsante "🗑️ Azzera schedule" (con conferma) → cancella tutte le righe e resetta lo snapshot. Con schedule vuota la Home mostra "Stiamo per caricare la schedule…".
+- [X] **Messaggio modifiche bilingue** IT/EN (come la schedule completa). La news in-app resta solo IT.
+- [X] **Rifiniture admin**: `saveRow`/`deleteRow` ora restituiscono un esito → feedback "✅/❌" sotto ai bottoni (`rowForm.tsx`, `deleteButton.tsx`); conferma `window.confirm` prima di eliminare e prima di azzerare.
 
 ---
 
