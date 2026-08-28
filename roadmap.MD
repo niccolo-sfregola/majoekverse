@@ -45,7 +45,7 @@ Hai già superato la parte più ostica. Da qui è costruire.
 
 ---
 
-## Fase 2 — Database e dati veri (Supabase)
+## ✅ Fase 2 — Database e dati veri (Supabase) (FATTA)
 
 **Obiettivo:** togliere i dati finti e leggerli da un database vero.
 
@@ -53,27 +53,31 @@ Hai già superato la parte più ostica. Da qui è costruire.
 - [X] Creare le prime tabelle: `schedule`, `news`, `events`, `sponsors`.
 - [X] Collegare l'app a Supabase (`@supabase/supabase-js` + `@supabase/ssr`): client server in `lib/supabase/server.ts`, client browser in `lib/supabase/client.ts`.
 - [X] Far leggere alla **Home** schedule e news dal database; a **Eventi** gli eventi; a **Universo** gli sponsor. (pagine ora Server Component `async`)
-- [ ] Inserire qualche riga di prova dal pannello di Supabase e verificare che compaiano.
+- [X] Policy RLS di lettura pubblica (`SELECT`) create su tutte e 4 le tabelle — senza, l'API restituiva sempre array vuoti anche con dati dentro.
+- [X] Inserito righe di prova dal pannello di Supabase e verificato che compaiano.
 
-**Cosa impari:** cos'è un database, come si leggono i dati da un'app, un po' di SQL di base.
+**Cosa impari:** cos'è un database, come si leggono i dati da un'app, un po' di SQL di base, client vs server in Next.js, RLS e policy.
 
-**Fatto quando:** aggiungi una news dal pannello Supabase e — senza toccare il codice — compare nella Home.
+**Fatto quando:** aggiungi una news dal pannello Supabase e — senza toccare il codice — compare nella Home. ✅
+
+**Ancora finti/da collegare:** `live.isLive` (arriva con la Fase 4, stato Twitch automatico) e `eventoInEvidenza` sulla Home (va ancora collegato alla tabella `events`, es. con una colonna `in_evidenza`).
 
 ---
 
-## Fase 3 — Login con Twitch e profilo
+## ✅ Fase 3 — Login con Twitch e profilo (FATTA)
 
 **Obiettivo:** permettere l'accesso con Twitch, tenendo l'app usabile anche senza login.
 
-- [ ] Registrare un'applicazione sulla **Twitch Developer Console** (client ID/secret + redirect URL).
-- [ ] Attivare **Twitch come provider** in Supabase (è supportato di serie).
-- [ ] Aggiungere il pulsante "Accedi con Twitch" e la schermata **Profilo** (username, avatar) quando sei loggato.
-- [ ] Verificare che le sezioni pubbliche (Home, Universo, lettura eventi) restino usabili **senza** login.
-- [ ] Logout funzionante.
+- [X] Registrare un'applicazione sulla **Twitch Developer Console** (client "riservate", redirect URL = `https://<ref>.supabase.co/auth/v1/callback`).
+- [X] Attivare **Twitch come provider** in Supabase + URL Configuration (Site URL `http://localhost:3000`, Redirect URLs `http://localhost:3000/**`).
+- [X] Codice login: `proxy.ts` (refresh sessione), `app/auth/callback/route.ts`, `app/auth/actions.ts` (signInWithTwitch / signOut).
+- [X] Schermata **Profilo** reale: username + avatar da Twitch quando loggato, bottone "Accedi con Twitch" quando no. Emoji picker spostato in `avatarPicker.tsx` (client).
+- [X] Provato il giro completo in `npm run dev`: accedi → vedi profilo → esci.
+- [X] Verificato che Home, Universo ed Eventi restino usabili **senza** login.
 
 **Cosa impari:** come funziona l'autenticazione, la differenza tra utente pubblico e loggato.
 
-**Fatto quando:** accedi con Twitch, vedi il tuo profilo, esci — e chi non fa login usa comunque l'app.
+**Fatto quando:** accedi con Twitch, vedi il tuo profilo, esci — e chi non fa login usa comunque l'app. ✅
 
 ---
 
@@ -148,4 +152,4 @@ Aggiungere tutto subito è la strada più veloce per mollare. La v1 così è **c
 
 ## Il tuo prossimo passo, adesso
 
-Fase 1 completa: tema, guscio responsive, tutte le schermate con contenuto vero (dati finti o reali dove disponibili). Prossimo: **Fase 2**, primo task: creare un account e un progetto **Supabase**, poi le prime tabelle (`schedule`, `news`, `events`, `sponsors`).
+Fasi 1–3 complete: interfaccia responsive, database Supabase con dati veri, login con Twitch e Profilo reale. Prossimo: **Fase 4** — stato "live" automatico, primo task: aggiungere `TWITCH_CLIENT_ID` e `TWITCH_CLIENT_SECRET` in `.env.local`, poi la funzione che interroga l'endpoint Twitch *Get Streams*.
