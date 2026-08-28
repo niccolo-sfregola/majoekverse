@@ -85,9 +85,11 @@ Hai già superato la parte più ostica. Da qui è costruire.
 
 **Obiettivo:** la Home mostra da sola se maJoekoto è online, senza inserirlo a mano.
 
-- [ ] Creare una piccola funzione lato server che chiede a Twitch "maJoekoto è live?" (endpoint *Get Streams*).
-- [ ] La Home mostra il blocco rosso "sono online" quando è live, e "prossima live" quando è offline.
-- [ ] Aggiornamento a intervalli (polling): semplice e sufficiente per ora — niente webhook complicati nella v1.
+- [X] `lib/twitch.ts`: token applicativo (client credentials, in cache) + endpoint *Get Streams* per `majoekoto`.
+- [X] `app/api/live/route.ts`: endpoint JSON con lo stato live.
+- [X] La Home mostra il blocco corallo "🔴 In diretta ora" quando è live, "Al momento offline" quando no (`app/liveBlock.tsx`).
+- [X] Polling: stato iniziale dal server, poi `liveBlock` ricontrolla `/api/live` ogni 60s; la fetch a Twitch è in cache 60s.
+- [X] Verifica finale: quando Joe è davvero in diretta, la Home passa da sola a "live" (o testare forzando).
 
 **Cosa impari:** come l'app parla con un servizio esterno (l'API di Twitch) tramite il tuo server.
 
