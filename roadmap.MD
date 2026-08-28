@@ -97,7 +97,7 @@ Hai già superato la parte più ostica. Da qui è costruire.
 
 ---
 
-## Fase 5 — Mini area amministrativa
+## ✅ Fase 5 — Mini area amministrativa (FATTA)
 
 **Obiettivo:** dare a Joe (e a te) un posto per inserire schedule e news dal telefono.
 
@@ -119,7 +119,7 @@ Hai già superato la parte più ostica. Da qui è costruire.
 - [X] **Flusso modifica schedule**: due pulsanti nella sezione Schedule — "📢 Pubblica schedule completa" (settimana nuova, salva lo snapshot) e "📢 Annuncia modifiche" (diff vs snapshot → messaggio solo modifiche + news "Modifica alla schedule" creata in automatico). Snapshot in `schedule_announcement` (`supabase/schedule-announcement.sql`), diff in `lib/schedule-diff.ts`. Anteprima mostrata prima dell'invio = conferma.
 - [X] **Ciclo settimanale schedule**: pulsante "🗑️ Azzera schedule" (con conferma) → cancella tutte le righe e resetta lo snapshot. Con schedule vuota la Home mostra "Stiamo per caricare la schedule…".
 - [X] **Messaggio modifiche bilingue** IT/EN (come la schedule completa). La news in-app resta solo IT.
-- [X] **Rifiniture admin**: `saveRow`/`deleteRow` ora restituiscono un esito → feedback "✅/❌" sotto ai bottoni (`rowForm.tsx`, `deleteButton.tsx`); conferma `window.confirm` prima di eliminare e prima di azzerare.
+- [X] **Rifiniture admin**: `saveRow`/`deleteRow` ora restituiscono un esito → feedback "✅/❌" sotto ai bottoni (`rowForm.tsx`, `deleteButton.tsx`); conferma `window.confirm` prima di eliminare e prima di azzerare; il form "Aggiungi" si svuota dopo un inserimento riuscito.
 
 ---
 
@@ -142,8 +142,8 @@ Hai già superato la parte più ostica. Da qui è costruire.
 
 **Obiettivo:** metterla online per la community.
 
-- [ ] Collegare il repository a **Vercel** → deploy automatico a ogni push.
-- [ ] (Opzionale) dominio personalizzato.
+- [X] Collegare il repository a **Vercel** → deploy automatico a ogni push. Online su `majoekverse.vercel.app`. Env su Vercel (incl. `NEXT_PUBLIC_SITE_URL`), Supabase URL Configuration aggiornata per il dominio di produzione.
+- [ ] (Opzionale) dominio personalizzato — l'utente lo vuole, serve scegliere il nome + comprarlo.
 - [ ] Provare l'app su **telefoni veri** (Android e iPhone) e sistemare le ultime cose.
 
 **Fatto quando:** c'è un link pubblico, installabile, con dati veri, che Joe può condividere.
@@ -166,4 +166,6 @@ Aggiungere tutto subito è la strada più veloce per mollare. La v1 così è **c
 
 ## Il tuo prossimo passo, adesso
 
-Fasi 1–3 complete: interfaccia responsive, database Supabase con dati veri, login con Twitch e Profilo reale. Prossimo: **Fase 4** — stato "live" automatico, primo task: aggiungere `TWITCH_CLIENT_ID` e `TWITCH_CLIENT_SECRET` in `.env.local`, poi la funzione che interroga l'endpoint Twitch *Get Streams*.
+Fasi 1–5 complete + app online su Vercel (`majoekverse.vercel.app`). Funzionano: dati veri da Supabase, login Twitch, stato live automatico, ultimo video YouTube, area Admin completa (CRUD + annunci Discord + diff schedule + azzeramento settimanale).
+
+Prossimo: **Fase 6** — (1) passata di rifinitura estetica UI, (2) PWA installabile (manifest + service worker con Serwist), (3) opzionale notifiche push. Poi resta di Fase 7: dominio personalizzato + test su telefoni veri.

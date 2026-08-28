@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import { saveRow, type MutateState } from "./actions";
 
 export type Field = {
@@ -28,9 +28,19 @@ export default function RowForm({
     saveRow,
     null,
   );
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // Dopo un inserimento riuscito, svuota i campi (solo nel form "aggiungi",
+  // non in quello di modifica: lì i valori salvati vanno tenuti).
+  const isNew = !row;
+  useEffect(() => {
+    if (isNew && state?.ok) {
+      formRef.current?.reset();
+    }
+  }, [state, isNew]);
 
   return (
-    <form action={formAction} className="flex flex-col gap-2">
+    <form ref={formRef} action={formAction} className="flex flex-col gap-2">
       <input type="hidden" name="table" value={table} />
       {row ? <input type="hidden" name="id" value={row.id} /> : null}
       {fields.map((f) => (
