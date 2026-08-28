@@ -1,3 +1,7 @@
+import { createClient } from "@/lib/supabase/server";
+
+// Ancora finti: lo stato "live" arriva alla Fase 4, l'evento in evidenza lo
+// colleghiamo quando sistemiamo la pagina Eventi.
 const live = {
   isLive: true,
   game: "Claire Obscure: Expedition 33",
@@ -7,42 +11,27 @@ const live = {
   twitchUrl: "https://www.twitch.tv/majoekoto",
 };
 
-const schedule = [
-  { giorno: "Mar", orario: "21:00", game: "Claire Obscure: Expedition 33" },
-  { giorno: "Gio", orario: "21:00", game: "Resident Evil" },
-  { giorno: "Sab", orario: "15:00", game: "Just Chatting" },
-  { giorno: "Dom", orario: "21:00", game: "Posta del cuore di Joe" },
-];
-
 const eventoInEvidenza = {
   titolo: "Giveaway PS5",
   data: "20 Agosto 2026",
   descrizione: "In collaborazione con DUBBY, in palio una PS5. Dettagli su Discord.",
 };
 
-const news = [
-  {
-    icona: "🎁",
-    titolo: "Giveaway in corso!",
-    descrizione: "Partecipa subito su Discord",
-    tempo: "2h fa",
-  },
-  {
-    icona: "📅",
-    titolo: "Cambiamento di schedule",
-    descrizione: "Nuovi orari a partire da Aprile",
-    tempo: "1g fa",
-  },
-  {
-    icona: "▶️",
-    titolo: "Nuovo video su YouTube!",
-    descrizione: "Clair Obscur ep. 3",
-    tempo: "2g fa",
-  },
-];
+export default async function Home() {
+  const supabase = await createClient();
 
+  // Due letture dal database. select("*") prende tutte le colonne;
+  // order() decide l'ordine delle righe.
+  const { data: schedule } = await supabase
+    .from("schedule")
+    .select("*")
+    .order("created_at", { ascending: true });
 
-export default function Home() {
+  const { data: news } = await supabase
+    .from("news")
+    .select("*")
+    .order("created_at", { ascending: false });
+
   return (
     <main className="flex flex-col items-center justify-center min-h-screen gap-6">
       <h1 style={{ fontSize: "2rem", fontWeight: 500 }}>maJoekverse</h1>
@@ -69,14 +58,14 @@ export default function Home() {
             Schedule
           </p>
           <ul className="flex flex-col gap-1">
-            {schedule.map((item) => (
+            {schedule?.map((item) => (
               <li
-                key={item.giorno}
+                key={item.id}
                 className="flex justify-between gap-4"
                 style={{ color: "#B9A8E6" }}
               >
                 <span>{item.giorno}</span>
-                <span className="hidden md:inline">{item.game}</span>
+                <span className="hidden md:inline">{item.gioco}</span>
                 <span>{item.orario}</span>
               </li>
             ))}
@@ -110,14 +99,13 @@ export default function Home() {
             News recenti
           </p>
           <ul>
-            {news.map((item) => (
-              <li key={item.titolo} className="flex items-start gap-3 py-2">
+            {news?.map((item) => (
+              <li key={item.id} className="flex items-start gap-3 py-2">
                 <span className="text-xl">{item.icona}</span>
                 <div className="flex-1">
                   <p style={{ color: "#F6ECD8" }}>{item.titolo}</p>
-                  <p style={{ color: "#B9A8E6" }}>{item.descrizione}</p>
+                  <p style={{ color: "#B9A8E6" }}>{item.testo}</p>
                 </div>
-                <span style={{ color: "#B9A8E6" }}>{item.tempo}</span>
               </li>
             ))}
           </ul>

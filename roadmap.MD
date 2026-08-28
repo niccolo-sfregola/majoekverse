@@ -27,21 +27,21 @@ Hai già superato la parte più ostica. Da qui è costruire.
 
 ---
 
-## Fase 1 — Aspetto e schermate (con dati finti)
+## ✅ Fase 1 — Aspetto e schermate (con dati finti) (FATTA)
 
 **Obiettivo:** costruire tutta l'interfaccia con dati inventati scritti a mano, *senza ancora database né login*. È il modo giusto di iniziare: vedi subito i risultati e impari React/Next/Tailwind sul concreto.
 
 - [X] Definire il **tema** in un punto solo: i colori del logo (fondo `#15133A`, blu `#2E2AB5`, lavanda `#B9A8E6`, corallo `#EF6C4E`, crema `#F6ECD8`) e i font. Così cambiarli dopo è istantaneo.
-- [X] Creare il **guscio dell'app**: barra in basso con 4 tab (Help Desk, Eventi, Home, Profilo) + barra in alto con logo e icona "Universo".
-- [ ] Costruire la **Home** con dati finti: blocco "sono live / prossima live", anteprima schedule, card evento in evidenza, lista news.
-- [ ] Costruire **Universo di Joe**: descrizione breve, link ai canali (Twitch, IG, TikTok, YouTube, Discord, Telegram), sezione sponsor con codici sconto. Tutti dati statici → vittoria facile.
-- [X] Costruire le altre schermate come **placeholder** (Eventi, Help Desk, Profilo): per ora bastano titolo + struttura.
-- [ ] Rendere tutto **responsive**: deve stare bene sia su telefono sia su finestra larga da PC.
-- [ ] *(opzionale, rifinitura finale — solo dopo aver finito tutto il resto della fase)* Piccola animazione di benvenuto all'avvio: il "mondo" dell'icona Universo gira, poi appare "Benvenuto nel maJoekverse!". Idea carina avuta strada facendo, ma richiede concetti (stato, overlay condizionale, timing) che vedremo più avanti — non deve bloccare il resto.
+- [X] Creare il **guscio dell'app**: bottom bar su mobile / nav in alto su desktop (mai insieme), responsive con i breakpoint Tailwind, + icona "Universo" fissa che apre `/universo`.
+- [X] Costruire la **Home** con dati finti: blocco "sono live / prossima live" (con link a Twitch), anteprima schedule, card evento in evidenza, lista news.
+- [X] Costruire **Universo di Joe**: bio, link ai canali (Twitch, Instagram, YouTube), sezione sponsor con codici sconto, altri link (Patreon, Posta del cuore) — dati reali, non finti.
+- [X] Costruire le altre schermate con contenuto vero: **Eventi** (lista eventi), **Help Desk** (testo + link Discord), **Profilo** (due stati: loggato/non loggato con ternario, sottoscrizione, personalizzazione avatar interattiva con `useState`, skeleton area admin).
+- [X] Rendere tutto **responsive**: layout a griglia/flex elastici, breakpoint `md:` dove serve.
+- [ ] *(opzionale, rifinitura finale)* Piccola animazione di benvenuto all'avvio: il "mondo" dell'icona Universo gira, poi appare "Benvenuto nel maJoekverse!". Idea carina avuta strada facendo — non blocca il passaggio alla Fase 2, va aggiunta quando c'è voglia.
 
-**Cosa impari:** componenti React, come si dividono le schermate in pezzi, Tailwind per lo stile, il layout responsive.
+**Cosa impari:** componenti React, come si dividono le schermate in pezzi, Tailwind per lo stile, il layout responsive, `.map()` su liste, ternari per contenuto condizionale, il primo `useState`.
 
-**Fatto quando:** navighi tra i 4 tab e apri l'Universo, ha i tuoi colori, e funziona bene sia in finestra stretta (telefono) sia larga (PC) — tutto con dati finti.
+**Fatto quando:** navighi tra i 4 tab e apri l'Universo, ha i tuoi colori, e funziona bene sia in finestra stretta (telefono) sia larga (PC) — tutto con dati finti. ✅
 
 ---
 
@@ -49,11 +49,11 @@ Hai già superato la parte più ostica. Da qui è costruire.
 
 **Obiettivo:** togliere i dati finti e leggerli da un database vero.
 
-- [ ] Creare un account e un progetto **Supabase** (gratis).
-- [ ] Creare le prime tabelle: `schedule`, `news`, `events`, `sponsors`.
-- [ ] Collegare l'app a Supabase (`@supabase/supabase-js` + `@supabase/ssr`).
-- [ ] Far leggere alla **Home** schedule e news dal database; a **Eventi** gli eventi; a **Universo** gli sponsor.
-- [ ] Inserire qualche riga di prova dal pannello di Supabase.
+- [X] Creare un account e un progetto **Supabase** (gratis).
+- [X] Creare le prime tabelle: `schedule`, `news`, `events`, `sponsors`.
+- [X] Collegare l'app a Supabase (`@supabase/supabase-js` + `@supabase/ssr`): client server in `lib/supabase/server.ts`, client browser in `lib/supabase/client.ts`.
+- [X] Far leggere alla **Home** schedule e news dal database; a **Eventi** gli eventi; a **Universo** gli sponsor. (pagine ora Server Component `async`)
+- [ ] Inserire qualche riga di prova dal pannello di Supabase e verificare che compaiano.
 
 **Cosa impari:** cos'è un database, come si leggono i dati da un'app, un po' di SQL di base.
 
@@ -105,17 +105,18 @@ Hai già superato la parte più ostica. Da qui è costruire.
 
 ---
 
-## Fase 6 — Strato PWA (installabile) + notifiche base
+## Fase 6 — UI, rifinitura estetica + PWA installabile
 
-**Obiettivo:** far diventare il sito un'app installabile su telefono e PC.
+**Obiettivo:** portare l'app da "funziona e si vede" a bella davvero, e farla diventare un'app installabile su telefono e PC.
 
+- [ ] **Passata di rifinitura UI vera e propria**: margini, spaziature, animazioni, dettagli estetici, l'animazione di benvenuto rimandata dalla Fase 1. A differenza delle fasi precedenti (dove hai scritto tu quasi tutto il codice per capire i meccanismi), qui il supporto sarà più massiccio — a quel punto conoscerai già l'architettura, quindi appoggiarti di più sul lato estetico non toglie nulla a quanto imparato finora.
 - [ ] Aggiungere il **manifest** (nome, icona = logo J, colore tema scuro) così compare "Installa / Aggiungi a Home".
 - [ ] Aggiungere il **service worker** (con Serwist) per l'installabilità e un minimo di funzionamento offline.
 - [ ] (Opzionale) notifiche push "sono live" su Android e PC. Su iPhone le copriamo con il **bot Telegram** già esistente, come deciso.
 
-**Cosa impari:** cosa rende un sito una PWA, service worker e manifest.
+**Cosa impari:** rifinitura di design con Tailwind, cosa rende un sito una PWA, service worker e manifest.
 
-**Fatto quando:** installi l'app sulla home del tuo telefono **e** su PC, con l'icona della J.
+**Fatto quando:** l'app è visivamente rifinita, e la installi sulla home del tuo telefono **e** su PC, con l'icona della J.
 
 ---
 
@@ -147,4 +148,4 @@ Aggiungere tutto subito è la strada più veloce per mollare. La v1 così è **c
 
 ## Il tuo prossimo passo, adesso
 
-Fase 1: tema, guscio dell'app (nav responsive mobile/desktop) e pagine placeholder fatti. Prossimo task: **costruire la Home con dati finti** (blocco live/prossima live, anteprima schedule, evento in evidenza, lista news), poi **Universo di Joe**.
+Fase 1 completa: tema, guscio responsive, tutte le schermate con contenuto vero (dati finti o reali dove disponibili). Prossimo: **Fase 2**, primo task: creare un account e un progetto **Supabase**, poi le prime tabelle (`schedule`, `news`, `events`, `sponsors`).

@@ -1,3 +1,5 @@
+import { createClient } from "@/lib/supabase/server";
+
 const bio =
   "Ciao, sono Joe! 🧸 30 anni, napoletano di nascita e vivo in Toscana. Content creator e studente di Scienze dell'Educazione e della Formazione 📚 In diretta gioco soprattutto horror game, indie game e giochi in community, su PC e PS5 🎮 Vieni a giocare e a conoscerci 🫶";
 
@@ -6,13 +8,6 @@ const sponsorIntro =
 
 const socialsIntro =
   "Seguimi sui miei canali social:";
-const sponsor = [
-  { name: "STYLEVANA", link: "https://vana.ly/fCzCO8", code: "INF10JMEKT" },
-  { name: "CHIODA", link: "https://chiodastudio.it", code: "MAJOEKOTO10" },
-  { name: "FRIEND OF DOROTHY", link: "https://friend-of-dorothy.co.uk/majoekoto", code: "MAJOEKOTO10" },
-  { name: "CONCEPT GLOBAL", link: "https://www.conceptglobal.co/discount/GIOVANNI42362", code: "GIOVANNI42362" },
-  { name: "DUBBY", link: "https://www.dubby.gg", code: "MAJOEKOTO" },
-]
 
 const socials = [
   { name: "Twitch", link: "https://twitch.tv/majoekoto" },
@@ -25,12 +20,20 @@ const otherLinksIntro =
   "Altri modi per sostenermi e restare in contatto:";
 
 const otherLinks = [
-  { name: "PATREON", link: "https://www.patreon.com/cw/kotomailclub" },
+  { name: "KOTO MAIL CLUB", link: "https://www.patreon.com/cw/kotomailclub" },
   { name: "POSTA DEL CUORE", link: "https://forms.gle/6nFhSHwyy2rHiWKJ7" },
 ];
 
 const cardColor = "bg-brand-blu";
-export default function Universo() {
+
+export default async function Universo() {
+  const supabase = await createClient();
+
+  const { data: sponsor } = await supabase
+    .from("sponsors")
+    .select("*")
+    .order("created_at", { ascending: true });
+
   return (
     <main className="flex flex-col items-center justify-center min-h-screen gap-6 px-4">
       <h1 style={{ fontSize: "2rem", fontWeight: 500 }}>Universo di Joe</h1>
@@ -62,7 +65,7 @@ export default function Universo() {
           {sponsorIntro}
         </p>
         <div className="grid grid-cols-2 gap-3">
-          {sponsor.map((item) => (
+          {sponsor?.map((item) => (
             <a
               key={item.name}
               href={item.link}
