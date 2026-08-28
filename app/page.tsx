@@ -1,16 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
+import { getStreamStatus } from "@/lib/twitch";
+import LiveBlock from "./liveBlock";
 
-// Ancora finti: lo stato "live" arriva alla Fase 4, l'evento in evidenza lo
-// colleghiamo quando sistemiamo la pagina Eventi.
-const live = {
-  isLive: true,
-  game: "Claire Obscure: Expedition 33",
-  dow: "Martedì",
-  day: "18 Agosto 2026",
-  time: "21:00",
-  twitchUrl: "https://www.twitch.tv/majoekoto",
-};
-
+// Ancora finto: l'evento in evidenza lo colleghiamo alla tabella events più avanti.
 const eventoInEvidenza = {
   titolo: "Giveaway PS5",
   data: "20 Agosto 2026",
@@ -19,6 +11,8 @@ const eventoInEvidenza = {
 
 export default async function Home() {
   const supabase = await createClient();
+
+  const liveStatus = await getStreamStatus();
 
   // Due letture dal database. select("*") prende tutte le colonne;
   // order() decide l'ordine delle righe.
@@ -36,22 +30,7 @@ export default async function Home() {
     <main className="flex flex-col items-center justify-center min-h-screen gap-6">
       <h1 style={{ fontSize: "2rem", fontWeight: 500 }}>maJoekverse</h1>
       <div className="flex gap-4 w-full px-4">
-        <div className="flex-1 flex flex-col gap-2 rounded-xl p-4 bg-brand-darkblu">
-          <p style={{ color: "#B9A8E6" }}>{live.game}</p>
-          <p style={{ color: "#B9A8E6" }}>{live.day}</p>
-          {live.isLive ? (
-            <p style={{ color: "#B9A8E6" }}>
-              Siamo in live!{" "}
-              <a href={live.twitchUrl} target="_blank" rel="noopener noreferrer">
-                Vai al canale
-              </a>
-            </p>
-          ) : (
-            <p style={{ color: "#B9A8E6" }}>
-              Non siamo ancora in live: la prossima è alle {live.time}
-            </p>
-          )}
-        </div>
+        <LiveBlock initial={liveStatus} />
 
         <div className="flex-1 flex flex-col gap-2 rounded-xl p-4 bg-brand-darkblu">
           <p className="font-semibold" style={{ color: "#F6ECD8" }}>
