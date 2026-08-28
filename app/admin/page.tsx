@@ -4,20 +4,21 @@ import { isAdmin } from "@/lib/auth";
 import { formatSchedule } from "@/lib/announce";
 import { longDayIt, ddmm } from "@/lib/schedule";
 import {
-  saveRow,
-  deleteRow,
+  normalizeRows,
+  diffSchedule,
+  changeLine,
+  type ScheduleRow,
+} from "@/lib/schedule-diff";
+import {
+  clearSchedule,
   announceSchedule,
+  announceScheduleChanges,
   announceNews,
   announceEvent,
 } from "./actions";
 import AnnounceButton from "./announceButton";
-
-type Field = {
-  name: string;
-  placeholder: string;
-  type?: string;
-  required?: boolean;
-};
+import RowForm, { type Field } from "./rowForm";
+import DeleteButton from "./deleteButton";
 
 type Section = {
   table: string;
@@ -81,45 +82,9 @@ const SECTIONS: Section[] = [
   },
 ];
 
-const inputClass = "rounded-lg p-2 w-full";
-const inputStyle = { backgroundColor: "#11102e", color: "#F6ECD8" };
-
-// Form usato sia per aggiungere (nessun id) sia per modificare (con id).
-function RowForm({
-  table,
-  fields,
-  row,
-}: {
-  table: string;
-  fields: Field[];
-  row?: Record<string, string>;
-}) {
-  return (
-    <form action={saveRow} className="flex flex-col gap-2">
-      <input type="hidden" name="table" value={table} />
-      {row ? <input type="hidden" name="id" value={row.id} /> : null}
-      {fields.map((f) => (
-        <input
-          key={f.name}
-          name={f.name}
-          type={f.type ?? "text"}
-          placeholder={f.placeholder}
-          required={f.required}
-          defaultValue={row?.[f.name] ?? ""}
-          className={inputClass}
-          style={inputStyle}
-        />
-      ))}
-      <button
-        type="submit"
-        className="rounded-lg p-2 bg-brand-blu"
-        style={{ color: "#F6ECD8" }}
-      >
-        {row ? "Salva modifiche" : "Aggiungi"}
-      </button>
-    </form>
-  );
-}
+const boxClass = "flex flex-col gap-2 rounded-lg p-3";
+const boxStyle = { backgroundColor: "#11102e" };
+const preClass = "text-sm whitespace-pre-wrap";
 
 export default async function Admin() {
   // Doppio controllo: prima login, poi ruolo. Chi non passa non vede la pagina.
@@ -140,6 +105,22 @@ export default async function Admin() {
     ),
   );
 
+  // Schedule: confronto con l'ultima versione annunciata su Discord.
+  const scheduleIdx = SECTIONS.findIndex((s) => s.table === "schedule");
+  const scheduleRows = normalizeRows(
+    (results[scheduleIdx].data ?? []) as Record<string, string>[],
+  );
+  const { data: snap } = await supabase
+    .from("schedule_announcement")
+    .select("snapshot")
+    .eq("id", 1)
+    .single();
+  const previousSchedule = (snap?.snapshot ?? []) as ScheduleRow[];
+  const scheduleChanges =
+    previousSchedule.length > 0
+      ? diffSchedule(scheduleRows, previousSchedule)
+      : [];
+
   return (
     <main className="flex flex-col items-center min-h-screen gap-8 px-4 py-8">
       <h1 style={{ fontSize: "2rem", fontWeight: 500 }}>Area Admin</h1>
@@ -156,23 +137,60 @@ export default async function Admin() {
             </h2>
 
             {section.announce === "schedule" ? (
-              <div
-                className="flex flex-col gap-2 rounded-lg p-3"
-                style={{ backgroundColor: "#11102e" }}
-              >
-                <p className="text-sm" style={{ color: "#B9A8E6" }}>
-                  Anteprima messaggio Discord:
-                </p>
-                <pre
-                  className="text-sm whitespace-pre-wrap"
-                  style={{ color: "#F6ECD8" }}
-                >
-                  {formatSchedule(rows) || "(schedule vuota)"}
-                </pre>
-                <AnnounceButton
-                  action={announceSchedule}
-                  label="📢 Pubblica schedule su Discord"
-                />
+              <div className="flex flex-col gap-3">
+                {/* Schedule completa */}
+                <div className={boxClass} style={boxStyle}>
+                  <p className="text-sm" style={{ color: "#B9A8E6" }}>
+                    Schedule completa (per la settimana nuova):
+                  </p>
+                  <pre className={preClass} style={{ color: "#F6ECD8" }}>
+                    {formatSchedule(rows) || "(schedule vuota)"}
+                  </pre>
+                  <AnnounceButton
+                    action={announceSchedule}
+                    label="📢 Pubblica schedule completa"
+                  />
+                </div>
+
+                {/* Solo le modifiche */}
+                <div className={boxClass} style={boxStyle}>
+                  {previousSchedule.length === 0 ? (
+                    <p className="text-sm" style={{ color: "#B9A8E6" }}>
+                      Nessuna schedule ancora pubblicata: usa il pulsante qui
+                      sopra la prima volta.
+                    </p>
+                  ) : scheduleChanges.length === 0 ? (
+                    <p className="text-sm" style={{ color: "#B9A8E6" }}>
+                      Nessuna modifica dall&apos;ultima pubblicazione.
+                    </p>
+                  ) : (
+                    <>
+                      <p className="text-sm" style={{ color: "#B9A8E6" }}>
+                        Modifiche da annunciare (verrà creata anche una news):
+                      </p>
+                      <pre className={preClass} style={{ color: "#F6ECD8" }}>
+                        {scheduleChanges.map(changeLine).join("\n")}
+                      </pre>
+                      <AnnounceButton
+                        action={announceScheduleChanges}
+                        label="📢 Annuncia modifiche"
+                      />
+                    </>
+                  )}
+                </div>
+
+                {/* Inizio settimana nuova */}
+                <div className={boxClass} style={boxStyle}>
+                  <p className="text-sm" style={{ color: "#B9A8E6" }}>
+                    A inizio settimana: svuota la schedule vecchia, poi carica la
+                    nuova qui sotto.
+                  </p>
+                  <AnnounceButton
+                    action={clearSchedule}
+                    label="🗑️ Azzera schedule"
+                    confirm="Vuoi eliminare tutte le righe della schedule?"
+                  />
+                </div>
               </div>
             ) : null}
 
@@ -204,27 +222,18 @@ export default async function Admin() {
                           label="📢 Annuncia su Discord"
                         />
                       ) : null}
-                      <form action={deleteRow}>
-                        <input type="hidden" name="table" value={section.table} />
-                        <input type="hidden" name="id" value={row.id} />
-                        <button
-                          type="submit"
-                          className="rounded-lg px-2 py-1 text-sm bg-brand-corallo"
-                          style={{ color: "#F6ECD8" }}
-                        >
-                          Elimina
-                        </button>
-                      </form>
+                      <DeleteButton
+                        table={section.table}
+                        id={row.id}
+                        label={section.label(row)}
+                      />
                     </div>
                   </details>
                 </li>
               ))}
             </ul>
 
-            <div
-              className="flex flex-col gap-2 rounded-lg p-3"
-              style={{ backgroundColor: "#11102e" }}
-            >
+            <div className={boxClass} style={boxStyle}>
               <p className="text-sm" style={{ color: "#B9A8E6" }}>
                 Aggiungi {section.title.toLowerCase()}
               </p>

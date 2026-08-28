@@ -11,10 +11,12 @@ export default function AnnounceButton({
   action,
   id,
   label,
+  confirm: confirmText,
 }: {
   action: Action;
   id?: string;
   label: string;
+  confirm?: string;
 }) {
   const [state, formAction, pending] = useActionState<AnnounceState, FormData>(
     action,
@@ -22,7 +24,13 @@ export default function AnnounceButton({
   );
 
   return (
-    <form action={formAction} className="flex items-center gap-2 flex-wrap">
+    <form
+      action={formAction}
+      onSubmit={(e) => {
+        if (confirmText && !window.confirm(confirmText)) e.preventDefault();
+      }}
+      className="flex items-center gap-2 flex-wrap"
+    >
       {id ? <input type="hidden" name="id" value={id} /> : null}
       <button
         type="submit"
