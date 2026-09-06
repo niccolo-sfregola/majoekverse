@@ -172,6 +172,32 @@ details.row[open] .row-chevron {
   animation: page-enter 0.2s ease-out both;
 }
 
+/* Sfondo cosmico della sezione Universo: deriva lentissima + stelle che
+   pulsano appena. */
+@keyframes cosmic-drift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-2.5%, -1.5%, 0);
+  }
+}
+@keyframes cosmic-twinkle {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 0.75;
+  }
+}
+.cosmic-bg {
+  animation: cosmic-drift 100s ease-in-out infinite alternate;
+}
+.cosmic-star-tw {
+  animation: cosmic-twinkle 5s ease-in-out infinite;
+}
+
 /* Comparsa a cascata: i figli diretti salgono di pochi px uno dopo l'altro.
    Da mettere sul contenitore (es. la griglia della home). */
 /* Usa la proprietà `translate` (non `transform`) così l'hover-lift delle card,
@@ -231,5 +257,9 @@ details.row[open] .row-chevron {
   }
   .reveal {
     transition: none;
+  }
+  .cosmic-bg,
+  .cosmic-star-tw {
+    animation: none;
   }
 }

@@ -2,11 +2,12 @@
 
 import { useActionState, useEffect, useRef } from "react";
 import { saveRow, type MutateState } from "./actions";
+import SponsorLogoField from "./sponsorLogoField";
 
 export type Field = {
   name: string;
   placeholder: string;
-  type?: string; // "text" (default), "date", "time", "url", "checkbox"
+  type?: string; // "text" (default), "date", "time", "url", "checkbox", "image"
   required?: boolean;
 };
 
@@ -43,21 +44,42 @@ export default function RowForm({
     <form ref={formRef} action={formAction} className="flex flex-col gap-2">
       <input type="hidden" name="table" value={table} />
       {row ? <input type="hidden" name="id" value={String(row.id)} /> : null}
-      {fields.map((f) =>
-        f.type === "checkbox" ? (
-          <label
-            key={f.name}
-            className="flex items-center gap-2 text-sm text-brand-crema"
-          >
-            <input
-              type="checkbox"
+      {fields.map((f) => {
+        if (f.type === "checkbox") {
+          return (
+            <label
+              key={f.name}
+              className="flex items-center justify-between gap-3 rounded-xl bg-brand-fondo/40 p-3 text-sm text-brand-crema"
+            >
+              <span>{f.placeholder}</span>
+              <span className="relative inline-flex shrink-0">
+                <input
+                  type="checkbox"
+                  name={f.name}
+                  defaultChecked={row?.[f.name] === true}
+                  className="peer sr-only"
+                />
+                <span className="block h-6 w-11 rounded-full bg-brand-lavanda/25 transition-colors peer-checked:bg-brand-blu peer-focus-visible:ring-2 peer-focus-visible:ring-brand-lavanda/50" />
+                <span className="pointer-events-none absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-brand-crema transition-transform peer-checked:translate-x-5" />
+              </span>
+            </label>
+          );
+        }
+        if (f.type === "image") {
+          return (
+            <SponsorLogoField
+              key={f.name}
               name={f.name}
-              defaultChecked={row?.[f.name] === true}
-              className="h-4 w-4 accent-brand-blu"
+              label={f.placeholder}
+              current={
+                typeof row?.[f.name] === "string"
+                  ? (row[f.name] as string)
+                  : undefined
+              }
             />
-            {f.placeholder}
-          </label>
-        ) : (
+          );
+        }
+        return (
           <input
             key={f.name}
             name={f.name}
@@ -67,8 +89,8 @@ export default function RowForm({
             defaultValue={String(row?.[f.name] ?? "")}
             className={inputClass}
           />
-        ),
-      )}
+        );
+      })}
       <button
         type="submit"
         disabled={pending}
