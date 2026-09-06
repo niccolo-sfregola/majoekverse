@@ -32,7 +32,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="it"
       className={`${inter.variable} ${blowbrush.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col pb-[calc(4rem_+_env(safe-area-inset-bottom))] md:pb-0">
+      <body className="flex min-h-full flex-col pt-[env(safe-area-inset-top)] pb-[calc(4rem_+_env(safe-area-inset-bottom))] md:pt-0 md:pb-0">
         <TopNav />
         {children}
         <BottomNav />
