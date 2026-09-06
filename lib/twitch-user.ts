@@ -16,12 +16,13 @@ const BROADCASTER_MARKER = "channel:read:subscriptions";
 
 async function getStoredToken(userId: string): Promise<string | null> {
   const admin = createAdminClient();
-  const { data } = await admin
+  const { data, error } = await admin
     .from("twitch_credentials")
     .select("*")
     .eq("user_id", userId)
     .maybeSingle();
 
+  if (error) console.error("[twitch-user] select token:", error.message);
   if (!data) return null;
 
   const valid =
@@ -68,7 +69,7 @@ export async function saveUserToken(input: {
   expiresIn?: number;
 }): Promise<void> {
   const admin = createAdminClient();
-  await admin.from("twitch_credentials").upsert({
+  const { error } = await admin.from("twitch_credentials").upsert({
     user_id: input.userId,
     access_token: input.accessToken,
     refresh_token: input.refreshToken,
@@ -78,6 +79,10 @@ export async function saveUserToken(input: {
     scopes: input.scopes,
     updated_at: new Date().toISOString(),
   });
+  if (error) {
+    console.error("[twitch-user] upsert token:", error.message);
+    throw new Error(error.message);
+  }
 }
 
 export function saveJoeToken(input: {
@@ -98,12 +103,13 @@ export async function saveViewerToken(input: {
   expiresIn?: number;
 }): Promise<void> {
   const admin = createAdminClient();
-  const { data: existing } = await admin
+  const { data: existing, error } = await admin
     .from("twitch_credentials")
     .select("scopes")
     .eq("user_id", input.userId)
     .maybeSingle();
 
+  if (error) console.error("[twitch-user] select scopes:", error.message);
   if (existing?.scopes?.includes(BROADCASTER_MARKER)) return;
 
   await saveUserToken({ ...input, scopes: USER_CHANNEL_SCOPES });
