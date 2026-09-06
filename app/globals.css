@@ -198,6 +198,13 @@ details.row[open] .row-chevron {
   animation: cosmic-twinkle 5s ease-in-out infinite;
 }
 
+/* Spazio in cima alle pagine senza hero: almeno 2.5rem, di più su iPhone per
+   scendere sotto la status bar / tacca. La Home non lo usa: la sua immagine
+   deve arrivare fino al bordo alto. */
+.safe-top {
+  padding-top: max(2.5rem, calc(env(safe-area-inset-top) + 1rem));
+}
+
 /* Comparsa a cascata: i figli diretti salgono di pochi px uno dopo l'altro.
    Da mettere sul contenitore (es. la griglia della home). */
 /* Usa la proprietà `translate` (non `transform`) così l'hover-lift delle card,

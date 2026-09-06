@@ -10,7 +10,7 @@ const TWITCH_SUB = "https://www.twitch.tv/subs/majoekoto";
 
 export default function Eventi() {
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-2xl flex-col gap-4 px-4 py-10 md:max-w-4xl">
+    <main className="safe-top mx-auto flex min-h-screen w-full max-w-2xl flex-col gap-4 px-4 pb-10 md:max-w-4xl">
       <h1
         className={`${blowbrush.className} text-center text-4xl tracking-wide text-brand-crema md:text-5xl`}
       >
