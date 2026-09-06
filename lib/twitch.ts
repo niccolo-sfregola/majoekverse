@@ -1,6 +1,8 @@
 // Parla con l'API di Twitch per sapere se il canale è in diretta.
 // Tutto lato server: le chiavi non arrivano mai al browser.
 
+import { unstable_cache } from "next/cache";
+
 const TWITCH_LOGIN = "majoekoto";
 
 export type LiveStatus = {
@@ -17,35 +19,31 @@ const OFFLINE: LiveStatus = {
   startedAt: null,
 };
 
-// Il token applicativo di Twitch dura settimane: lo teniamo in memoria e lo
-// rinnoviamo solo quando sta per scadere.
-let cachedToken: { value: string; expiresAt: number } | null = null;
+// Il token applicativo di Twitch dura settimane. Lo teniamo nella cache dati di
+// Next (unstable_cache) per 1 ora: così sopravvive anche ai "cold start" del
+// server, dove la memoria del processo è vuota e prima si rifaceva il login
+// OAuth a ogni richiesta.
+const getAppToken = unstable_cache(
+  async (): Promise<string> => {
+    const res = await fetch("https://id.twitch.tv/oauth2/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        client_id: process.env.TWITCH_CLIENT_ID!,
+        client_secret: process.env.TWITCH_CLIENT_SECRET!,
+        grant_type: "client_credentials",
+      }),
+      cache: "no-store",
+    });
 
-async function getAppToken(): Promise<string> {
-  if (cachedToken && cachedToken.expiresAt > Date.now() + 60_000) {
-    return cachedToken.value;
-  }
+    if (!res.ok) throw new Error(`Twitch token: ${res.status}`);
 
-  const res = await fetch("https://id.twitch.tv/oauth2/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      client_id: process.env.TWITCH_CLIENT_ID!,
-      client_secret: process.env.TWITCH_CLIENT_SECRET!,
-      grant_type: "client_credentials",
-    }),
-    cache: "no-store",
-  });
-
-  if (!res.ok) throw new Error(`Twitch token: ${res.status}`);
-
-  const json = await res.json();
-  cachedToken = {
-    value: json.access_token,
-    expiresAt: Date.now() + json.expires_in * 1000,
-  };
-  return cachedToken.value;
-}
+    const json = await res.json();
+    return json.access_token as string;
+  },
+  ["twitch-app-token"],
+  { revalidate: 3600 },
+);
 
 export async function getStreamStatus(): Promise<LiveStatus> {
   try {

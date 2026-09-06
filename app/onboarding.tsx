@@ -1,11 +1,33 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { signInWithTwitch } from "@/app/auth/actions";
 import { blowbrush } from "./fonts";
 
 const SEEN_KEY = "mjv-onboarding-v1";
+
+// Ricordiamo su questo dispositivo che l'onboarding è già stato visto, sia con
+// un cookie (persistente, 1 anno) sia con localStorage: basta uno dei due.
+function alreadySeen(): boolean {
+  try {
+    if (localStorage.getItem(SEEN_KEY)) return true;
+  } catch {}
+  return (
+    typeof document !== "undefined" &&
+    document.cookie.split("; ").some((c) => c.startsWith(`${SEEN_KEY}=`))
+  );
+}
+
+function markSeen() {
+  try {
+    localStorage.setItem(SEEN_KEY, "1");
+  } catch {}
+  try {
+    document.cookie = `${SEEN_KEY}=1; path=/; max-age=31536000; samesite=lax`;
+  } catch {}
+}
 
 function TwitchIcon() {
   return (
@@ -25,35 +47,29 @@ const SECTIONS = [
 ];
 
 export default function Onboarding() {
+  const router = useRouter();
   const [visible, setVisible] = useState(false);
   const [step, setStep] = useState(0);
 
   useEffect(() => {
-    try {
-      if (localStorage.getItem(SEEN_KEY)) return;
-    } catch {
-      return;
-    }
+    if (alreadySeen()) return;
     // getSession() legge il token in locale, senza chiamate di rete né errori
     // in console quando non c'è sessione (il caso più comune qui).
     createClient()
       .auth.getSession()
       .then(({ data }) => {
         if (data.session) {
-          try {
-            localStorage.setItem(SEEN_KEY, "1");
-          } catch {}
+          markSeen();
           return;
         }
         setVisible(true);
       });
   }, []);
 
-  function dismiss() {
-    try {
-      localStorage.setItem(SEEN_KEY, "1");
-    } catch {}
+  function finish() {
+    markSeen();
     setVisible(false);
+    router.replace("/");
   }
 
   if (!visible) return null;
@@ -64,7 +80,7 @@ export default function Onboarding() {
         {step < 2 ? (
           <button
             type="button"
-            onClick={dismiss}
+            onClick={finish}
             className="absolute right-4 top-4 text-xs uppercase tracking-wide text-brand-lavanda transition-colors hover:text-brand-crema"
           >
             Salta
@@ -131,7 +147,7 @@ export default function Onboarding() {
               </form>
               <button
                 type="button"
-                onClick={dismiss}
+                onClick={finish}
                 className="w-full rounded-xl border border-brand-lavanda/30 py-3 font-semibold text-brand-lavanda transition hover:bg-brand-lavanda/10 active:scale-[0.98]"
               >
                 Continua come ospite
