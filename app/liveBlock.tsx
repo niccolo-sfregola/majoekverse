@@ -24,27 +24,23 @@ export default function LiveBlock({ initial }: { initial: LiveStatus }) {
 
   if (status.isLive) {
     return (
-      <div
-        className="flex-1 flex flex-col gap-2 rounded-xl p-4"
-        style={{ backgroundColor: "#EF6C4E" }}
-      >
-        <p className="font-semibold" style={{ color: "#F6ECD8" }}>
-          🔴 In diretta ora
+      <div className="card-sheen flex flex-col gap-2 rounded-2xl bg-brand-crema p-4 text-brand-fondo shadow-[0_10px_34px_rgb(0_0_0/0.3)] md:p-5">
+        <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#e11d2f]">
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#e11d2f] opacity-75 motion-reduce:hidden" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#e11d2f]" />
+          </span>
+          In diretta ora
         </p>
-        {status.game ? (
-          <p style={{ color: "#F6ECD8" }}>{status.game}</p>
-        ) : null}
+        {status.game ? <p className="truncate font-medium">{status.game}</p> : null}
         {status.title ? (
-          <p className="text-sm" style={{ color: "#F6ECD8" }}>
-            {status.title}
-          </p>
+          <p className="line-clamp-2 text-sm text-brand-fondo/70">{status.title}</p>
         ) : null}
         <a
           href={TWITCH_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="rounded-xl p-2 text-center bg-brand-darkblu"
-          style={{ color: "#F6ECD8" }}
+          className="mt-auto rounded-xl bg-brand-corallo p-2 text-center font-semibold text-brand-crema transition hover:brightness-95 active:scale-[0.98]"
         >
           Guarda su Twitch →
         </a>
@@ -53,14 +49,17 @@ export default function LiveBlock({ initial }: { initial: LiveStatus }) {
   }
 
   return (
-    <div className="flex-1 flex flex-col gap-2 rounded-xl p-4 bg-brand-darkblu">
-      <p className="font-semibold" style={{ color: "#F6ECD8" }}>
+    <div className="card-glass flex flex-col gap-2 p-4 md:p-5">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-lavanda">
         Al momento offline
       </p>
-      <p style={{ color: "#B9A8E6" }}>
-        Guarda lo schedule qui accanto per la prossima diretta.
-      </p>
-      <a href={TWITCH_URL} target="_blank" rel="noopener noreferrer" style={{ color: "#B9A8E6" }}>
+      <p className="text-brand-crema">Nessuna diretta in corso.</p>
+      <a
+        href={TWITCH_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-auto font-semibold text-brand-corallo transition-opacity hover:opacity-80"
+      >
         Vai al canale
       </a>
     </div>

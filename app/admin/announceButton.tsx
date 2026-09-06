@@ -35,15 +35,13 @@ export default function AnnounceButton({
       <button
         type="submit"
         disabled={pending}
-        className="rounded-lg px-3 py-1 text-sm bg-brand-blu disabled:opacity-50"
-        style={{ color: "#F6ECD8" }}
+        className="rounded-lg bg-brand-blu px-3 py-1.5 text-sm font-semibold text-brand-crema transition hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
       >
         {pending ? "Invio…" : label}
       </button>
       {state ? (
         <span
-          className="text-sm"
-          style={{ color: state.ok ? "#B9A8E6" : "#EF6C4E" }}
+          className={`text-sm ${state.ok ? "text-brand-lavanda" : "text-brand-corallo"}`}
         >
           {state.message}
         </span>

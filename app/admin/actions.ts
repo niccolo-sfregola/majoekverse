@@ -17,9 +17,14 @@ import {
 // viene toccato (id e created_at restano al database).
 const FIELDS: Record<string, string[]> = {
   news: ["icona", "titolo", "testo"],
-  events: ["titolo", "descrizione", "data"],
+  events: ["titolo", "descrizione", "data", "solo_abbonati"],
   schedule: ["data", "orario", "gioco"],
   sponsors: ["name", "link", "code"],
+};
+
+// Campi che nel database sono booleani: la checkbox invia "on" o niente.
+const BOOL_FIELDS: Record<string, string[]> = {
+  events: ["solo_abbonati"],
 };
 
 // Ogni azione ricontrolla is_admin lato server: il database (RLS) lo impone
@@ -58,7 +63,13 @@ export async function saveRow(
     if (!fields) return { ok: false, message: "Tabella non valida." };
 
     const id = text(formData, "id");
-    const row = Object.fromEntries(fields.map((f) => [f, text(formData, f)]));
+    const bools = BOOL_FIELDS[table] ?? [];
+    const row = Object.fromEntries(
+      fields.map((f) => [
+        f,
+        bools.includes(f) ? formData.get(f) === "on" : text(formData, f),
+      ]),
+    );
 
     const supabase = await createClient();
     const { error } = id

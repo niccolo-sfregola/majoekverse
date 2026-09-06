@@ -18,13 +18,218 @@
   --color-brand-lavanda: var(--lavanda);
   --color-brand-corallo: var(--corallo);
   --color-brand-crema: var(--crema);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Inter per tutta l'interfaccia; il resto dello stack è solo un ripiego
+     mentre il font si carica o se non fosse disponibile. */
+  --font-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif;
+  --font-display: var(--font-blowbrush);
 }
 
 
 body {
   background: var(--fondo);
   color: var(--crema);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+}
+
+/* Titolo logo: interno #2d29a4, bordo bianco spesso (paint-order tiene il
+   bordo dietro il riempimento così le lettere non si assottigliano). */
+.logo-title {
+  color: #2d29a4;
+  -webkit-text-stroke: 4px #ffffff;
+  paint-order: stroke fill;
+  filter: drop-shadow(0 4px 3px rgb(0 0 0 / 0.28));
+}
+
+@media (min-width: 48rem) {
+  .logo-title {
+    -webkit-text-stroke-width: 8px;
+  }
+}
+
+/* Card in "vetro": sfondo semitrasparente + sfocatura di ciò che sta dietro.
+   Sopra l'immagine dell'hero lascia intravedere lo sfondo; sul fondo pieno
+   resta un pannello appena più chiaro con un bordo sottile. */
+.card-glass {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+  background-color: color-mix(in oklab, var(--darkblu) 34%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid color-mix(in oklab, var(--crema) 12%, transparent);
+  box-shadow: 0 8px 30px rgb(0 0 0 / 0.25);
+  transition: transform 0.25s ease, border-color 0.25s ease;
+}
+
+/* Da applicare anche alla card "in diretta" (corallo): dà l'aggancio per
+   posizionare la striscia di luce e per il piccolo sollevamento all'hover. */
+.card-sheen {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.25s ease;
+}
+
+/* Come card-glass ma senza effetti al passaggio del mouse: per pannelli
+   che contengono form (area admin), dove il sollevamento darebbe fastidio. */
+.panel {
+  overflow: hidden;
+  border-radius: 1rem;
+  background-color: color-mix(in oklab, var(--darkblu) 34%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid color-mix(in oklab, var(--crema) 12%, transparent);
+}
+
+/* Riga espandibile dell'area admin (elemento <details class="row">). */
+details.row > summary {
+  list-style: none;
+}
+details.row > summary::-webkit-details-marker {
+  display: none;
+}
+.row-chevron {
+  transition: transform 0.2s ease;
+}
+details.row[open] .row-chevron {
+  transform: rotate(180deg);
+}
+
+/* La striscia di luce ("riflesso") che scorre sulla card al passaggio del mouse. */
+.card-glass::after,
+.card-sheen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 35%,
+    rgb(255 255 255 / 0.14) 48%,
+    rgb(255 255 255 / 0.03) 54%,
+    transparent 68%
+  );
+  transform: translateX(-130%);
+  transition: transform 0.7s ease;
+  pointer-events: none;
+}
+
+/* Solo dispositivi con un vero mouse: sul telefono (tap) niente hover che
+   "si incastra". */
+@media (hover: hover) {
+  .card-glass:hover,
+  .card-sheen:hover {
+    transform: translateY(-3px);
+  }
+  .card-glass:hover {
+    border-color: color-mix(in oklab, var(--crema) 26%, transparent);
+  }
+  .card-glass:hover::after,
+  .card-sheen:hover::after {
+    transform: translateX(130%);
+  }
+}
+
+/* Galassia a spirale (tipo Via Lattea): cielo scuro + bagliore esterno.
+   I bracci, il nucleo e le stelle sono un SVG che gira dentro (.universo-galaxy-svg). */
+@keyframes universo-galaxy-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.universo-galaxy {
+  background: radial-gradient(circle at 50% 45%, #201a5c 0%, var(--fondo) 72%);
+  box-shadow:
+    0 0 12px 2px color-mix(in oklab, var(--lavanda) 55%, transparent),
+    0 0 30px 7px color-mix(in oklab, var(--blu) 50%, transparent);
+}
+
+.universo-galaxy-svg {
+  transform-origin: center;
+  animation: universo-galaxy-spin 20s linear infinite;
+}
+
+/* Ingresso pagina: ogni schermata (e ogni cambio di pagina, via app/template.tsx)
+   compare con un breve fade. Sobrio, non vistoso. */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.page-enter {
+  animation: page-enter 0.25s ease-out both;
+}
+
+/* Passi dell'onboarding: breve fade a ogni cambio di schermata. */
+.onboard-step {
+  animation: page-enter 0.2s ease-out both;
+}
+
+/* Comparsa a cascata: i figli diretti salgono di pochi px uno dopo l'altro.
+   Da mettere sul contenitore (es. la griglia della home). */
+/* Usa la proprietà `translate` (non `transform`) così l'hover-lift delle card,
+   che usa `transform`, resta libero e non va in conflitto. */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    translate: 0 10px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+.rise-in > * {
+  animation: rise-in 0.4s ease-out both;
+}
+.rise-in > *:nth-child(2) {
+  animation-delay: 0.05s;
+}
+.rise-in > *:nth-child(3) {
+  animation-delay: 0.1s;
+}
+.rise-in > *:nth-child(4) {
+  animation-delay: 0.15s;
+}
+
+/* Apertura fluida dei pannelli a scomparsa (Collapsible, ScheduleCard):
+   la riga della griglia passa da 0fr a 1fr, così l'altezza si anima da sola. */
+.reveal {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease;
+}
+.reveal[data-open="true"] {
+  grid-template-rows: 1fr;
+}
+.reveal > * {
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-glass,
+  .card-sheen,
+  .card-glass::after,
+  .card-sheen::after {
+    transition: none;
+  }
+  .universo-galaxy-svg {
+    animation: none;
+  }
+  .page-enter,
+  .onboard-step,
+  .rise-in > * {
+    animation: none;
+  }
+  .reveal {
+    transition: none;
+  }
 }
