@@ -46,15 +46,9 @@ async function EventiList() {
   let subscribed = false;
   const hasLocked = (eventi ?? []).some((e) => e.solo_abbonati);
   if (hasLocked && auth.user) {
-    const twitchId =
-      auth.user.user_metadata.provider_id ?? auth.user.user_metadata.sub ?? null;
     const channel = await getChannelInfo();
-    if (channel.id && twitchId) {
-      const rel = await getUserChannelRelation(
-        auth.user.id,
-        twitchId,
-        channel.id,
-      );
+    if (channel.id) {
+      const rel = await getUserChannelRelation(auth.user.id, channel.id);
       subscribed = rel.subscribed;
     }
   }

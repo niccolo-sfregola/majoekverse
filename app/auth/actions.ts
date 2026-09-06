@@ -31,7 +31,8 @@ export async function signInWithTwitch() {
 export async function signOut() {
   const supabase = await createClient();
   await supabase.auth.signOut();
-  redirect("/profilo");
+  // Alla home: cambio di rotta vero → parte la transizione d'ingresso.
+  redirect("/");
 }
 
 // Ri-autenticazione di Joe con gli scope extra per leggere follower e abbonati.

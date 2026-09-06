@@ -12,6 +12,7 @@ import {
   getUserChannelRelation,
 } from "@/lib/twitch-user";
 import { blowbrush } from "@/app/fonts";
+import SubmitButton from "@/app/submitButton";
 
 const SUB_TIER: Record<string, string> = {
   "1000": "Tier 1",
@@ -77,9 +78,6 @@ export default async function Profilo() {
       ""
     ).toLowerCase() === JOE_TWITCH_LOGIN;
 
-  const twitchUserId =
-    user?.user_metadata.provider_id ?? user?.user_metadata.sub ?? null;
-
   const [overview, channel] =
     user
       ? await Promise.all([
@@ -94,8 +92,8 @@ export default async function Profilo() {
       : null;
 
   const relation =
-    !isJoe && user && channel?.id && twitchUserId
-      ? await getUserChannelRelation(user.id, twitchUserId, channel.id)
+    !isJoe && user && channel?.id
+      ? await getUserChannelRelation(user.id, channel.id)
       : null;
 
   const presto = <span className="text-brand-lavanda/60">presto</span>;
@@ -262,25 +260,25 @@ export default async function Profilo() {
               )}
             </div>
 
-            {!isJoe && relation && !relation.connected ? (
+            {!isJoe && user && (!relation || !relation.connected) ? (
               <form action={signInWithTwitch}>
-                <button
-                  type="submit"
-                  className="w-full rounded-xl border border-brand-lavanda/30 py-2.5 text-sm font-semibold text-brand-lavanda transition hover:bg-brand-lavanda/10 active:scale-[0.98]"
+                <SubmitButton
+                  pendingText="Apro Twitch…"
+                  className="w-full rounded-xl border border-brand-lavanda/30 py-2.5 text-sm font-semibold text-brand-lavanda transition hover:bg-brand-lavanda/10 active:scale-[0.98] disabled:opacity-60"
                 >
                   Aggiorna i permessi Twitch per le statistiche
-                </button>
+                </SubmitButton>
               </form>
             ) : null}
 
             {isJoe && joeStats && !joeStats.connected ? (
               <form action={connectTwitchChannel}>
-                <button
-                  type="submit"
-                  className="w-full rounded-xl border border-brand-lavanda/30 py-2.5 text-sm font-semibold text-brand-lavanda transition hover:bg-brand-lavanda/10 active:scale-[0.98]"
+                <SubmitButton
+                  pendingText="Apro Twitch…"
+                  className="w-full rounded-xl border border-brand-lavanda/30 py-2.5 text-sm font-semibold text-brand-lavanda transition hover:bg-brand-lavanda/10 active:scale-[0.98] disabled:opacity-60"
                 >
                   Collega il canale per vedere follower e abbonati
-                </button>
+                </SubmitButton>
               </form>
             ) : null}
           </div>
@@ -296,12 +294,12 @@ export default async function Profilo() {
               </Link>
             ) : null}
             <form action={signOut} className={admin ? "md:shrink-0" : "w-full"}>
-              <button
-                type="submit"
-                className="w-full rounded-xl border border-brand-corallo/50 py-3 font-semibold text-brand-corallo transition hover:bg-brand-corallo/10 active:scale-[0.98] md:px-10"
+              <SubmitButton
+                pendingText="Esco…"
+                className="w-full rounded-xl border border-brand-corallo/50 py-3 font-semibold text-brand-corallo transition hover:bg-brand-corallo/10 active:scale-[0.98] disabled:opacity-60 md:px-10"
               >
                 Esci
-              </button>
+              </SubmitButton>
             </form>
           </div>
         </>
@@ -315,13 +313,13 @@ export default async function Profilo() {
             canale e — se sei admin — gestire i contenuti del sito.
           </p>
           <form action={signInWithTwitch} className="w-full">
-            <button
-              type="submit"
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#9146ff] py-3 font-semibold text-white transition hover:bg-[#7d3ce0] active:scale-[0.98]"
+            <SubmitButton
+              pendingText="Apro Twitch…"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#9146ff] py-3 font-semibold text-white transition hover:bg-[#7d3ce0] active:scale-[0.98] disabled:opacity-60"
             >
               <TwitchIcon />
               Accedi con Twitch
-            </button>
+            </SubmitButton>
           </form>
         </div>
       )}
