@@ -1,8 +1,9 @@
-// Service worker minimo: rende l'app installabile e dà una pagina di fallback
-// quando si naviga senza rete. Non fa precaching di tutti gli asset (per quello
-// servirebbe Serwist) — solo la pagina /offline.
-const CACHE = "mjv-shell-v1";
-const OFFLINE_URL = "/offline";
+// Service worker minimo: rende l'app installabile e mostra una pagina di
+// fallback quando si naviga senza rete. Niente precaching di tutti gli asset
+// (per quello servirebbe Serwist) — solo /offline.html, che è autosufficiente
+// (stili inline, nessun altro file da caricare).
+const CACHE = "mjv-shell-v2";
+const OFFLINE_URL = "/offline.html";
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -31,7 +32,9 @@ self.addEventListener("fetch", (event) => {
   // Solo le navigazioni: prova la rete, se fallisce mostra la pagina offline.
   if (request.mode === "navigate") {
     event.respondWith(
-      fetch(request).catch(() => caches.match(OFFLINE_URL)),
+      fetch(request).catch(() =>
+        caches.match(OFFLINE_URL, { ignoreSearch: true }),
+      ),
     );
   }
 });
