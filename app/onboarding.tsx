@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { signInWithTwitch } from "@/app/auth/actions";
 import { blowbrush } from "./fonts";
+import SubmitButton from "./submitButton";
 
 const SEEN_KEY = "mjv-onboarding-v1";
 
@@ -137,13 +138,13 @@ export default function Onboarding() {
                 come ospite e accedere più tardi.
               </p>
               <form action={signInWithTwitch}>
-                <button
-                  type="submit"
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#9146ff] py-3 font-semibold text-white transition hover:bg-[#7d3ce0] active:scale-[0.98]"
+                <SubmitButton
+                  pendingText="Apro Twitch…"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#9146ff] py-3 font-semibold text-white transition hover:bg-[#7d3ce0] active:scale-[0.98] disabled:opacity-60"
                 >
                   <TwitchIcon />
                   Accedi con Twitch
-                </button>
+                </SubmitButton>
               </form>
               <button
                 type="button"

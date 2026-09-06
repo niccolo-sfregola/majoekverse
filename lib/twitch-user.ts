@@ -138,10 +138,10 @@ const NO_RELATION: ChannelRelation = {
 };
 
 // Rapporto tra un utente e il canale di Joe. `dbUserId` = id Supabase (per il
-// token salvato); `twitchUserId` = id numerico Twitch (per le chiamate helix).
+// token salvato). L'id Twitch dell'utente si ricava dal token stesso, così non
+// dipendiamo da come Supabase riempie user_metadata.
 export async function getUserChannelRelation(
   dbUserId: string,
-  twitchUserId: string,
   broadcasterId: string,
 ): Promise<ChannelRelation> {
   try {
@@ -152,6 +152,15 @@ export async function getUserChannelRelation(
       "Client-Id": process.env.TWITCH_CLIENT_ID!,
       Authorization: `Bearer ${token}`,
     };
+
+    // Chi è il proprietario del token (endpoint /helix/users senza login).
+    const meRes = await fetch("https://api.twitch.tv/helix/users", {
+      headers,
+      cache: "no-store",
+    });
+    if (!meRes.ok) return NO_RELATION;
+    const twitchUserId = (await meRes.json())?.data?.[0]?.id;
+    if (!twitchUserId) return NO_RELATION;
 
     const [followRes, subRes] = await Promise.all([
       fetch(
