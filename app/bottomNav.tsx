@@ -57,7 +57,7 @@ export default function BottomNav() {
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-30 flex items-stretch justify-around border-t border-brand-lavanda/15 bg-brand-fondo/90 px-2 pb-[env(safe-area-inset-bottom)] pt-1.5 backdrop-blur-md md:hidden">
+    <nav className="fixed bottom-0 inset-x-0 z-30 flex items-stretch justify-around border-t border-brand-lavanda/15 bg-brand-fondo/90 px-2 pb-[calc(env(safe-area-inset-bottom)_+_0.375rem)] pt-2 backdrop-blur-md md:hidden">
       {LINKS.map(({ href, label, icon }) => {
         const active = isActive(href);
         return (

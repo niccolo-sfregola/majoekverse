@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { inter, blowbrush } from "./fonts";
 import BottomNav from "./bottomNav";
@@ -11,13 +11,19 @@ export const metadata: Metadata = {
   description: "Dirette, eventi e universo di maJoekoto: uno spazio solo per la community.",
 };
 
+// viewport-fit: cover serve perché env(safe-area-inset-*) funzioni su iPhone
+// (altrimenti la barra in basso finisce sotto la tacca della home).
+export const viewport: Viewport = {
+  viewportFit: "cover",
+};
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="it"
       className={`${inter.variable} ${blowbrush.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col pb-16 md:pb-0">
+      <body className="flex min-h-full flex-col pb-[calc(4rem_+_env(safe-area-inset-bottom))] md:pb-0">
         <TopNav />
         {children}
         <BottomNav />

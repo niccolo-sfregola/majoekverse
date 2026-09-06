@@ -19,12 +19,13 @@ const FIELDS: Record<string, string[]> = {
   news: ["icona", "titolo", "testo"],
   events: ["titolo", "descrizione", "data", "solo_abbonati"],
   schedule: ["data", "orario", "gioco"],
-  sponsors: ["name", "link", "code"],
+  sponsors: ["name", "link", "code", "sconto", "logo", "ufficiale"],
 };
 
 // Campi che nel database sono booleani: la checkbox invia "on" o niente.
 const BOOL_FIELDS: Record<string, string[]> = {
   events: ["solo_abbonati"],
+  sponsors: ["ufficiale"],
 };
 
 // Ogni azione ricontrolla is_admin lato server: il database (RLS) lo impone

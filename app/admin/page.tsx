@@ -94,8 +94,16 @@ const SECTIONS: Section[] = [
         required: true,
       },
       { name: "code", placeholder: "Codice sconto", required: true },
+      { name: "sconto", placeholder: "Sconto (es. 10%)" },
+      { name: "logo", placeholder: "Logo (es. /sponsor/chioda.png)" },
+      {
+        name: "ufficiale",
+        placeholder: "Sponsor ufficiale (in evidenza)",
+        type: "checkbox",
+      },
     ],
-    label: (r) => `${r.name} — ${r.code}`,
+    label: (r) =>
+      `${r.ufficiale ? "⭐ " : ""}${r.name}${r.sconto ? ` — ${r.sconto}` : ""}`,
   },
 ];
 
