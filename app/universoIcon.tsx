@@ -101,7 +101,7 @@ export default function Planet() {
     <Link
       href="/universo"
       aria-label="Esplora l'universo di Joe"
-      className="group fixed right-4 top-4 z-20 flex items-center md:bottom-4 md:top-auto"
+      className="group fixed right-4 top-[calc(1rem_+_env(safe-area-inset-top))] z-20 flex items-center md:bottom-4 md:top-auto"
     >
       {/* Etichetta: solo desktop, compare al passaggio del mouse. */}
       <span className="pointer-events-none absolute right-full mr-3 hidden whitespace-nowrap rounded-full border border-brand-crema/15 bg-brand-fondo/80 px-3 py-1.5 text-sm text-brand-crema opacity-0 shadow-lg backdrop-blur-md transition-all duration-200 group-hover:opacity-100 md:block md:translate-x-2 md:group-hover:translate-x-0">
