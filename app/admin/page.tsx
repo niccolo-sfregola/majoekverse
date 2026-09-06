@@ -61,7 +61,7 @@ const SECTIONS: Section[] = [
         type: "checkbox",
       },
     ],
-    label: (r) => `${r.solo_abbonati ? "🔒 " : ""}${r.data} — ${r.titolo}`,
+    label: (r) => `${r.solo_abbonati ? "🔒 " : ""}${r.data} · ${r.titolo}`,
     announce: "event",
     orderBy: "data",
   },
@@ -76,8 +76,8 @@ const SECTIONS: Section[] = [
     ],
     label: (r) =>
       r.data
-        ? `${longDayIt(r.data)} ${ddmm(r.data)} ${r.orario} — ${r.gioco}`
-        : `${r.orario} — ${r.gioco}`,
+        ? `${longDayIt(r.data)} ${ddmm(r.data)} ${r.orario} · ${r.gioco}`
+        : `${r.orario} · ${r.gioco}`,
     announce: "schedule",
     orderBy: "data",
   },
@@ -103,7 +103,7 @@ const SECTIONS: Section[] = [
       },
     ],
     label: (r) =>
-      `${r.ufficiale ? "⭐ " : ""}${r.name}${r.sconto ? ` — ${r.sconto}` : ""}`,
+      `${r.ufficiale ? "⭐ " : ""}${r.name}${r.sconto ? ` · ${r.sconto}` : ""}`,
   },
 ];
 

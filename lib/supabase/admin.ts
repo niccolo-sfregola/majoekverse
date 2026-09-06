@@ -8,22 +8,27 @@ export function createAdminClient() {
   if (!key) {
     throw new Error("SUPABASE_SERVICE_ROLE_KEY mancante");
   }
-  // Difesa: se per errore qui c'è la anon key, la RLS bloccherebbe tutto in
-  // silenzio. La service_role key ha "role":"service_role" nel payload JWT.
-  try {
-    const payload = JSON.parse(
-      Buffer.from(key.split(".")[1] ?? "", "base64").toString(),
-    );
-    if (payload.role && payload.role !== "service_role") {
+
+  // Nuovo formato Supabase: sb_secret_..., va bene così.
+  // Formato classico: deve essere un JWT con role "service_role". Se qui c'è la
+  // anon key (o un JWT troncato), la RLS/permission blocca tutto in silenzio.
+  if (!key.startsWith("sb_secret_")) {
+    let role: string | undefined;
+    try {
+      const payload = key.split(".")[1] ?? "";
+      role = JSON.parse(Buffer.from(payload, "base64").toString()).role;
+    } catch {
       throw new Error(
-        `SUPABASE_SERVICE_ROLE_KEY ha role="${payload.role}", serve "service_role"`,
+        "SUPABASE_SERVICE_ROLE_KEY non è un JWT valido (probabilmente troncata o incollata male)",
       );
     }
-  } catch (e) {
-    if (e instanceof Error && e.message.startsWith("SUPABASE_SERVICE_ROLE_KEY"))
-      throw e;
-    // Nuovo formato sb_secret_... (non è un JWT): lo lasciamo passare.
+    if (role !== "service_role") {
+      throw new Error(
+        `SUPABASE_SERVICE_ROLE_KEY ha role="${role}", serve la chiave "service_role"`,
+      );
+    }
   }
+
   return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, key, {
     auth: { persistSession: false, autoRefreshToken: false },
   });

@@ -152,23 +152,7 @@ export async function getUserChannelRelation(
 ): Promise<ChannelRelation> {
   try {
     const token = await getStoredToken(dbUserId);
-    if (!token) {
-      console.log("[relation] nessun token salvato per", dbUserId);
-      return NO_RELATION;
-    }
-
-    // Diagnostica: quali scope ha davvero il token salvato.
-    try {
-      const val = await fetch("https://id.twitch.tv/oauth2/validate", {
-        headers: { Authorization: `OAuth ${token}` },
-        cache: "no-store",
-      });
-      console.log(
-        "[relation] validate:",
-        val.status,
-        val.ok ? (await val.json()).scopes : "",
-      );
-    } catch {}
+    if (!token) return NO_RELATION;
 
     const headers = {
       "Client-Id": process.env.TWITCH_CLIENT_ID!,
@@ -180,10 +164,7 @@ export async function getUserChannelRelation(
       headers,
       cache: "no-store",
     });
-    if (!meRes.ok) {
-      console.log("[relation] /helix/users:", meRes.status);
-      return NO_RELATION;
-    }
+    if (!meRes.ok) return NO_RELATION;
     const twitchUserId = (await meRes.json())?.data?.[0]?.id;
     if (!twitchUserId) return NO_RELATION;
 
@@ -197,13 +178,6 @@ export async function getUserChannelRelation(
         { headers, cache: "no-store" },
       ),
     ]);
-
-    console.log(
-      "[relation] followed:",
-      followRes.status,
-      "subscription:",
-      subRes.status,
-    );
 
     const followAuthFail =
       followRes.status === 401 || followRes.status === 403;
@@ -237,7 +211,22 @@ export async function getJoeChannelStats(
 ): Promise<ChannelStats> {
   try {
     const token = await getStoredToken(userId);
-    if (!token) return NOT_CONNECTED;
+    if (!token) {
+      console.log("[joeStats] nessun token salvato");
+      return NOT_CONNECTED;
+    }
+
+    try {
+      const v = await fetch("https://id.twitch.tv/oauth2/validate", {
+        headers: { Authorization: `OAuth ${token}` },
+        cache: "no-store",
+      });
+      console.log(
+        "[joeStats] scope del token:",
+        v.status,
+        v.ok ? (await v.json()).scopes : "",
+      );
+    } catch {}
 
     const headers = {
       "Client-Id": process.env.TWITCH_CLIENT_ID!,
@@ -254,6 +243,15 @@ export async function getJoeChannelStats(
         { headers, cache: "no-store" },
       ),
     ]);
+
+    console.log(
+      "[joeStats] broadcasterId:",
+      broadcasterId,
+      "followers:",
+      followRes.status,
+      "subscriptions:",
+      subRes.status,
+    );
 
     // 401 = token non più valido / scope revocati: da ricollegare.
     if (followRes.status === 401 || subRes.status === 401) {

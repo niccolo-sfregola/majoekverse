@@ -14,12 +14,6 @@ export async function GET(request: Request) {
     const supabase = await createClient();
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      console.log(
-        "[auth/callback] provider_token:",
-        !!data.session?.provider_token,
-        "refresh_token:",
-        !!data.session?.provider_refresh_token,
-      );
       if (data.session?.provider_token) {
         try {
           await saveViewerToken({
@@ -27,7 +21,6 @@ export async function GET(request: Request) {
             accessToken: data.session.provider_token,
             refreshToken: data.session.provider_refresh_token ?? null,
           });
-          console.log("[auth/callback] token Twitch salvato");
         } catch (e) {
           // Se lo Storage del token fallisce, il login riesce comunque.
           console.error("[auth/callback] salvataggio token fallito:", e);

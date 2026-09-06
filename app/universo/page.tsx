@@ -57,7 +57,7 @@ const progetti = [
   },
   {
     name: "La Posta del Cuore",
-    desc: "Lascia un pensiero, una confidenza, una poesia — in forma anonima. Verranno letti in diretta.",
+    desc: "Lascia un pensiero, una confidenza, una poesia, in forma anonima. Verranno letti in diretta.",
     link: "https://forms.gle/6nFhSHwyy2rHiWKJ7",
     logo: "/sponsor/posta-del-cuore.png",
   },
