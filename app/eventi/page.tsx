@@ -22,7 +22,7 @@ export default function Eventi() {
 
       <Suspense
         fallback={
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="rise-in grid gap-4 md:grid-cols-2">
             <div className="h-44 rounded-2xl bg-brand-darkblu/40 motion-safe:animate-pulse" />
             <div className="h-44 rounded-2xl bg-brand-darkblu/40 motion-safe:animate-pulse" />
           </div>
@@ -55,14 +55,14 @@ async function EventiList() {
 
   if (!eventi || eventi.length === 0) {
     return (
-      <div className="card-glass p-6 text-center text-brand-lavanda">
+      <div className="rise-in card-glass p-6 text-center text-brand-lavanda">
         Nessun evento in programma per ora. Torna a trovarci!
       </div>
     );
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div className="rise-in grid gap-4 md:grid-cols-2">
       {eventi.map((item) => {
         const locked = item.solo_abbonati && !subscribed;
         return (
