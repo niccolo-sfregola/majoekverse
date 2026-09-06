@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { shortDayIt, longDayIt, ddmm, timeIt } from "@/lib/schedule";
 
 type ScheduleRow = {
@@ -126,51 +127,57 @@ export default function ScheduleCard({ items }: { items: ScheduleRow[] }) {
         </div>
       </div>
 
-      {/* Mobile: schermata intera, titoli dei giochi per esteso. */}
-      {open ? (
-        <div className="page-enter fixed inset-0 z-50 flex flex-col bg-brand-fondo/95 backdrop-blur-md md:hidden">
-          <div
-            className="flex items-center justify-between gap-3 px-5 py-4"
-            style={{ paddingTop: "calc(env(safe-area-inset-top) + 1rem)" }}
-          >
-            <span className={LABEL}>Schedule della settimana</span>
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              aria-label="Chiudi"
-              className="-mr-1 grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand-fondo/60 text-brand-crema transition-transform active:scale-90"
-            >
-              <CloseIcon size={22} />
-            </button>
-          </div>
-
-          <ul className="flex flex-1 flex-col gap-3 overflow-y-auto px-5 pb-4">
-            {items.map((item) => (
-              <li
-                key={item.id}
-                className="border-b border-brand-lavanda/10 pb-3 last:border-0"
+      {/* Mobile: schermata intera. Portata sul <body> per uscire dallo stacking
+          context della griglia, altrimenti la barra in basso la coprirebbe. */}
+      {open && typeof document !== "undefined"
+        ? createPortal(
+            <div className="page-enter fixed inset-0 z-[70] flex flex-col bg-brand-fondo/95 backdrop-blur-md md:hidden">
+              <div
+                className="flex items-center justify-between gap-3 px-5 py-4"
+                style={{ paddingTop: "calc(env(safe-area-inset-top) + 1rem)" }}
               >
-                <p className="text-xs uppercase tracking-[0.12em] text-brand-lavanda">
-                  {longDayIt(item.data)} {ddmm(item.data)} ·{" "}
-                  {timeIt(item.orario)}
-                </p>
-                <p className="mt-0.5 text-base font-semibold text-brand-crema">
-                  {item.gioco || "Gioco da definire"}
-                </p>
-              </li>
-            ))}
-          </ul>
+                <span className={LABEL}>Schedule della settimana</span>
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  aria-label="Chiudi"
+                  className="-mr-1 grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand-fondo/60 text-brand-crema transition-transform active:scale-90"
+                >
+                  <CloseIcon size={22} />
+                </button>
+              </div>
 
-          <button
-            type="button"
-            onClick={() => setOpen(false)}
-            className="mx-5 rounded-xl bg-brand-blu py-3 text-center font-semibold text-brand-crema transition active:scale-[0.98]"
-            style={{ marginBottom: "calc(env(safe-area-inset-bottom) + 1rem)" }}
-          >
-            Chiudi
-          </button>
-        </div>
-      ) : null}
+              <ul className="flex flex-1 flex-col gap-3 overflow-y-auto px-5 pb-4">
+                {items.map((item) => (
+                  <li
+                    key={item.id}
+                    className="border-b border-brand-lavanda/10 pb-3 last:border-0"
+                  >
+                    <p className="text-xs uppercase tracking-[0.12em] text-brand-lavanda">
+                      {longDayIt(item.data)} {ddmm(item.data)} ·{" "}
+                      {timeIt(item.orario)}
+                    </p>
+                    <p className="mt-0.5 text-base font-semibold text-brand-crema">
+                      {item.gioco || "Gioco da definire"}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="mx-5 rounded-xl bg-brand-blu py-3 text-center font-semibold text-brand-crema transition active:scale-[0.98]"
+                style={{
+                  marginBottom: "calc(env(safe-area-inset-bottom) + 1rem)",
+                }}
+              >
+                Chiudi
+              </button>
+            </div>,
+            document.body,
+          )
+        : null}
     </>
   );
 }
