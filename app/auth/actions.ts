@@ -2,6 +2,8 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { isAdmin } from "@/lib/auth";
+import { JOE_CHANNEL_SCOPES, USER_CHANNEL_SCOPES } from "@/lib/twitch-user";
 import { getSiteUrl } from "@/lib/site-url";
 
 // Server Action: avvia il login OAuth con Twitch e manda l'utente alla
@@ -13,7 +15,10 @@ export async function signInWithTwitch() {
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "twitch",
-    options: { redirectTo: `${siteUrl}/auth/callback` },
+    options: {
+      redirectTo: `${siteUrl}/auth/callback`,
+      scopes: USER_CHANNEL_SCOPES,
+    },
   });
 
   if (error || !data.url) {
@@ -27,4 +32,27 @@ export async function signOut() {
   const supabase = await createClient();
   await supabase.auth.signOut();
   redirect("/profilo");
+}
+
+// Ri-autenticazione di Joe con gli scope extra per leggere follower e abbonati.
+// Solo admin. Il token che ne esce viene salvato in /auth/twitch-connect.
+export async function connectTwitchChannel() {
+  if (!(await isAdmin())) redirect("/");
+
+  const supabase = await createClient();
+  const siteUrl = await getSiteUrl();
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "twitch",
+    options: {
+      redirectTo: `${siteUrl}/auth/twitch-connect`,
+      scopes: JOE_CHANNEL_SCOPES,
+    },
+  });
+
+  if (error || !data.url) {
+    redirect("/profilo?errore=twitch");
+  }
+
+  redirect(data.url);
 }

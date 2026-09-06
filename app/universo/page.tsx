@@ -1,7 +1,9 @@
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
+import { getChannelInfo } from "@/lib/twitch";
 import { blowbrush } from "@/app/fonts";
 import CopyCode from "./copyCode";
+import CosmicBackground from "./cosmicBackground";
 
 const bio =
   "Ciao, sono Joe! Sono un content creator napoletano che vive in Toscana e studente di Scienze dell’Educazione e della Formazione. Creo contenuti dedicati a gaming, tecnologia, lifestyle e skincare, lavoro come UGC creator e porto avanti diversi progetti creativi. Su Twitch condivido soprattutto giochi horror, indie e narrativi, insieme a una community accogliente e inclusiva. Sono anche la mente dietro Koto Mail Club, La Posta del Cuore e il podcast The Big Bear Theory: modi diversi per trasformare le mie passioni in esperienze da condividere, online e offline. 🧸";
@@ -14,7 +16,7 @@ const socials = [
     name: "Twitch",
     link: "https://twitch.tv/majoekoto",
     icon: (
-      <path d="M2.149 0 .537 4.119V20.16h5.4V24h3.017l3.844-3.84h4.633L23.463 12V0zm19.164 11.161-3.226 3.226h-5.4l-2.688 2.685v-2.685H5.4V1.92h15.913zM9.6 6.719v5.645h1.92V6.719zm5.28 0v5.645h1.92V6.719z" />
+      <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0 1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z" />
     ),
   },
   {
@@ -63,31 +65,50 @@ const progetti = [
 
 export default async function Universo() {
   const supabase = await createClient();
-  const { data: sponsor } = await supabase
-    .from("sponsors")
-    .select("*")
-    .order("created_at", { ascending: true });
+  const [{ data: sponsor }, channel] = await Promise.all([
+    supabase
+      .from("sponsors")
+      .select("*")
+      .order("created_at", { ascending: true }),
+    getChannelInfo(),
+  ]);
 
   const ufficiali = (sponsor ?? []).filter((s) => s.ufficiale);
   const altri = (sponsor ?? []).filter((s) => !s.ufficiale);
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-2xl flex-col gap-4 px-4 py-10 md:max-w-3xl">
+      <CosmicBackground />
+
       <h1
         className={`${blowbrush.className} text-center text-4xl tracking-wide text-brand-crema md:text-5xl`}
       >
         Universo di Joe
       </h1>
 
-      <section className="card-glass flex items-center gap-4 p-5 md:gap-5">
-        <Image
-          src="/j.png"
-          alt=""
-          width={64}
-          height={64}
-          className="h-14 w-14 shrink-0 object-contain md:h-16 md:w-16"
-        />
-        <p className="text-sm text-brand-lavanda">{bio}</p>
+      <section className="card-glass flex flex-col items-center gap-4 p-6 text-center md:flex-row md:items-start md:gap-6 md:text-left">
+        {channel.profileImageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={channel.profileImageUrl}
+            alt=""
+            className="h-24 w-24 shrink-0 rounded-full object-cover shadow-[0_0_28px_rgb(185_168_230/0.4)] ring-2 ring-brand-lavanda/40"
+          />
+        ) : (
+          <Image
+            src="/j.png"
+            alt=""
+            width={96}
+            height={96}
+            className="h-24 w-24 shrink-0 object-contain"
+          />
+        )}
+        <div>
+          <p className="text-lg font-semibold text-brand-crema">
+            {channel.displayName ?? "maJoekoto"}
+          </p>
+          <p className="mt-1 text-sm text-brand-lavanda">{bio}</p>
+        </div>
       </section>
 
       <section className="card-glass flex flex-col gap-3 p-5">
@@ -125,13 +146,15 @@ export default async function Universo() {
           </p>
           <div className="mt-4 flex flex-col items-center gap-3">
             {s.logo ? (
-              <Image
-                src={s.logo}
-                alt={s.name}
-                width={360}
-                height={120}
-                className="h-14 w-auto object-contain md:h-16"
-              />
+              <span className="flex h-24 w-full max-w-xs items-center justify-center rounded-2xl bg-brand-crema p-4">
+                <Image
+                  src={s.logo}
+                  alt={s.name}
+                  width={360}
+                  height={140}
+                  className="max-h-full w-auto object-contain"
+                />
+              </span>
             ) : (
               <span className="text-xl font-semibold text-brand-crema">
                 {s.name}
@@ -165,16 +188,18 @@ export default async function Universo() {
                 href={s.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex flex-col items-center gap-2 rounded-xl bg-brand-fondo/40 p-4 text-center transition hover:bg-brand-fondo/70 active:scale-[0.98]"
+                className="flex flex-col items-center gap-3 rounded-xl bg-brand-fondo/40 p-4 text-center transition hover:bg-brand-fondo/70 active:scale-[0.98]"
               >
                 {s.logo ? (
-                  <Image
-                    src={s.logo}
-                    alt={s.name}
-                    width={200}
-                    height={80}
-                    className="h-10 w-auto object-contain"
-                  />
+                  <span className="flex h-16 w-full items-center justify-center rounded-xl bg-brand-crema p-3">
+                    <Image
+                      src={s.logo}
+                      alt={s.name}
+                      width={220}
+                      height={90}
+                      className="max-h-full w-auto object-contain"
+                    />
+                  </span>
                 ) : (
                   <span className="font-semibold text-brand-crema">
                     {s.name}
@@ -205,13 +230,15 @@ export default async function Universo() {
               rel="noopener noreferrer"
               className="flex items-start gap-4 rounded-xl bg-brand-fondo/40 p-4 transition hover:bg-brand-fondo/70 active:scale-[0.99]"
             >
-              <Image
-                src={p.logo}
-                alt=""
-                width={48}
-                height={48}
-                className="mt-0.5 h-11 w-11 shrink-0 object-contain"
-              />
+              <span className="flex h-[4.5rem] w-[4.5rem] shrink-0 items-center justify-center rounded-xl bg-brand-crema p-2.5">
+                <Image
+                  src={p.logo}
+                  alt=""
+                  width={72}
+                  height={72}
+                  className="max-h-full max-w-full object-contain"
+                />
+              </span>
               <span className="min-w-0 flex-1">
                 <span className="block font-semibold text-brand-crema">
                   {p.name}

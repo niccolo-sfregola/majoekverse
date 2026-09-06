@@ -95,7 +95,7 @@ const SECTIONS: Section[] = [
       },
       { name: "code", placeholder: "Codice sconto", required: true },
       { name: "sconto", placeholder: "Sconto (es. 10%)" },
-      { name: "logo", placeholder: "Logo (es. /sponsor/chioda.png)" },
+      { name: "logo", placeholder: "Logo dello sponsor", type: "image" },
       {
         name: "ufficiale",
         placeholder: "Sponsor ufficiale (in evidenza)",
@@ -235,12 +235,12 @@ export default async function Admin() {
             subtitle={`${rows.length} ${rows.length === 1 ? "voce" : "voci"}`}
             icon={section.icon}
           >
-            <div className={subBox}>
-              <p className={subLabel}>
-                Aggiungi {section.title.toLowerCase()}
-              </p>
+            <Collapsible
+              title={`Aggiungi ${section.title.toLowerCase()}`}
+              icon="＋"
+            >
               <RowForm table={section.table} fields={section.fields} />
-            </div>
+            </Collapsible>
 
             {rows.length > 0 ? (
               <ul className="flex flex-col gap-2">

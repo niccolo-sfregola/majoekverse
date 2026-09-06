@@ -1,9 +1,23 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { signInWithTwitch, signOut } from "@/app/auth/actions";
+import {
+  signInWithTwitch,
+  signOut,
+  connectTwitchChannel,
+} from "@/app/auth/actions";
 import { isAdmin } from "@/lib/auth";
-import { getStreamStatus } from "@/lib/twitch";
+import { getChannelInfo, getChannelOverview } from "@/lib/twitch";
+import {
+  getJoeChannelStats,
+  getUserChannelRelation,
+} from "@/lib/twitch-user";
 import { blowbrush } from "@/app/fonts";
+
+const SUB_TIER: Record<string, string> = {
+  "1000": "Tier 1",
+  "2000": "Tier 2",
+  "3000": "Tier 3",
+};
 
 // Il canale di Joe: se l'utente loggato è lui, il profilo mostra una
 // panoramica del canale invece delle statistiche da spettatore.
@@ -27,6 +41,12 @@ function Stat({ label, value }: { label: string; value: React.ReactNode }) {
       <p className="mt-1 font-semibold text-brand-crema">{value}</p>
     </div>
   );
+}
+
+// 1234 -> "1,2k"
+function formatCount(n: number): string {
+  if (n < 1000) return String(n);
+  return `${(n / 1000).toFixed(n < 10000 ? 1 : 0).replace(".", ",")}k`;
 }
 
 export default async function Profilo() {
@@ -57,8 +77,47 @@ export default async function Profilo() {
       ""
     ).toLowerCase() === JOE_TWITCH_LOGIN;
 
-  const liveStatus = isJoe ? await getStreamStatus() : null;
+  const twitchUserId =
+    user?.user_metadata.provider_id ?? user?.user_metadata.sub ?? null;
+
+  const [overview, channel] =
+    user
+      ? await Promise.all([
+          isJoe ? getChannelOverview() : Promise.resolve(null),
+          getChannelInfo(),
+        ])
+      : [null, null];
+
+  const joeStats =
+    isJoe && user && channel?.id
+      ? await getJoeChannelStats(user.id, channel.id)
+      : null;
+
+  const relation =
+    !isJoe && user && channel?.id && twitchUserId
+      ? await getUserChannelRelation(user.id, twitchUserId, channel.id)
+      : null;
+
   const presto = <span className="text-brand-lavanda/60">presto</span>;
+
+  const seguiDaValue = relation
+    ? relation.followsSince
+      ? new Date(relation.followsSince).toLocaleDateString("it-IT", {
+          month: "long",
+          year: "numeric",
+        })
+      : relation.connected
+        ? "Non ancora"
+        : presto
+    : presto;
+
+  const abbonatoValue = relation
+    ? relation.connected
+      ? relation.subscribed
+        ? (relation.subTier && SUB_TIER[relation.subTier]) || "Sì"
+        : "No"
+      : presto
+    : presto;
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-md flex-col gap-4 px-4 py-10 md:max-w-3xl">
@@ -107,24 +166,89 @@ export default async function Profilo() {
               {isJoe ? "Panoramica canale" : "Statistiche"}
             </p>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-              {isJoe ? (
+              {isJoe && overview ? (
                 <>
                   <Stat
                     label="Stato"
                     value={
-                      liveStatus?.isLive ? (
+                      overview.isLive ? (
                         <span className="text-[#e11d2f]">In diretta</span>
                       ) : (
                         "Offline"
                       )
                     }
                   />
-                  {liveStatus?.isLive && liveStatus.game ? (
-                    <Stat label="Gioco" value={liveStatus.game} />
+                  {overview.isLive ? (
+                    <Stat
+                      label="Spettatori"
+                      value={
+                        overview.viewers != null
+                          ? formatCount(overview.viewers)
+                          : "—"
+                      }
+                    />
                   ) : null}
-                  <Stat label="Follower" value={presto} />
-                  <Stat label="Abbonati" value={presto} />
-                  <Stat label="Clip più vista (7 gg)" value={presto} />
+                  {overview.isLive && overview.game ? (
+                    <Stat label="Gioco" value={overview.game} />
+                  ) : null}
+                  <Stat
+                    label="Ultimo VOD"
+                    value={
+                      overview.lastVideo ? (
+                        <a
+                          href={overview.lastVideo.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title={overview.lastVideo.title}
+                          className="underline-offset-2 hover:underline"
+                        >
+                          {formatCount(overview.lastVideo.views)} visual.
+                        </a>
+                      ) : (
+                        "—"
+                      )
+                    }
+                  />
+                  <Stat
+                    label="Clip top (7 gg)"
+                    value={
+                      overview.topClip ? (
+                        <a
+                          href={overview.topClip.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title={overview.topClip.title}
+                          className="underline-offset-2 hover:underline"
+                        >
+                          {formatCount(overview.topClip.views)} visual.
+                        </a>
+                      ) : (
+                        "—"
+                      )
+                    }
+                  />
+                  <Stat
+                    label="Follower"
+                    value={
+                      joeStats?.followers != null
+                        ? formatCount(joeStats.followers)
+                        : presto
+                    }
+                  />
+                  <Stat
+                    label="Abbonati"
+                    value={
+                      joeStats?.subscribers != null
+                        ? formatCount(joeStats.subscribers)
+                        : presto
+                    }
+                  />
+                  {joeStats?.subPoints != null ? (
+                    <Stat
+                      label="Punti sub"
+                      value={formatCount(joeStats.subPoints)}
+                    />
+                  ) : null}
                 </>
               ) : (
                 <>
@@ -132,11 +256,33 @@ export default async function Profilo() {
                   {membroDal ? (
                     <Stat label="Su maJoekverse da" value={membroDal} />
                   ) : null}
-                  <Stat label="Abbonato al canale" value={presto} />
-                  <Stat label="Segui Joe da" value={presto} />
+                  <Stat label="Abbonato al canale" value={abbonatoValue} />
+                  <Stat label="Segui Joe da" value={seguiDaValue} />
                 </>
               )}
             </div>
+
+            {!isJoe && relation && !relation.connected ? (
+              <form action={signInWithTwitch}>
+                <button
+                  type="submit"
+                  className="w-full rounded-xl border border-brand-lavanda/30 py-2.5 text-sm font-semibold text-brand-lavanda transition hover:bg-brand-lavanda/10 active:scale-[0.98]"
+                >
+                  Aggiorna i permessi Twitch per le statistiche
+                </button>
+              </form>
+            ) : null}
+
+            {isJoe && joeStats && !joeStats.connected ? (
+              <form action={connectTwitchChannel}>
+                <button
+                  type="submit"
+                  className="w-full rounded-xl border border-brand-lavanda/30 py-2.5 text-sm font-semibold text-brand-lavanda transition hover:bg-brand-lavanda/10 active:scale-[0.98]"
+                >
+                  Collega il canale per vedere follower e abbonati
+                </button>
+              </form>
+            ) : null}
           </div>
 
           <div className="flex flex-col gap-3 md:flex-row">
