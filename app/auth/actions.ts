@@ -18,6 +18,9 @@ export async function signInWithTwitch() {
     options: {
       redirectTo: `${siteUrl}/auth/callback`,
       scopes: USER_CHANNEL_SCOPES,
+      // force_verify: Twitch ripropone sempre la schermata di consenso, così
+      // se gli scope sono cambiati l'utente li concede davvero.
+      queryParams: { force_verify: "true" },
     },
   });
 

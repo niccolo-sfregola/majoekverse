@@ -96,6 +96,15 @@ export default async function Profilo() {
       ? await getUserChannelRelation(user.id, channel.id)
       : null;
 
+  if (!isJoe && user) {
+    console.log(
+      "[profilo] channel.id:",
+      channel?.id,
+      "relation:",
+      JSON.stringify(relation),
+    );
+  }
+
   const presto = <span className="text-brand-lavanda/60">presto</span>;
 
   const seguiDaValue = relation
