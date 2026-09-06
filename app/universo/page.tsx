@@ -77,183 +77,187 @@ export default async function Universo() {
   const altri = (sponsor ?? []).filter((s) => !s.ufficiale);
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-2xl flex-col gap-4 px-4 py-10 md:max-w-3xl">
+    <>
       <CosmicBackground />
-
-      <h1
-        className={`${blowbrush.className} text-center text-4xl tracking-wide text-brand-crema md:text-5xl`}
-      >
-        Universo di Joe
-      </h1>
-
-      <section className="card-glass flex flex-col items-center gap-4 p-6 text-center md:flex-row md:items-start md:gap-6 md:text-left">
-        {channel.profileImageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={channel.profileImageUrl}
-            alt=""
-            className="h-24 w-24 shrink-0 rounded-full object-cover shadow-[0_0_28px_rgb(185_168_230/0.4)] ring-2 ring-brand-lavanda/40"
-          />
-        ) : (
-          <Image
-            src="/j.png"
-            alt=""
-            width={96}
-            height={96}
-            className="h-24 w-24 shrink-0 object-contain"
-          />
-        )}
-        <div>
-          <p className="text-lg font-semibold text-brand-crema">
-            {channel.displayName ?? "maJoekoto"}
-          </p>
-          <p className="mt-1 text-sm text-brand-lavanda">{bio}</p>
-        </div>
-      </section>
-
-      <section className="card-glass flex flex-col gap-3 p-5">
-        <p className={LABEL}>Sui social</p>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {socials.map((s) => (
-            <a
-              key={s.name}
-              href={s.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex flex-col items-center gap-2 rounded-xl bg-brand-fondo/40 p-4 text-sm font-semibold text-brand-crema transition hover:bg-brand-fondo/70 active:scale-[0.98]"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                className="h-6 w-6 text-brand-lavanda"
-                aria-hidden
-              >
-                {s.icon}
-              </svg>
-              {s.name}
-            </a>
-          ))}
-        </div>
-      </section>
-
-      {ufficiali.map((s) => (
-        <section
-          key={s.id}
-          className="relative overflow-hidden rounded-2xl border border-brand-corallo/40 bg-brand-corallo/10 p-6 text-center shadow-[0_0_30px_rgb(239_108_78/0.18)]"
+      <main className="rise-in mx-auto flex min-h-screen w-full max-w-2xl flex-col gap-4 px-4 py-10 md:max-w-3xl">
+        <h1
+          className={`${blowbrush.className} text-center text-4xl tracking-wide text-brand-crema md:text-5xl`}
         >
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-corallo">
-            Sponsor ufficiale
-          </p>
-          <div className="mt-4 flex flex-col items-center gap-3">
-            {s.logo ? (
-              <span className="flex h-24 w-full max-w-xs items-center justify-center rounded-2xl bg-brand-crema p-4">
-                <Image
-                  src={s.logo}
-                  alt={s.name}
-                  width={360}
-                  height={140}
-                  className="max-h-full w-auto object-contain"
-                />
-              </span>
-            ) : (
-              <span className="text-xl font-semibold text-brand-crema">
-                {s.name}
-              </span>
-            )}
-            <p className="text-sm text-brand-lavanda">
-              {s.sconto
-                ? `Sconto ${s.sconto} con il codice`
-                : "Usa il codice sconto"}
+          Universo di Joe
+        </h1>
+
+        <section className="card-glass flex flex-col items-center gap-4 p-6 text-center md:flex-row md:items-start md:gap-6 md:text-left">
+          {channel.profileImageUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={channel.profileImageUrl}
+              alt=""
+              className="h-24 w-24 shrink-0 rounded-full object-cover shadow-[0_0_28px_rgb(185_168_230/0.4)] ring-2 ring-brand-lavanda/40"
+            />
+          ) : (
+            <Image
+              src="/j.png"
+              alt=""
+              width={96}
+              height={96}
+              className="h-24 w-24 shrink-0 object-contain"
+            />
+          )}
+          <div>
+            <p className="text-lg font-semibold text-brand-crema">
+              {channel.displayName ?? "maJoekoto"}
             </p>
-            <CopyCode code={s.code} />
-            <a
-              href={s.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-1 rounded-xl bg-brand-corallo px-6 py-2 font-semibold text-brand-crema transition hover:brightness-95 active:scale-[0.98]"
-            >
-              Vai al sito →
-            </a>
+            <p className="mt-1 text-sm text-brand-lavanda">{bio}</p>
           </div>
         </section>
-      ))}
 
-      {altri.length > 0 ? (
         <section className="card-glass flex flex-col gap-3 p-5">
-          <p className={LABEL}>Sponsor</p>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {altri.map((s) => (
+          <p className={LABEL}>Sui social</p>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {socials.map((s) => (
               <a
-                key={s.id}
+                key={s.name}
                 href={s.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex flex-col items-center gap-3 rounded-xl bg-brand-fondo/40 p-4 text-center transition hover:bg-brand-fondo/70 active:scale-[0.98]"
+                className="flex flex-col items-center gap-2 rounded-xl bg-brand-fondo/40 p-4 text-sm font-semibold text-brand-crema transition hover:bg-brand-fondo/70 active:scale-[0.98]"
               >
-                {s.logo ? (
-                  <span className="flex h-16 w-full items-center justify-center rounded-xl bg-brand-crema p-3">
-                    <Image
-                      src={s.logo}
-                      alt={s.name}
-                      width={220}
-                      height={90}
-                      className="max-h-full w-auto object-contain"
-                    />
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="h-6 w-6 text-brand-lavanda"
+                  aria-hidden
+                >
+                  {s.icon}
+                </svg>
+                {s.name}
+              </a>
+            ))}
+          </div>
+        </section>
+
+        {ufficiali.map((s) => (
+          <section
+            key={s.id}
+            className="relative overflow-hidden rounded-2xl border border-brand-corallo/40 bg-brand-corallo/10 p-6 text-center shadow-[0_0_30px_rgb(239_108_78/0.18)]"
+          >
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-corallo">
+              Sponsor ufficiale
+            </p>
+            <div className="mt-4 flex flex-col items-center gap-3">
+              {s.logo ? (
+                <span className="flex h-24 w-full max-w-xs items-center justify-center rounded-2xl bg-brand-crema p-4">
+                  <Image
+                    src={s.logo}
+                    alt={s.name}
+                    width={360}
+                    height={140}
+                    className="max-h-full w-auto object-contain"
+                  />
+                </span>
+              ) : (
+                <span className="text-xl font-semibold text-brand-crema">
+                  {s.name}
+                </span>
+              )}
+              <p className="text-sm text-brand-lavanda">
+                {s.sconto
+                  ? `Sconto ${s.sconto} con il codice`
+                  : "Usa il codice sconto"}
+              </p>
+              <CopyCode code={s.code} />
+              <a
+                href={s.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-1 rounded-xl bg-brand-corallo px-6 py-2 font-semibold text-brand-crema transition hover:brightness-95 active:scale-[0.98]"
+              >
+                Vai al sito →
+              </a>
+            </div>
+          </section>
+        ))}
+
+        {altri.length > 0 ? (
+          <section className="card-glass flex flex-col gap-3 p-5">
+            <p className={LABEL}>Sponsor</p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {altri.map((s) => (
+                <a
+                  key={s.id}
+                  href={s.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex flex-col items-center gap-3 rounded-xl bg-brand-fondo/40 p-4 text-center transition hover:bg-brand-fondo/70 active:scale-[0.98]"
+                >
+                  {s.logo ? (
+                    <span className="flex h-16 w-full items-center justify-center rounded-xl bg-brand-crema p-3">
+                      <Image
+                        src={s.logo}
+                        alt={s.name}
+                        width={220}
+                        height={90}
+                        className="max-h-full w-auto object-contain"
+                      />
+                    </span>
+                  ) : (
+                    <span className="font-semibold text-brand-crema">
+                      {s.name}
+                    </span>
+                  )}
+                  {s.sconto ? (
+                    <span className="rounded-full bg-brand-blu/40 px-2 py-0.5 text-xs font-semibold text-brand-crema">
+                      Sconto {s.sconto}
+                    </span>
+                  ) : null}
+                  <span className="font-mono text-sm text-brand-lavanda">
+                    {s.code}
                   </span>
-                ) : (
-                  <span className="font-semibold text-brand-crema">
-                    {s.name}
+                </a>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        <section className="card-glass flex flex-col gap-3 p-5">
+          <p className={LABEL}>Progetti</p>
+          <div className="flex flex-col gap-3">
+            {progetti.map((p) => (
+              <a
+                key={p.name}
+                href={p.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-start gap-4 rounded-xl bg-brand-fondo/40 p-4 transition hover:bg-brand-fondo/70 active:scale-[0.99]"
+              >
+                <span className="flex h-[4.5rem] w-[4.5rem] shrink-0 items-center justify-center rounded-xl bg-brand-crema p-2.5">
+                  <Image
+                    src={p.logo}
+                    alt=""
+                    width={72}
+                    height={72}
+                    className="max-h-full max-w-full object-contain"
+                  />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block font-semibold text-brand-crema">
+                    {p.name}
                   </span>
-                )}
-                {s.sconto ? (
-                  <span className="rounded-full bg-brand-blu/40 px-2 py-0.5 text-xs font-semibold text-brand-crema">
-                    Sconto {s.sconto}
+                  <span className="mt-0.5 block text-sm text-brand-lavanda">
+                    {p.desc}
                   </span>
-                ) : null}
-                <span className="font-mono text-sm text-brand-lavanda">
-                  {s.code}
+                </span>
+                <span
+                  aria-hidden
+                  className="mt-0.5 shrink-0 text-brand-lavanda"
+                >
+                  →
                 </span>
               </a>
             ))}
           </div>
         </section>
-      ) : null}
-
-      <section className="card-glass flex flex-col gap-3 p-5">
-        <p className={LABEL}>Progetti</p>
-        <div className="flex flex-col gap-3">
-          {progetti.map((p) => (
-            <a
-              key={p.name}
-              href={p.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-start gap-4 rounded-xl bg-brand-fondo/40 p-4 transition hover:bg-brand-fondo/70 active:scale-[0.99]"
-            >
-              <span className="flex h-[4.5rem] w-[4.5rem] shrink-0 items-center justify-center rounded-xl bg-brand-crema p-2.5">
-                <Image
-                  src={p.logo}
-                  alt=""
-                  width={72}
-                  height={72}
-                  className="max-h-full max-w-full object-contain"
-                />
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block font-semibold text-brand-crema">
-                  {p.name}
-                </span>
-                <span className="mt-0.5 block text-sm text-brand-lavanda">
-                  {p.desc}
-                </span>
-              </span>
-              <span aria-hidden className="mt-0.5 shrink-0 text-brand-lavanda">
-                →
-              </span>
-            </a>
-          ))}
-        </div>
-      </section>
-    </main>
+      </main>
+    </>
   );
 }

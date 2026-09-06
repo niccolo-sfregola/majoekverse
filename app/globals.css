@@ -225,6 +225,18 @@ details.row[open] .row-chevron {
 .rise-in > *:nth-child(4) {
   animation-delay: 0.15s;
 }
+.rise-in > *:nth-child(5) {
+  animation-delay: 0.2s;
+}
+.rise-in > *:nth-child(6) {
+  animation-delay: 0.25s;
+}
+.rise-in > *:nth-child(7) {
+  animation-delay: 0.3s;
+}
+.rise-in > *:nth-child(n + 8) {
+  animation-delay: 0.35s;
+}
 
 /* Apertura fluida dei pannelli a scomparsa (Collapsible, ScheduleCard):
    la riga della griglia passa da 0fr a 1fr, così l'altezza si anima da sola. */
