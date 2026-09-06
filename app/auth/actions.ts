@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { isAdmin } from "@/lib/auth";
+import { isJoe } from "@/lib/auth";
 import { JOE_CHANNEL_SCOPES, USER_CHANNEL_SCOPES } from "@/lib/twitch-user";
 import { getSiteUrl } from "@/lib/site-url";
 
@@ -18,9 +18,6 @@ export async function signInWithTwitch() {
     options: {
       redirectTo: `${siteUrl}/auth/callback`,
       scopes: USER_CHANNEL_SCOPES,
-      // force_verify: Twitch ripropone sempre la schermata di consenso, così
-      // se gli scope sono cambiati l'utente li concede davvero.
-      queryParams: { force_verify: "true" },
     },
   });
 
@@ -39,9 +36,9 @@ export async function signOut() {
 }
 
 // Ri-autenticazione di Joe con gli scope extra per leggere follower e abbonati.
-// Solo admin. Il token che ne esce viene salvato in /auth/twitch-connect.
+// Solo il broadcaster. Il token che ne esce viene salvato in /auth/twitch-connect.
 export async function connectTwitchChannel() {
-  if (!(await isAdmin())) redirect("/");
+  if (!(await isJoe())) redirect("/profilo");
 
   const supabase = await createClient();
   const siteUrl = await getSiteUrl();

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { isAdmin } from "@/lib/auth";
+import { isJoe } from "@/lib/auth";
 import { saveJoeToken } from "@/lib/twitch-user";
 import { getSiteUrl } from "@/lib/site-url";
 
@@ -14,12 +14,24 @@ export async function GET(request: Request) {
     const supabase = await createClient();
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
-    if (!error && data.session?.provider_token && (await isAdmin())) {
-      await saveJoeToken({
-        userId: data.session.user.id,
-        accessToken: data.session.provider_token,
-        refreshToken: data.session.provider_refresh_token ?? null,
-      });
+    const joe = await isJoe();
+    console.log(
+      "[twitch-connect] provider_token:",
+      !!data.session?.provider_token,
+      "isJoe:",
+      joe,
+    );
+
+    if (!error && data.session?.provider_token && joe) {
+      try {
+        await saveJoeToken({
+          userId: data.session.user.id,
+          accessToken: data.session.provider_token,
+          refreshToken: data.session.provider_refresh_token ?? null,
+        });
+      } catch (e) {
+        console.error("[twitch-connect] salvataggio token fallito:", e);
+      }
     }
   }
 

@@ -101,11 +101,11 @@ function dayEn(dataStr: string): string {
 export function changeLine(c: ScheduleChange): string {
   switch (c.kind) {
     case "added":
-      return `➕ ${dayIt(c.data)}: nuova diretta dalle ${timeIt(c.orario)} — ${c.gioco.toUpperCase()}`;
+      return `➕ ${dayIt(c.data)}: nuova diretta dalle ${timeIt(c.orario)} - ${c.gioco.toUpperCase()}`;
     case "removed":
       return `❌ ${dayIt(c.data)}: diretta annullata (${c.gioco.toUpperCase()})`;
     case "moved":
-      return `🕘 ${dayIt(c.data)}: spostata dalle ${timeIt(c.from)} alle ${timeIt(c.to)} — ${c.gioco.toUpperCase()}`;
+      return `🕘 ${dayIt(c.data)}: spostata dalle ${timeIt(c.from)} alle ${timeIt(c.to)} - ${c.gioco.toUpperCase()}`;
     case "game":
       return `🎮 ${dayIt(c.data)} dalle ${timeIt(c.orario)}: ora ${c.toGioco.toUpperCase()} (prima ${c.fromGioco.toUpperCase()})`;
     case "movedGame":
@@ -117,11 +117,11 @@ export function changeLine(c: ScheduleChange): string {
 export function changeLineEn(c: ScheduleChange): string {
   switch (c.kind) {
     case "added":
-      return `➕ ${dayEn(c.data)}: new stream from ${timeEn(c.orario)} (CEST / Italy) — ${c.gioco.toUpperCase()}`;
+      return `➕ ${dayEn(c.data)}: new stream from ${timeEn(c.orario)} (CEST / Italy) - ${c.gioco.toUpperCase()}`;
     case "removed":
       return `❌ ${dayEn(c.data)}: stream cancelled (${c.gioco.toUpperCase()})`;
     case "moved":
-      return `🕘 ${dayEn(c.data)}: moved from ${timeEn(c.from)} to ${timeEn(c.to)} (CEST / Italy) — ${c.gioco.toUpperCase()}`;
+      return `🕘 ${dayEn(c.data)}: moved from ${timeEn(c.from)} to ${timeEn(c.to)} (CEST / Italy) - ${c.gioco.toUpperCase()}`;
     case "game":
       return `🎮 ${dayEn(c.data)} from ${timeEn(c.orario)}: now ${c.toGioco.toUpperCase()} (was ${c.fromGioco.toUpperCase()})`;
     case "movedGame":

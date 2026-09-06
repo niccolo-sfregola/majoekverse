@@ -1,9 +1,9 @@
 // Ultimo video dal canale YouTube di Joe.
 //
 // Due strade:
-//  1. API ufficiale di YouTube (se c'è YOUTUBE_API_KEY) — affidabile anche dai
+//  1. API ufficiale di YouTube (se c'è YOUTUBE_API_KEY): affidabile anche dai
 //     server di Vercel.
-//  2. Feed RSS pubblico — funziona dal PC di casa, ma YouTube blocca gli IP dei
+//  2. Feed RSS pubblico: funziona dal PC di casa, ma YouTube blocca gli IP dei
 //     datacenter, quindi in produzione è solo un ripiego.
 const CHANNEL_ID = "UCgT_9dL0ccR40Bv-WlTVvNw"; // @maJoekoto
 // La playlist "caricamenti" di un canale è il suo ID con UC -> UU.

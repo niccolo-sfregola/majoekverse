@@ -5,7 +5,7 @@ import {
   signOut,
   connectTwitchChannel,
 } from "@/app/auth/actions";
-import { isAdmin } from "@/lib/auth";
+import { isAdmin, JOE_TWITCH_LOGIN } from "@/lib/auth";
 import { getChannelInfo, getChannelOverview } from "@/lib/twitch";
 import {
   getJoeChannelStats,
@@ -20,9 +20,8 @@ const SUB_TIER: Record<string, string> = {
   "3000": "Tier 3",
 };
 
-// Il canale di Joe: se l'utente loggato è lui, il profilo mostra una
-// panoramica del canale invece delle statistiche da spettatore.
-const JOE_TWITCH_LOGIN = "majoekoto";
+// Se l'utente loggato è Joe, il profilo mostra la panoramica del canale
+// invece delle statistiche da spettatore. JOE_TWITCH_LOGIN è in lib/auth.
 
 function TwitchIcon() {
   return (
@@ -95,15 +94,6 @@ export default async function Profilo() {
     !isJoe && user && channel?.id
       ? await getUserChannelRelation(user.id, channel.id)
       : null;
-
-  if (!isJoe && user) {
-    console.log(
-      "[profilo] channel.id:",
-      channel?.id,
-      "relation:",
-      JSON.stringify(relation),
-    );
-  }
 
   const presto = <span className="text-brand-lavanda/60">presto</span>;
 
@@ -191,7 +181,7 @@ export default async function Profilo() {
                       value={
                         overview.viewers != null
                           ? formatCount(overview.viewers)
-                          : "—"
+                          : "n/d"
                       }
                     />
                   ) : null}
@@ -212,7 +202,7 @@ export default async function Profilo() {
                           {formatCount(overview.lastVideo.views)} visual.
                         </a>
                       ) : (
-                        "—"
+                        "n/d"
                       )
                     }
                   />
@@ -230,7 +220,7 @@ export default async function Profilo() {
                           {formatCount(overview.topClip.views)} visual.
                         </a>
                       ) : (
-                        "—"
+                        "n/d"
                       )
                     }
                   />
@@ -319,7 +309,7 @@ export default async function Profilo() {
           </div>
           <p className="text-brand-lavanda">
             Accedi con Twitch per vedere il tuo profilo, le tue statistiche col
-            canale e — se sei admin — gestire i contenuti del sito.
+            canale e, se sei admin, gestire i contenuti del sito.
           </p>
           <form action={signInWithTwitch} className="w-full">
             <SubmitButton

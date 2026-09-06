@@ -42,7 +42,7 @@ function TwitchIcon() {
 const SECTIONS = [
   { icon: "🏠", name: "Home", text: "Se Joe è in diretta, la schedule, l'ultimo video e le news." },
   { icon: "📅", name: "Eventi", text: "Gli appuntamenti della community, alcuni riservati agli abbonati." },
-  { icon: "👤", name: "Profilo", text: "Le tue statistiche col canale — con l'accesso." },
+  { icon: "👤", name: "Profilo", text: "Le tue statistiche col canale, dopo l'accesso." },
   { icon: "🛟", name: "Help Desk", text: "Il supporto della community, sul Discord." },
   { icon: "🌌", name: "Universo di Joe", text: "Bio, social e codici sconto (icona in alto a destra)." },
 ];
