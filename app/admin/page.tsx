@@ -95,10 +95,10 @@ const SECTIONS: Section[] = [
       },
       { name: "code", placeholder: "Codice sconto", required: true },
       { name: "sconto", placeholder: "Sconto (es. 10%)" },
-      { name: "logo", placeholder: "Logo dello sponsor", type: "image" },
+      { name: "logo", placeholder: "Logo", type: "image" },
       {
         name: "ufficiale",
-        placeholder: "Sponsor ufficiale (in evidenza)",
+        placeholder: "È uno sponsor vero (non un'affiliazione)",
         type: "checkbox",
       },
     ],

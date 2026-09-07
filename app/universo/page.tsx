@@ -142,7 +142,7 @@ export default async function Universo() {
             className="relative overflow-hidden rounded-2xl border border-brand-corallo/40 bg-brand-corallo/10 p-6 text-center shadow-[0_0_30px_rgb(239_108_78/0.18)]"
           >
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-corallo">
-              Sponsor ufficiale
+              Sponsor
             </p>
             <div className="mt-4 flex flex-col items-center gap-3">
               {s.logo ? (
@@ -180,7 +180,10 @@ export default async function Universo() {
 
         {altri.length > 0 ? (
           <section className="card-glass flex flex-col gap-3 p-5">
-            <p className={LABEL}>Sponsor</p>
+            <p className={LABEL}>Affiliazioni</p>
+            <p className="-mt-1 text-sm text-brand-lavanda">
+              Codici sconto dei brand con cui Joe collabora.
+            </p>
             <div className="grid gap-3 sm:grid-cols-2">
               {altri.map((s) => (
                 <a
