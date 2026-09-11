@@ -8,6 +8,13 @@ function toDate(dateStr: string): Date {
   return new Date(`${dateStr}T00:00:00Z`);
 }
 
+// "2026-08-20" -> true se oggi (UTC) o dopo. Serve a togliere dalla schedule
+// le dirette già passate senza doverle cancellare a mano dal database.
+export function isUpcoming(dateStr: string): boolean {
+  const today = new Date().toISOString().slice(0, 10);
+  return dateStr >= today;
+}
+
 export function shortDayIt(dateStr: string): string {
   return SHORT_DAY_IT[toDate(dateStr).getUTCDay()] ?? "";
 }
