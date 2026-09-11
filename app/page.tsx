@@ -3,6 +3,7 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { getStreamStatus } from "@/lib/twitch";
 import { getLatestVideo } from "@/lib/youtube";
+import { isUpcoming } from "@/lib/schedule";
 import { blowbrush } from "./fonts";
 import background from "@/public/background.png";
 import LiveBlock from "./liveBlock";
@@ -69,7 +70,9 @@ async function HomeCards() {
     supabase.from("news").select("*").order("created_at", { ascending: false }),
   ]);
 
-  const prossimeDirette = (scheduleRes.data ?? []).filter((item) => item.data);
+  const prossimeDirette = (scheduleRes.data ?? []).filter(
+    (item) => item.data && isUpcoming(item.data),
+  );
   const news = newsRes.data;
 
   return (
