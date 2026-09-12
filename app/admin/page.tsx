@@ -42,7 +42,7 @@ const SECTIONS: Section[] = [
     fields: [
       { name: "icona", placeholder: "Icona (es. 🎁)" },
       { name: "titolo", placeholder: "Titolo", required: true },
-      { name: "testo", placeholder: "Testo", required: true },
+      { name: "testo", placeholder: "Testo", required: true, type: "textarea" },
     ],
     label: (r) => `${r.icona ?? ""} ${r.titolo}`,
     announce: "news",
@@ -53,7 +53,12 @@ const SECTIONS: Section[] = [
     icon: "📅",
     fields: [
       { name: "titolo", placeholder: "Titolo", required: true },
-      { name: "descrizione", placeholder: "Descrizione", required: true },
+      {
+        name: "descrizione",
+        placeholder: "Descrizione",
+        required: true,
+        type: "textarea",
+      },
       { name: "data", placeholder: "Data", type: "date", required: true },
       {
         name: "solo_abbonati",

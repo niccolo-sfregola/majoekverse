@@ -7,7 +7,7 @@ import SponsorLogoField from "./sponsorLogoField";
 export type Field = {
   name: string;
   placeholder: string;
-  type?: string; // "text" (default), "date", "time", "url", "checkbox", "image"
+  type?: string; // "text" (default), "date", "time", "url", "checkbox", "image", "textarea"
   required?: boolean;
 };
 
@@ -63,6 +63,19 @@ export default function RowForm({
                 <span className="pointer-events-none absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-brand-crema transition-transform peer-checked:translate-x-5" />
               </span>
             </label>
+          );
+        }
+        if (f.type === "textarea") {
+          return (
+            <textarea
+              key={f.name}
+              name={f.name}
+              placeholder={f.placeholder}
+              required={f.required}
+              defaultValue={String(row?.[f.name] ?? "")}
+              rows={4}
+              className={`${inputClass} resize-y`}
+            />
           );
         }
         if (f.type === "image") {
