@@ -8,9 +8,12 @@ import { blowbrush } from "./fonts";
 import background from "@/public/background.png";
 import LiveBlock from "./liveBlock";
 import ScheduleCard from "./scheduleCard";
+import NewsList from "./newsList";
 
+// items-start: ogni card prende solo l'altezza del suo contenuto, invece di
+// stirarsi per pareggiare la più alta della sua riga (di griglia).
 const GRID =
-  "relative z-10 -mt-12 grid w-full max-w-5xl grid-cols-2 gap-3 px-4 md:-mt-16 md:gap-4";
+  "relative z-10 -mt-12 grid w-full max-w-5xl grid-cols-2 items-start gap-3 px-4 md:-mt-16 md:gap-4";
 const CARD_LABEL =
   "text-xs font-semibold uppercase tracking-[0.18em] text-brand-lavanda";
 
@@ -32,7 +35,9 @@ export default function Home() {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-brand-fondo/20 via-brand-fondo/60 to-brand-fondo" />
         <div className="relative z-10 flex flex-col items-center gap-3 px-4 py-20 text-center md:py-28">
-          <h1 className={`${blowbrush.className} logo-title text-5xl md:text-7xl`}>
+          <h1
+            className={`${blowbrush.className} logo-title text-5xl md:text-7xl`}
+          >
             maJoekverse
           </h1>
           <p className="max-w-md text-sm text-brand-crema/90 md:text-base">
@@ -107,19 +112,7 @@ async function HomeCards() {
 
       <div className="card-glass col-span-2 flex flex-col gap-2 p-5 md:col-span-1">
         <p className={CARD_LABEL}>News &amp; eventi</p>
-        <ul>
-          {news?.map((item) => (
-            <li key={item.id} className="flex items-start gap-3 py-2">
-              <span className="text-xl">{item.icona}</span>
-              <div className="flex-1">
-                <p className="text-brand-crema">{item.titolo}</p>
-                <p className="whitespace-pre-line text-brand-lavanda">
-                  {item.testo}
-                </p>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <NewsList items={news ?? []} />
       </div>
     </div>
   );
