@@ -81,20 +81,6 @@ body {
   border: 1px solid color-mix(in oklab, var(--crema) 12%, transparent);
 }
 
-/* Riga espandibile dell'area admin (elemento <details class="row">). */
-details.row > summary {
-  list-style: none;
-}
-details.row > summary::-webkit-details-marker {
-  display: none;
-}
-.row-chevron {
-  transition: transform 0.2s ease;
-}
-details.row[open] .row-chevron {
-  transform: rotate(180deg);
-}
-
 /* La striscia di luce ("riflesso") che scorre sulla card al passaggio del mouse. */
 .card-glass::after,
 .card-sheen::after {

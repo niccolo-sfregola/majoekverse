@@ -21,6 +21,7 @@ import AnnounceButton from "./announceButton";
 import RowForm, { type Field } from "./rowForm";
 import DeleteButton from "./deleteButton";
 import Collapsible from "./collapsible";
+import AdminRow from "./adminRow";
 
 type Section = {
   table: string;
@@ -250,57 +251,32 @@ export default async function Admin() {
             {rows.length > 0 ? (
               <ul className="flex flex-col gap-2">
                 {rows.map((row) => (
-                  <li
-                    key={row.id}
-                    className="overflow-hidden rounded-xl bg-brand-fondo/45"
-                  >
-                    <details className="row group">
-                      <summary className="flex cursor-pointer items-center justify-between gap-3 p-3">
-                        <span className="min-w-0 truncate text-sm text-brand-crema">
-                          {section.label(row)}
-                        </span>
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="row-chevron shrink-0 text-brand-lavanda"
-                        >
-                          <path d="m6 9 6 6 6-6" />
-                        </svg>
-                      </summary>
-                      <div className="flex flex-col gap-3 border-t border-brand-lavanda/10 p-3">
-                        <RowForm
-                          table={section.table}
-                          fields={section.fields}
-                          row={row}
-                        />
-                        {section.announce === "news" ? (
-                          <AnnounceButton
-                            action={announceNews}
-                            id={row.id}
-                            label="Annuncia su Discord"
-                          />
-                        ) : null}
-                        {section.announce === "event" ? (
-                          <AnnounceButton
-                            action={announceEvent}
-                            id={row.id}
-                            label="Annuncia su Discord"
-                          />
-                        ) : null}
-                        <DeleteButton
-                          table={section.table}
-                          id={row.id}
-                          label={section.label(row)}
-                        />
-                      </div>
-                    </details>
-                  </li>
+                  <AdminRow key={row.id} label={section.label(row)}>
+                    <RowForm
+                      table={section.table}
+                      fields={section.fields}
+                      row={row}
+                    />
+                    {section.announce === "news" ? (
+                      <AnnounceButton
+                        action={announceNews}
+                        id={row.id}
+                        label="Annuncia su Discord"
+                      />
+                    ) : null}
+                    {section.announce === "event" ? (
+                      <AnnounceButton
+                        action={announceEvent}
+                        id={row.id}
+                        label="Annuncia su Discord"
+                      />
+                    ) : null}
+                    <DeleteButton
+                      table={section.table}
+                      id={row.id}
+                      label={section.label(row)}
+                    />
+                  </AdminRow>
                 ))}
               </ul>
             ) : (
