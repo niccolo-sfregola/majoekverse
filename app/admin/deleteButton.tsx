@@ -1,7 +1,14 @@
 "use client";
 
-import { useActionState } from "react";
-import { deleteRow, type MutateState } from "./actions";
+import { useActionState, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  deleteRow,
+  previewScheduleChanges,
+  announceScheduleChanges,
+  type MutateState,
+} from "./actions";
+import { changeLine } from "@/lib/schedule-diff";
 
 // Bottone "Elimina" con conferma. Se va storto mostra l'errore;
 // se va bene la riga sparisce (la pagina si ricarica) e non serve messaggio.
@@ -18,6 +25,34 @@ export default function DeleteButton({
     deleteRow,
     null,
   );
+  const router = useRouter();
+  const [discordMsg, setDiscordMsg] = useState<string | null>(null);
+
+  // Dopo aver eliminato una riga della schedule, se cambia qualcosa rispetto
+  // all'ultima pubblicazione su Discord chiedo subito se annunciarlo.
+  useEffect(() => {
+    if (table !== "schedule" || !state?.ok) return;
+    let cancelled = false;
+    (async () => {
+      const changes = await previewScheduleChanges();
+      if (cancelled || changes.length === 0) return;
+
+      const dettagli = changes.map(changeLine).join("\n");
+      const conferma = window.confirm(
+        `📢 Annuncio: cambio schedule\n\n${dettagli}\n\nPubblicare questo annuncio su Discord?`,
+      );
+      if (!conferma) return;
+
+      const esito = await announceScheduleChanges(null, new FormData());
+      if (!cancelled) {
+        setDiscordMsg(esito?.message ?? null);
+        router.refresh();
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [state, table, router]);
 
   return (
     <form
@@ -38,6 +73,9 @@ export default function DeleteButton({
       </button>
       {state && !state.ok ? (
         <span className="text-sm text-brand-corallo">{state.message}</span>
+      ) : null}
+      {discordMsg ? (
+        <span className="text-sm text-brand-lavanda">{discordMsg}</span>
       ) : null}
     </form>
   );

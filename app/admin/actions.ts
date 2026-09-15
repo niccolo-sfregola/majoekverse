@@ -11,6 +11,7 @@ import {
   formatScheduleChanges,
   scheduleChangesPlainText,
   type ScheduleRow,
+  type ScheduleChange,
 } from "@/lib/schedule-diff";
 
 // Le colonne modificabili per ogni tabella. Tutto ciò che non è qui non
@@ -185,6 +186,26 @@ export async function announceSchedule(
   } catch (e) {
     return { ok: false, message: `Errore: ${(e as Error).message}` };
   }
+}
+
+// Calcola le modifiche alla schedule rispetto all'ultima pubblicazione,
+// SENZA pubblicarle: usato subito dopo il salvataggio di una riga per
+// chiedere conferma prima di annunciare su Discord.
+export async function previewScheduleChanges(): Promise<ScheduleChange[]> {
+  await assertAdmin();
+
+  const supabase = await createClient();
+  const rows = await loadSchedule(supabase);
+
+  const { data: snap } = await supabase
+    .from("schedule_announcement")
+    .select("snapshot")
+    .eq("id", 1)
+    .single();
+  const previous = (snap?.snapshot ?? []) as ScheduleRow[];
+  if (previous.length === 0) return [];
+
+  return diffSchedule(rows, previous);
 }
 
 // Annuncia SOLO le modifiche rispetto all'ultima pubblicazione + crea una news.
