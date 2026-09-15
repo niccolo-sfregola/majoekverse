@@ -93,7 +93,7 @@ async function HomeCards() {
             href={ultimoVideo.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex flex-col gap-2"
+            className="flex flex-col gap-2 transition hover:opacity-80 active:scale-[0.99]"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
