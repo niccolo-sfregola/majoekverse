@@ -245,7 +245,69 @@ body {
   overflow: hidden;
 }
 
+/* Card a schermo intero (es. lettura news): il fondo compare/sparisce con un
+   fade, il contenuto scorre leggermente su/giù insieme. Le due varianti "out"
+   servono per animare anche la chiusura (smontata via onAnimationEnd in JS,
+   non con un setTimeout, così la durata resta unica fonte di verità qui). */
+@keyframes overlay-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes overlay-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+.overlay-fade-in {
+  animation: overlay-fade-in 0.2s ease-out both;
+}
+.overlay-fade-out {
+  animation: overlay-fade-out 0.18s ease-in both;
+}
+
+@keyframes sheet-in {
+  from {
+    opacity: 0;
+    translate: 0 16px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+@keyframes sheet-out {
+  from {
+    opacity: 1;
+    translate: 0 0;
+  }
+  to {
+    opacity: 0;
+    translate: 0 16px;
+  }
+}
+.sheet-in {
+  animation: sheet-in 0.22s ease-out both;
+}
+.sheet-out {
+  animation: sheet-out 0.18s ease-in both;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .overlay-fade-in,
+  .overlay-fade-out,
+  .sheet-in,
+  .sheet-out {
+    /* Non "none": deve restare un'animazione (anche impercettibile) perché
+       la chiusura si smonta all'evento animationend. */
+    animation-duration: 0.01s;
+  }
   .card-glass,
   .card-sheen,
   .card-glass::after,
