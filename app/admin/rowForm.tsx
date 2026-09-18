@@ -1,10 +1,9 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
-import { saveRow, previewScheduleChanges, announceScheduleChanges, type MutateState } from "./actions";
-import { changeLine } from "@/lib/schedule-diff";
+import { useActionState, useEffect, useRef } from "react";
+import { saveRow, type MutateState } from "./actions";
 import SponsorLogoField from "./sponsorLogoField";
+import { useNotifyScheduleChanged } from "./scheduleAnnounceContext";
 
 export type Field = {
   name: string;
@@ -32,8 +31,7 @@ export default function RowForm({
     null,
   );
   const formRef = useRef<HTMLFormElement>(null);
-  const router = useRouter();
-  const [discordMsg, setDiscordMsg] = useState<string | null>(null);
+  const notifyScheduleChanged = useNotifyScheduleChanged();
 
   // Dopo un inserimento riuscito, svuota i campi (solo nel form "aggiungi",
   // non in quello di modifica: lì i valori salvati vanno tenuti).
@@ -44,31 +42,11 @@ export default function RowForm({
     }
   }, [state, isNew]);
 
-  // Dopo aver salvato una riga della schedule, se cambia qualcosa rispetto
-  // all'ultima pubblicazione su Discord chiedo subito se annunciarlo.
+  // Avvisa il riquadro "pubblica su Discord" (vedi ScheduleAnnouncePrompt)
+  // che è stata salvata una riga della schedule.
   useEffect(() => {
-    if (table !== "schedule" || !state?.ok) return;
-    let cancelled = false;
-    (async () => {
-      const changes = await previewScheduleChanges();
-      if (cancelled || changes.length === 0) return;
-
-      const dettagli = changes.map(changeLine).join("\n");
-      const conferma = window.confirm(
-        `📢 Annuncio: cambio schedule\n\n${dettagli}\n\nPubblicare questo annuncio su Discord?`,
-      );
-      if (!conferma) return;
-
-      const esito = await announceScheduleChanges(null, new FormData());
-      if (!cancelled) {
-        setDiscordMsg(esito?.message ?? null);
-        router.refresh();
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [state, table, router]);
+    if (table === "schedule" && state?.ok) notifyScheduleChanged();
+  }, [state, table, notifyScheduleChanged]);
 
   return (
     <form ref={formRef} action={formAction} className="flex flex-col gap-2">
@@ -147,9 +125,6 @@ export default function RowForm({
         >
           {state.message}
         </span>
-      ) : null}
-      {discordMsg ? (
-        <span className="text-sm text-brand-lavanda">{discordMsg}</span>
       ) : null}
     </form>
   );
