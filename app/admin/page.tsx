@@ -22,6 +22,8 @@ import RowForm, { type Field } from "./rowForm";
 import DeleteButton from "./deleteButton";
 import Collapsible from "./collapsible";
 import AdminRow from "./adminRow";
+import { ScheduleAnnounceProvider } from "./scheduleAnnounceContext";
+import ScheduleAnnouncePrompt from "./scheduleAnnouncePrompt";
 
 type Section = {
   table: string;
@@ -154,137 +156,140 @@ export default async function Admin() {
       : [];
 
   return (
-    <main className="rise-in safe-top mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-4 px-4 pb-10">
-      <h1
-        className={`${blowbrush.className} text-center text-4xl tracking-wide text-brand-crema md:text-5xl`}
-      >
-        Area Admin
-      </h1>
-      <p className="text-center text-sm text-brand-lavanda">
-        Ogni modifica compare subito sul sito. Apri una sezione per gestirla.
-      </p>
+    <ScheduleAnnounceProvider>
+      <main className="rise-in safe-top mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-4 px-4 pb-10">
+        <h1
+          className={`${blowbrush.className} text-center text-4xl tracking-wide text-brand-crema md:text-5xl`}
+        >
+          Area Admin
+        </h1>
+        <p className="text-center text-sm text-brand-lavanda">
+          Ogni modifica compare subito sul sito. Apri una sezione per gestirla.
+        </p>
 
-      {/* Riepilogo: quante voci per tabella. */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {SECTIONS.map((section, i) => (
-          <div key={section.table} className="panel p-3 text-center">
-            <div className="text-2xl font-semibold text-brand-crema">
-              {(results[i].data ?? []).length}
+        {/* Riepilogo: quante voci per tabella. */}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {SECTIONS.map((section, i) => (
+            <div key={section.table} className="panel p-3 text-center">
+              <div className="text-2xl font-semibold text-brand-crema">
+                {(results[i].data ?? []).length}
+              </div>
+              <div className="text-[0.7rem] uppercase tracking-[0.12em] text-brand-lavanda">
+                {section.title}
+              </div>
             </div>
-            <div className="text-[0.7rem] uppercase tracking-[0.12em] text-brand-lavanda">
-              {section.title}
-            </div>
+          ))}
+        </div>
+
+        {/* Strumenti Discord per la schedule, separati dalla gestione righe. */}
+        <Collapsible
+          title="Pubblica la schedule"
+          subtitle="Invio su Discord + news automatica"
+          icon="📢"
+        >
+          <div className={subBox}>
+            <p className={subLabel}>Schedule completa (settimana nuova)</p>
+            <pre className={preClass}>
+              {formatSchedule(scheduleRows) || "(schedule vuota)"}
+            </pre>
+            <AnnounceButton
+              action={announceSchedule}
+              label="Pubblica schedule completa"
+            />
           </div>
-        ))}
-      </div>
 
-      {/* Strumenti Discord per la schedule, separati dalla gestione righe. */}
-      <Collapsible
-        title="Pubblica la schedule"
-        subtitle="Invio su Discord + news automatica"
-        icon="📢"
-      >
-        <div className={subBox}>
-          <p className={subLabel}>Schedule completa (settimana nuova)</p>
-          <pre className={preClass}>
-            {formatSchedule(scheduleRows) || "(schedule vuota)"}
-          </pre>
-          <AnnounceButton
-            action={announceSchedule}
-            label="Pubblica schedule completa"
-          />
-        </div>
-
-        <div className={subBox}>
-          {previousSchedule.length === 0 ? (
-            <p className="text-sm text-brand-lavanda">
-              Nessuna schedule ancora pubblicata: usa il pulsante qui sopra la
-              prima volta.
-            </p>
-          ) : scheduleChanges.length === 0 ? (
-            <p className="text-sm text-brand-lavanda">
-              Nessuna modifica dall&apos;ultima pubblicazione.
-            </p>
-          ) : (
-            <>
-              <p className={subLabel}>Modifiche da annunciare</p>
-              <pre className={preClass}>
-                {scheduleChanges.map(changeLine).join("\n")}
-              </pre>
-              <AnnounceButton
-                action={announceScheduleChanges}
-                label="Annuncia modifiche"
-              />
-            </>
-          )}
-        </div>
-
-        <div className={subBox}>
-          <p className="text-sm text-brand-lavanda">
-            A inizio settimana: svuota la schedule vecchia, poi carica la nuova
-            dalla sezione qui sotto.
-          </p>
-          <AnnounceButton
-            action={clearSchedule}
-            label="Azzera schedule"
-            confirm="Vuoi eliminare tutte le righe della schedule?"
-          />
-        </div>
-      </Collapsible>
-
-      {SECTIONS.map((section, i) => {
-        const rows = (results[i].data ?? []) as Record<string, string>[];
-        return (
-          <Collapsible
-            key={section.table}
-            title={section.title}
-            subtitle={`${rows.length} ${rows.length === 1 ? "voce" : "voci"}`}
-            icon={section.icon}
-          >
-            <Collapsible
-              title={`Aggiungi ${section.title.toLowerCase()}`}
-              icon="＋"
-            >
-              <RowForm table={section.table} fields={section.fields} />
-            </Collapsible>
-
-            {rows.length > 0 ? (
-              <ul className="flex flex-col gap-2">
-                {rows.map((row) => (
-                  <AdminRow key={row.id} label={section.label(row)}>
-                    <RowForm
-                      table={section.table}
-                      fields={section.fields}
-                      row={row}
-                    />
-                    {section.announce === "news" ? (
-                      <AnnounceButton
-                        action={announceNews}
-                        id={row.id}
-                        label="Annuncia su Discord"
-                      />
-                    ) : null}
-                    {section.announce === "event" ? (
-                      <AnnounceButton
-                        action={announceEvent}
-                        id={row.id}
-                        label="Annuncia su Discord"
-                      />
-                    ) : null}
-                    <DeleteButton
-                      table={section.table}
-                      id={row.id}
-                      label={section.label(row)}
-                    />
-                  </AdminRow>
-                ))}
-              </ul>
+          <div className={subBox}>
+            {previousSchedule.length === 0 ? (
+              <p className="text-sm text-brand-lavanda">
+                Nessuna schedule ancora pubblicata: usa il pulsante qui sopra la
+                prima volta.
+              </p>
+            ) : scheduleChanges.length === 0 ? (
+              <p className="text-sm text-brand-lavanda">
+                Nessuna modifica dall&apos;ultima pubblicazione.
+              </p>
             ) : (
-              <p className="text-sm text-brand-lavanda">Ancora niente qui.</p>
+              <>
+                <p className={subLabel}>Modifiche da annunciare</p>
+                <pre className={preClass}>
+                  {scheduleChanges.map(changeLine).join("\n")}
+                </pre>
+                <AnnounceButton
+                  action={announceScheduleChanges}
+                  label="Annuncia modifiche"
+                />
+              </>
             )}
-          </Collapsible>
-        );
-      })}
-    </main>
+          </div>
+
+          <div className={subBox}>
+            <p className="text-sm text-brand-lavanda">
+              A inizio settimana: svuota la schedule vecchia, poi carica la
+              nuova dalla sezione qui sotto.
+            </p>
+            <AnnounceButton
+              action={clearSchedule}
+              label="Azzera schedule"
+              confirm="Vuoi eliminare tutte le righe della schedule?"
+            />
+          </div>
+        </Collapsible>
+
+        {SECTIONS.map((section, i) => {
+          const rows = (results[i].data ?? []) as Record<string, string>[];
+          return (
+            <Collapsible
+              key={section.table}
+              title={section.title}
+              subtitle={`${rows.length} ${rows.length === 1 ? "voce" : "voci"}`}
+              icon={section.icon}
+            >
+              <Collapsible
+                title={`Aggiungi ${section.title.toLowerCase()}`}
+                icon="＋"
+              >
+                <RowForm table={section.table} fields={section.fields} />
+              </Collapsible>
+
+              {rows.length > 0 ? (
+                <ul className="flex flex-col gap-2">
+                  {rows.map((row) => (
+                    <AdminRow key={row.id} label={section.label(row)}>
+                      <RowForm
+                        table={section.table}
+                        fields={section.fields}
+                        row={row}
+                      />
+                      {section.announce === "news" ? (
+                        <AnnounceButton
+                          action={announceNews}
+                          id={row.id}
+                          label="Annuncia su Discord"
+                        />
+                      ) : null}
+                      {section.announce === "event" ? (
+                        <AnnounceButton
+                          action={announceEvent}
+                          id={row.id}
+                          label="Annuncia su Discord"
+                        />
+                      ) : null}
+                      <DeleteButton
+                        table={section.table}
+                        id={row.id}
+                        label={section.label(row)}
+                      />
+                    </AdminRow>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-brand-lavanda">Ancora niente qui.</p>
+              )}
+              {section.table === "schedule" ? <ScheduleAnnouncePrompt /> : null}
+            </Collapsible>
+          );
+        })}
+      </main>
+    </ScheduleAnnounceProvider>
   );
 }
