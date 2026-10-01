@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   addDays,
+  isJoeUserId,
   mondayOf,
   titleState,
   weeklyWord,
@@ -41,6 +42,10 @@ export default async function Parola() {
     wordleLeaderboard(settimana),
     wordleLeaderboard(scorsa, 1),
   ]);
+  // Se la settimana scorsa ha vinto Joe, il premio non è stato assegnato.
+  const vintaDaJoe = vincitoreScorsa
+    ? await isJoeUserId(vincitoreScorsa.user_id)
+    : false;
 
   // La mia partita di questa settimana (letta dal server: la tabella non è
   // pubblica). I colori li ricalcoliamo qui, la parola resta sul server.
@@ -184,7 +189,11 @@ export default async function Parola() {
               {p.attempts(vincitoreScorsa.attempts)}
             </span>
           </p>
-        ) : (
+        ) : null}
+        {vintaDaJoe ? (
+          <p className="text-sm text-brand-lavanda">{p.joeWon}</p>
+        ) : null}
+        {vincitoreScorsa ? null : (
           <p className="text-sm text-brand-lavanda">{p.noWinner}</p>
         )}
       </section>

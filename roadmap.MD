@@ -159,7 +159,7 @@ Hai già superato la parte più ostica. Da qui è costruire.
 - Si gioca **solo con login Twitch**. Il Wordle settimanale è **solo per abbonati** (+ Joe, che non è abbonato al proprio canale). Admin e Joe sono in classifica come tutti.
 - **Zip:** stesso puzzle per tutti, cambia a mezzanotte (ora italiana), un tentativo al giorno. Il tempo lo misura il **server** (il puzzle arriva solo quando premi "Inizia"). Badge ai primi 3, **valido solo il giorno dopo**, niente palmarès.
 - **Wordle:** **solo in italiano** (parola e parole ammesse sono italiane, anche per chi usa l'app in inglese — lo dice la descrizione del gioco). Parola **pescata a caso dal server** da una lista nel codice. Nessuno la sceglie, quindi nessuno la conosce (Joe compreso). La scelta usa un segreto (`GAMES_SECRET`, lo stesso del puzzle Zip), così non si può ricavare leggendo il codice. Classifica per **numero di tentativi**, a parità vince chi ci ha messo meno. Il vincitore si decide a fine settimana.
-- **Titolo della live:** il vincitore scrive una **proposta** → `/admin` Accetta / Rifiuta (motivo facoltativo) → se rifiutata può riproporre, **max 3 proposte**. Scade dopo 3 giorni se non la scrive. Nessun automatismo con Twitch: il titolo vero lo mette Joe.
+- **Titolo della live:** il vincitore scrive una **proposta** → `/admin` Accetta / Rifiuta (motivo facoltativo) → se rifiutata può riproporre, **max 3 proposte**. Scade dopo 3 giorni se non la scrive. Nessun automatismo con Twitch: il titolo vero lo mette Joe. **Se vince Joe, quella settimana il premio non si assegna** (Joe resta in classifica).
 
 **Task:**
 - [X] Menu: "Eventi" → "Giochi" (top + bottom nav, icona nuova, dizionari IT/EN). Eventi nella Home come card espandibile. Pagina `/giochi` con due card.
@@ -208,6 +208,19 @@ Notifiche della proposta di titolo: a **tutti gli admin** (non solo Joe).
 **Cosa impari:** Web Push e service worker, permessi del browser, job programmati, perché le route cron vanno protette.
 
 **Fatto quando:** attivi le notifiche sul telefono, ti arriva "lo Zip è online", la sera ti arriva il sollecito solo se non hai giocato, e Joe riceve la proposta di titolo appena il vincitore la scrive.
+
+---
+
+## Fase 10 — Privacy (GDPR)
+
+**Obiettivo:** informare gli utenti su quali dati raccoglie l'app e permettere di cancellarli, prima di annunciare i giochi alla community.
+
+**Decisioni:** titolare Niccolò Sfregola, contatto niccolo.sfregola03@gmail.com. Supabase in UE (eu-central-1, Francoforte). Solo cookie tecnici → niente banner. Testo in `lib/privacy.ts` (da aggiornare se cambiano i dati raccolti o i fornitori).
+
+- [X] Pagina `/privacy` bilingue (informativa art. 13 + regole dei giochi e premi senza valore economico).
+- [X] Link alla privacy sotto ogni "Accedi con Twitch" (Profilo, giochi, onboarding) e in fondo al Profilo.
+- [X] Bottone "Elimina account" accanto a "Esci": cancella l'utente da Supabase Auth, il resto sparisce con `on delete cascade`.
+- [ ] Provare l'eliminazione con un account di prova e pubblicare insieme alla Fase 9.
 
 ---
 

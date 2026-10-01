@@ -159,6 +159,20 @@ export default function Onboarding() {
               >
                 {t.onboarding.guest}
               </button>
+              {/* Nuova scheda: l'onboarding copre la pagina, qui sotto
+                  la privacy non si vedrebbe. */}
+              <p className="text-center text-xs text-brand-lavanda">
+                {t.auth.privacyBefore}{" "}
+                <a
+                  href="/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-brand-crema"
+                >
+                  {t.auth.privacyLink}
+                </a>
+                .
+              </p>
             </>
           ) : null}
         </div>

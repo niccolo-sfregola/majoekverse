@@ -101,6 +101,7 @@ const it = {
     lastWord: "La parola era",
     lastWinner: "Ha vinto",
     noWinner: "Nessuno l'ha indovinata.",
+    joeWon: "Joe vi ha battuti tutti 😏 Questa volta niente titolo da proporre: rifatevi con la prossima parola!",
     attempts: (n: number) => `${n}/6`,
   },
   notifiche: {
@@ -245,6 +246,12 @@ const it = {
     connectChannel: "Collega il canale per vedere follower e abbonati",
     adminArea: "Area Admin",
     zipBadge: "Zip di ieri",
+    deleteAccount: "Elimina account",
+    deleting: "Elimino…",
+    deleteConfirm:
+      "Vuoi davvero eliminare il tuo account? Verranno cancellati per sempre anche partite, classifiche, proposte e notifiche. Non si può annullare.",
+    deleteError:
+      "Non è stato possibile eliminare l'account. Riprova, o scrivi a niccolo.sfregola03@gmail.com.",
     logout: "Esci",
     loggingOut: "Esco…",
     loggedOutText:
@@ -253,6 +260,11 @@ const it = {
   auth: {
     login: "Accedi con Twitch",
     opening: "Apro Twitch…",
+    privacyBefore: "Accedendo accetti",
+    privacyLink: "privacy e regole",
+  },
+  privacy: {
+    link: "Privacy e regole",
   },
   onboarding: {
     skip: "Salta",
@@ -376,6 +388,7 @@ const en: Dict = {
     lastWord: "The word was",
     lastWinner: "Winner",
     noWinner: "Nobody guessed it.",
+    joeWon: "Joe beat you all 😏 No title to suggest this time: get your revenge with the next word!",
     attempts: (n: number) => `${n}/6`,
   },
   notifiche: {
@@ -520,6 +533,12 @@ const en: Dict = {
     connectChannel: "Connect the channel to see followers and subscribers",
     adminArea: "Admin area",
     zipBadge: "Yesterday's Zip",
+    deleteAccount: "Delete account",
+    deleting: "Deleting…",
+    deleteConfirm:
+      "Do you really want to delete your account? Your games, leaderboard positions, suggestions and notifications will be deleted forever too. This can't be undone.",
+    deleteError:
+      "We couldn't delete your account. Try again, or write to niccolo.sfregola03@gmail.com.",
     logout: "Log out",
     loggingOut: "Logging out…",
     loggedOutText:
@@ -528,6 +547,11 @@ const en: Dict = {
   auth: {
     login: "Sign in with Twitch",
     opening: "Opening Twitch…",
+    privacyBefore: "By signing in you accept our",
+    privacyLink: "privacy & rules",
+  },
+  privacy: {
+    link: "Privacy & rules",
   },
   onboarding: {
     skip: "Skip",

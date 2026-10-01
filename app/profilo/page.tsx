@@ -16,6 +16,7 @@ import SubmitButton from "@/app/submitButton";
 import { zipBadges } from "@/lib/games";
 import LangSwitch from "@/app/langSwitch";
 import Notifiche from "./notifiche";
+import DeleteAccountButton from "./deleteAccountButton";
 import { getDict, getLang } from "@/lib/i18n/server";
 import { DATE_LOCALE } from "@/lib/i18n/dictionaries";
 
@@ -314,7 +315,7 @@ export default async function Profilo() {
                 <span aria-hidden>→</span>
               </Link>
             ) : null}
-            <form action={signOut} className={admin ? "md:shrink-0" : "w-full"}>
+            <form action={signOut} className={admin ? "md:shrink-0" : "md:flex-1"}>
               <SubmitButton
                 pendingText={t.profilo.loggingOut}
                 className="w-full rounded-xl border border-brand-corallo/50 py-3 font-semibold text-brand-corallo transition hover:bg-brand-corallo/10 active:scale-[0.98] disabled:opacity-60 md:px-10"
@@ -322,7 +323,17 @@ export default async function Profilo() {
                 {t.profilo.logout}
               </SubmitButton>
             </form>
+            <DeleteAccountButton
+              className={admin ? "md:shrink-0" : "md:flex-1"}
+            />
           </div>
+
+          <Link
+            href="/privacy"
+            className="self-center text-xs text-brand-lavanda underline transition hover:text-brand-crema"
+          >
+            {t.privacy.link}
+          </Link>
         </>
       ) : (
         <div className="card-glass mx-auto flex w-full max-w-md flex-col items-center gap-4 p-6 text-center">
@@ -339,6 +350,13 @@ export default async function Profilo() {
               {t.auth.login}
             </SubmitButton>
           </form>
+          <p className="text-xs text-brand-lavanda">
+            {t.auth.privacyBefore}{" "}
+            <Link href="/privacy" className="underline hover:text-brand-crema">
+              {t.auth.privacyLink}
+            </Link>
+            .
+          </p>
         </div>
       )}
     </main>

@@ -1,3 +1,4 @@
+import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 
 // Vero se l'utente loggato è nella tabella admins (controllo fatto dal
@@ -24,10 +25,15 @@ export async function isJoe(): Promise<boolean> {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const login = (
+  return isJoeUser(user);
+}
+
+// Lo stesso controllo, su un utente qualsiasi (es. il vincitore di un gioco).
+export function isJoeUser(user: User | null | undefined): boolean {
+  const login = String(
     user?.user_metadata?.preferred_username ??
-    user?.user_metadata?.nickname ??
-    ""
+      user?.user_metadata?.nickname ??
+      "",
   ).toLowerCase();
   return login === JOE_TWITCH_LOGIN;
 }

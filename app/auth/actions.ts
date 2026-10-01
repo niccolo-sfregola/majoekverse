@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { isJoe } from "@/lib/auth";
 import { JOE_CHANNEL_SCOPES, USER_CHANNEL_SCOPES } from "@/lib/twitch-user";
 import { getSiteUrl } from "@/lib/site-url";
@@ -56,4 +57,25 @@ export async function connectTwitchChannel() {
   }
 
   redirect(data.url);
+}
+
+// Elimina l'account dell'utente loggato (diritto alla cancellazione, GDPR).
+// Basta cancellare l'utente da Supabase Auth: tutte le tabelle collegate
+// (partite, proposte, notifiche, token Twitch, admin) hanno
+// "on delete cascade", quindi spariscono insieme a lui.
+// Se qualcosa va storto restituisce { error: true } (lo mostra il bottone);
+// se va bene non restituisce niente: redirect alla Home.
+export async function deleteAccount(): Promise<{ error: true } | void> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/profilo");
+
+  const { error } = await createAdminClient().auth.admin.deleteUser(user.id);
+  if (error) return { error: true };
+
+  // La sessione nel browser non vale più: puliamo anche i cookie.
+  await supabase.auth.signOut();
+  redirect("/");
 }
