@@ -58,10 +58,7 @@ export default function WordleGame({
     setPending(true);
     // .catch: rete giù, o app aggiornata mentre la pagina era aperta
     // ("Server Action not found") → messaggio "ricarica" invece di un crash.
-    const res = await guessWordle(
-      input,
-      righe.map((r) => r.parola),
-    ).catch(() => null);
+    const res = await guessWordle(input).catch(() => null);
     setPending(false);
     if (!res) {
       fail(t.parola.error);
@@ -88,7 +85,7 @@ export default function WordleGame({
     setStato(res.stato);
     setTimeMs(res.timeMs);
     if (res.stato !== "playing") router.refresh();
-  }, [input, righe, fail, router, t]);
+  }, [input, fail, router, t]);
 
   const press = useCallback(
     (key: string) => {
@@ -173,7 +170,7 @@ export default function WordleGame({
 
       <p className="min-h-5 text-center text-sm text-brand-lavanda" aria-live="polite">
         {stato === "won"
-          ? t.parola.wonIn(righe.length, timeMs != null ? formatDurata(timeMs) : "—")
+          ? t.parola.wonIn(righe.length, formatDurata(timeMs ?? 0))
           : stato === "lost"
             ? t.parola.lost
             : (message ?? (pending ? t.parola.checking : ""))}

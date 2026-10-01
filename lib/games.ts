@@ -172,12 +172,69 @@ export async function wordleAccess(
   return rel.subscribed ? "ok" : "notSub";
 }
 
-// SOLO PER PROVE IN LOCALE: con GAMES_DEV_OPEN=1 in .env.local si gioca anche
-// senza login (partita non salvata) e il Wordle non controlla l'abbonamento.
-// Vale solo con `npm run dev`: in produzione è sempre false.
-export function gamesDevOpen(): boolean {
-  return (
-    process.env.NODE_ENV === "development" &&
-    process.env.GAMES_DEV_OPEN === "1"
-  );
+// --- Proposte di titolo -------------------------------------------------------
+
+export const MAX_PROPOSTE = 3;
+// Giorni per proporre: da lunedì (o dal giorno del rifiuto) compreso.
+const GIORNI_PROPOSTA = 3;
+
+export type Proposta = {
+  id: number;
+  titolo: string;
+  stato: "pending" | "accepted" | "rejected";
+  motivo: string | null;
+  created_at: string;
+  reviewed_at: string | null;
+};
+
+export type TitleState =
+  | { kind: "none" } // non è il vincitore della settimana scorsa
+  | {
+      kind: "winner";
+      settimana: string; // settimana vinta
+      proposte: Proposta[];
+      // Cosa può fare adesso:
+      // propose = può scrivere (fino a `scadenza` compresa), pending = attende
+      // Joe, accepted = premio usato, exhausted = 3 proposte rifiutate,
+      // expired = tempo scaduto.
+      azione: "propose" | "pending" | "accepted" | "exhausted" | "expired";
+      scadenza: string | null; // ultimo giorno utile, "AAAA-MM-GG"
+      rimaste: number;
+    };
+
+// Situazione del premio per questo utente (calcolata sempre dal server).
+export async function titleState(userId: string): Promise<TitleState> {
+  const settimana = addDays(mondayOf(), -7);
+  const [vincitore] = await wordleLeaderboard(settimana, 1);
+  if (vincitore?.user_id !== userId) return { kind: "none" };
+
+  const { data } = await createAdminClient()
+    .from("title_proposals")
+    .select("id, titolo, stato, motivo, created_at, reviewed_at")
+    .eq("user_id", userId)
+    .eq("settimana", settimana)
+    .order("created_at", { ascending: true });
+  const proposte = (data ?? []) as Proposta[];
+  const ultima = proposte[proposte.length - 1];
+  const rimaste = MAX_PROPOSTE - proposte.length;
+  const base = { kind: "winner" as const, settimana, proposte, rimaste };
+
+  if (proposte.some((p) => p.stato === "accepted")) {
+    return { ...base, azione: "accepted", scadenza: null };
+  }
+  if (ultima?.stato === "pending") {
+    return { ...base, azione: "pending", scadenza: null };
+  }
+  if (rimaste <= 0) return { ...base, azione: "exhausted", scadenza: null };
+
+  // I giorni partono da lunedì, o dal giorno dell'ultimo rifiuto.
+  const inizio = ultima?.reviewed_at
+    ? romeToday(new Date(ultima.reviewed_at))
+    : mondayOf();
+  const scadenza = addDays(inizio, GIORNI_PROPOSTA - 1);
+  return {
+    ...base,
+    azione: romeToday() <= scadenza ? "propose" : "expired",
+    scadenza,
+  };
 }

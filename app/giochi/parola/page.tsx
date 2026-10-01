@@ -3,8 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   addDays,
-  gamesDevOpen,
   mondayOf,
+  titleState,
   weeklyWord,
   wordleAccess,
   wordleLeaderboard,
@@ -17,6 +17,7 @@ import { getDict } from "@/lib/i18n/server";
 import { blowbrush } from "@/app/fonts";
 import LoginPrompt from "../loginPrompt";
 import WordleGame from "./wordleGame";
+import TitleBox from "./titleBox";
 
 const TWITCH_SUB = "https://www.twitch.tv/subs/majoekoto";
 const CARD_LABEL =
@@ -49,6 +50,8 @@ export default async function Parola() {
     timeMs: number | null;
   } | null = null;
   let access: "ok" | "notSub" | "noToken" = "ok";
+  // Premio del vincitore della settimana scorsa (proposta di titolo).
+  const premio = user ? await titleState(user.id) : null;
 
   if (user) {
     const { data: mia } = await createAdminClient()
@@ -70,7 +73,7 @@ export default async function Parola() {
       };
     } else {
       // Non ha ancora giocato: controlliamo l'abbonamento solo ora.
-      access = gamesDevOpen() ? "ok" : await wordleAccess(user);
+      access = await wordleAccess(user);
     }
   }
 
@@ -91,7 +94,9 @@ export default async function Parola() {
         {p.week(ddmm(settimana), ddmm(addDays(settimana, 6)))}
       </p>
 
-      {!user && !gamesDevOpen() ? (
+      {premio?.kind === "winner" ? <TitleBox state={premio} /> : null}
+
+      {!user ? (
         <LoginPrompt text={p.loginText} />
       ) : access === "notSub" ? (
         <div className="panel flex flex-col items-center gap-4 p-6 text-center">

@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdmin } from "@/lib/auth";
 import { formatSchedule } from "@/lib/announce";
 import { longDayIt, ddmm } from "@/lib/schedule";
@@ -22,6 +23,7 @@ import RowForm, { type Field } from "./rowForm";
 import DeleteButton from "./deleteButton";
 import Collapsible from "./collapsible";
 import AdminRow from "./adminRow";
+import { ReviewForm, CopyTitle } from "./titleReview";
 import { ScheduleAnnounceProvider } from "./scheduleAnnounceContext";
 import ScheduleAnnouncePrompt from "./scheduleAnnouncePrompt";
 
@@ -155,6 +157,34 @@ export default async function Admin() {
       ? diffSchedule(scheduleRows, previousSchedule)
       : [];
 
+  // Proposte di titolo dei vincitori della parola della settimana: tutte
+  // quelle in attesa + le ultime decise. Tabella senza policy → client admin.
+  type Proposta = {
+    id: number;
+    titolo: string;
+    stato: "pending" | "accepted" | "rejected";
+    motivo: string | null;
+    username: string;
+    settimana: string;
+  };
+  const adminDb = createAdminClient();
+  const cols = "id, titolo, stato, motivo, username, settimana";
+  const [{ data: inAttesa }, { data: decise }] = await Promise.all([
+    adminDb
+      .from("title_proposals")
+      .select(cols)
+      .eq("stato", "pending")
+      .order("created_at", { ascending: true }),
+    adminDb
+      .from("title_proposals")
+      .select(cols)
+      .neq("stato", "pending")
+      .order("reviewed_at", { ascending: false })
+      .limit(10),
+  ]);
+  const pendingTitles = (inAttesa ?? []) as Proposta[];
+  const reviewedTitles = (decise ?? []) as Proposta[];
+
   return (
     <ScheduleAnnounceProvider>
       <main className="rise-in safe-top mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-4 px-4 pb-10">
@@ -180,6 +210,57 @@ export default async function Admin() {
             </div>
           ))}
         </div>
+
+        {/* Proposte di titolo: aperta da sola se c'è qualcosa da decidere. */}
+        <Collapsible
+          title="Proposte titolo live"
+          subtitle={
+            pendingTitles.length > 0
+              ? `${pendingTitles.length} in attesa`
+              : "Nessuna in attesa"
+          }
+          icon="🏆"
+          defaultOpen={pendingTitles.length > 0}
+        >
+          {pendingTitles.map((p) => (
+            <div key={p.id} className={subBox}>
+              <p className={subLabel}>
+                {p.username} · settimana del {ddmm(p.settimana)}
+              </p>
+              <p className="text-brand-crema">“{p.titolo}”</p>
+              <ReviewForm id={p.id} />
+            </div>
+          ))}
+          {reviewedTitles.length > 0 ? (
+            <div className={subBox}>
+              <p className={subLabel}>Ultime decise</p>
+              <ul className="flex flex-col gap-2">
+                {reviewedTitles.map((p) => (
+                  <li key={p.id} className="flex items-start gap-2 text-sm">
+                    <span className="shrink-0">
+                      {p.stato === "accepted" ? "✅" : "❌"}
+                    </span>
+                    <span className="min-w-0 flex-1 text-brand-crema">
+                      “{p.titolo}”
+                      <span className="block text-xs text-brand-lavanda">
+                        {p.username}
+                        {p.motivo ? ` · ${p.motivo}` : ""}
+                      </span>
+                    </span>
+                    {p.stato === "accepted" ? (
+                      <CopyTitle titolo={p.titolo} />
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : pendingTitles.length === 0 ? (
+            <p className="text-sm text-brand-lavanda">
+              Ancora nessuna proposta. Arrivano dal vincitore della parola della
+              settimana.
+            </p>
+          ) : null}
+        </Collapsible>
 
         {/* Strumenti Discord per la schedule, separati dalla gestione righe. */}
         <Collapsible

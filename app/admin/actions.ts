@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdmin } from "@/lib/auth";
 import { sendToDiscord } from "@/lib/discord";
 import { formatSchedule, formatNews, formatEvent } from "@/lib/announce";
@@ -297,6 +298,51 @@ export async function announceEvent(
   try {
     await sendToDiscord(formatEvent(evento));
     return { ok: true, message: "Evento annunciato su Discord ✅" };
+  } catch (e) {
+    return { ok: false, message: `Errore: ${(e as Error).message}` };
+  }
+}
+
+// Accetta o rifiuta una proposta di titolo del vincitore della parola della
+// settimana. Solo le proposte ancora "in attesa" si possono decidere.
+export async function reviewTitle(
+  _prev: MutateState,
+  formData: FormData,
+): Promise<MutateState> {
+  try {
+    await assertAdmin();
+
+    const id = text(formData, "id");
+    const decisione = text(formData, "decisione");
+    const motivo = text(formData, "motivo");
+    if (!id || (decisione !== "accepted" && decisione !== "rejected")) {
+      return { ok: false, message: "Richiesta non valida." };
+    }
+
+    // La tabella non ha policy: scrive il server con la chiave service_role
+    // (il controllo admin l'abbiamo appena fatto).
+    const { data, error } = await createAdminClient()
+      .from("title_proposals")
+      .update({
+        stato: decisione,
+        motivo: decisione === "rejected" && motivo ? motivo : null,
+        reviewed_at: new Date().toISOString(),
+      })
+      .eq("id", id)
+      .eq("stato", "pending")
+      .select("id");
+
+    if (error) return { ok: false, message: `Errore: ${error.message}` };
+    if (!data?.length) {
+      return { ok: false, message: "Proposta già decisa da qualcun altro." };
+    }
+
+    revalidatePath("/admin");
+    revalidatePath("/giochi/parola");
+    return {
+      ok: true,
+      message: decisione === "accepted" ? "Accettata ✅" : "Rifiutata",
+    };
   } catch (e) {
     return { ok: false, message: `Errore: ${(e as Error).message}` };
   }
