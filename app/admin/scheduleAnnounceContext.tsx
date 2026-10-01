@@ -1,6 +1,13 @@
 "use client";
 
-import { createContext, useContext, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 
 // Segnale condiviso: RowForm/DeleteButton "avvisano" quando una riga della
 // schedule è stata salvata o eliminata; ScheduleAnnouncePrompt (che vive
@@ -15,18 +22,23 @@ export function ScheduleAnnounceProvider({
   children: ReactNode;
 }) {
   const [tick, setTick] = useState(0);
+  // notify deve restare la STESSA funzione tra un render e l'altro: chi la usa
+  // la mette nelle dipendenze di un useEffect, e se cambiasse a ogni render
+  // l'effetto ripartirebbe all'infinito (notify → render → nuovo notify → ...).
+  const notify = useCallback(() => setTick((t) => t + 1), []);
+  const value = useMemo(() => ({ tick, notify }), [tick, notify]);
   return (
-    <ScheduleAnnounceContext.Provider
-      value={{ tick, notify: () => setTick((t) => t + 1) }}
-    >
+    <ScheduleAnnounceContext.Provider value={value}>
       {children}
     </ScheduleAnnounceContext.Provider>
   );
 }
 
+const noop = () => {};
+
 export function useNotifyScheduleChanged(): () => void {
   const ctx = useContext(ScheduleAnnounceContext);
-  return ctx?.notify ?? (() => {});
+  return ctx?.notify ?? noop;
 }
 
 export function useScheduleAnnounceTick(): number {

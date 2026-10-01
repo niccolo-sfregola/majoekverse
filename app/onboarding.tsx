@@ -6,6 +6,9 @@ import { createClient } from "@/lib/supabase/client";
 import { signInWithTwitch } from "@/app/auth/actions";
 import { blowbrush } from "./fonts";
 import SubmitButton from "./submitButton";
+import LangSwitch from "./langSwitch";
+import { useDict } from "./langProvider";
+import type { Dict } from "@/lib/i18n/dictionaries";
 
 const SEEN_KEY = "mjv-onboarding-v1";
 
@@ -39,18 +42,20 @@ function TwitchIcon() {
   );
 }
 
-const SECTIONS = [
-  { icon: "🏠", name: "Home", text: "Se Joe è in diretta, la schedule, l'ultimo video e le news." },
-  { icon: "📅", name: "Eventi", text: "Gli appuntamenti della community, alcuni riservati agli abbonati." },
-  { icon: "👤", name: "Profilo", text: "Le tue statistiche col canale, dopo l'accesso." },
-  { icon: "🛟", name: "Help Desk", text: "Il supporto della community, sul Discord." },
-  { icon: "🌌", name: "Universo di Joe", text: "Bio, social e codici sconto (icona in alto a destra)." },
+// I testi stanno nel dizionario: qui solo icona + chiave.
+const SECTIONS: { icon: string; key: keyof Dict["onboarding"]["sections"] }[] = [
+  { icon: "🏠", key: "home" },
+  { icon: "📅", key: "eventi" },
+  { icon: "👤", key: "profilo" },
+  { icon: "🛟", key: "helpdesk" },
+  { icon: "🌌", key: "universo" },
 ];
 
 export default function Onboarding() {
   const router = useRouter();
   const [visible, setVisible] = useState(false);
   const [step, setStep] = useState(0);
+  const t = useDict();
 
   useEffect(() => {
     if (alreadySeen()) return;
@@ -84,7 +89,7 @@ export default function Onboarding() {
             onClick={finish}
             className="absolute right-4 top-4 text-xs uppercase tracking-wide text-brand-lavanda transition-colors hover:text-brand-crema"
           >
-            Salta
+            {t.onboarding.skip}
           </button>
         ) : null}
 
@@ -95,30 +100,33 @@ export default function Onboarding() {
               <h2
                 className={`${blowbrush.className} text-center text-3xl tracking-wide text-brand-crema`}
               >
-                Benvenuto nel maJoekverse
+                {t.onboarding.welcome}
               </h2>
               <p className="text-center text-brand-lavanda">
-                Lo spazio della community di maJoekoto: dirette, eventi e tutto
-                l&apos;universo di Joe in un posto solo.
+                {t.onboarding.intro}
               </p>
+              {/* Chi non parla italiano può cambiare lingua già da qui. */}
+              <LangSwitch className="self-center" />
             </>
           ) : null}
 
           {step === 1 ? (
             <>
               <h2 className="text-lg font-semibold text-brand-crema">
-                Cosa trovi qui
+                {t.onboarding.whatsHere}
               </h2>
               <ul className="flex flex-col gap-3">
                 {SECTIONS.map((s) => (
-                  <li key={s.name} className="flex gap-3">
+                  <li key={s.key} className="flex gap-3">
                     <span className="text-xl leading-none">{s.icon}</span>
                     <span className="min-w-0">
                       <span className="block font-semibold text-brand-crema">
-                        {s.name}
+                        {s.key === "universo"
+                          ? t.onboarding.universoName
+                          : t.nav[s.key]}
                       </span>
                       <span className="block text-sm text-brand-lavanda">
-                        {s.text}
+                        {t.onboarding.sections[s.key]}
                       </span>
                     </span>
                   </li>
@@ -130,20 +138,18 @@ export default function Onboarding() {
           {step === 2 ? (
             <>
               <h2 className="text-lg font-semibold text-brand-crema">
-                Accedi con Twitch
+                {t.auth.login}
               </h2>
               <p className="text-sm text-brand-lavanda">
-                Con l&apos;accesso sblocchi il profilo con le tue statistiche col
-                canale e gli eventi riservati agli abbonati. Puoi anche entrare
-                come ospite e accedere più tardi.
+                {t.onboarding.loginText}
               </p>
               <form action={signInWithTwitch}>
                 <SubmitButton
-                  pendingText="Apro Twitch…"
+                  pendingText={t.auth.opening}
                   className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#9146ff] py-3 font-semibold text-white transition hover:bg-[#7d3ce0] active:scale-[0.98] disabled:opacity-60"
                 >
                   <TwitchIcon />
-                  Accedi con Twitch
+                  {t.auth.login}
                 </SubmitButton>
               </form>
               <button
@@ -151,7 +157,7 @@ export default function Onboarding() {
                 onClick={finish}
                 className="w-full rounded-xl border border-brand-lavanda/30 py-3 font-semibold text-brand-lavanda transition hover:bg-brand-lavanda/10 active:scale-[0.98]"
               >
-                Continua come ospite
+                {t.onboarding.guest}
               </button>
             </>
           ) : null}
@@ -175,7 +181,7 @@ export default function Onboarding() {
                 onClick={() => setStep((s) => s - 1)}
                 className="rounded-lg px-3 py-1.5 text-sm font-semibold text-brand-lavanda transition-colors hover:text-brand-crema"
               >
-                Indietro
+                {t.onboarding.back}
               </button>
             ) : null}
             {step < 2 ? (
@@ -184,7 +190,7 @@ export default function Onboarding() {
                 onClick={() => setStep((s) => s + 1)}
                 className="rounded-lg bg-brand-blu px-4 py-1.5 text-sm font-semibold text-brand-crema transition hover:brightness-110 active:scale-[0.98]"
               >
-                Avanti
+                {t.onboarding.next}
               </button>
             ) : null}
           </div>

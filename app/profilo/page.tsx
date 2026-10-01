@@ -13,6 +13,9 @@ import {
 } from "@/lib/twitch-user";
 import { blowbrush } from "@/app/fonts";
 import SubmitButton from "@/app/submitButton";
+import LangSwitch from "@/app/langSwitch";
+import { getDict, getLang } from "@/lib/i18n/server";
+import { DATE_LOCALE } from "@/lib/i18n/dictionaries";
 
 const SUB_TIER: Record<string, string> = {
   "1000": "Tier 1",
@@ -43,14 +46,17 @@ function Stat({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
-// 1234 -> "1,2k"
-function formatCount(n: number): string {
+// 1234 -> "1,2k" (in inglese "1.2k")
+function formatCount(n: number, lang: "it" | "en"): string {
   if (n < 1000) return String(n);
-  return `${(n / 1000).toFixed(n < 10000 ? 1 : 0).replace(".", ",")}k`;
+  const k = (n / 1000).toFixed(n < 10000 ? 1 : 0);
+  return `${lang === "it" ? k.replace(".", ",") : k}k`;
 }
 
 export default async function Profilo() {
   const supabase = await createClient();
+  const [lang, t] = await Promise.all([getLang(), getDict()]);
+  const count = (n: number) => formatCount(n, lang);
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -64,7 +70,7 @@ export default async function Profilo() {
   const avatarUrl =
     user?.user_metadata.avatar_url ?? user?.user_metadata.picture;
   const membroDal = user?.created_at
-    ? new Date(user.created_at).toLocaleDateString("it-IT", {
+    ? new Date(user.created_at).toLocaleDateString(DATE_LOCALE[lang], {
         month: "long",
         year: "numeric",
       })
@@ -95,24 +101,24 @@ export default async function Profilo() {
       ? await getUserChannelRelation(user.id, channel.id)
       : null;
 
-  const presto = <span className="text-brand-lavanda/60">presto</span>;
+  const presto = <span className="text-brand-lavanda/60">{t.profilo.soon}</span>;
 
   const seguiDaValue = relation
     ? relation.followsSince
-      ? new Date(relation.followsSince).toLocaleDateString("it-IT", {
+      ? new Date(relation.followsSince).toLocaleDateString(DATE_LOCALE[lang], {
           month: "long",
           year: "numeric",
         })
       : relation.connected
-        ? "Non ancora"
+        ? t.profilo.notYet
         : presto
     : presto;
 
   const abbonatoValue = relation
     ? relation.connected
       ? relation.subscribed
-        ? (relation.subTier && SUB_TIER[relation.subTier]) || "Sì"
-        : "No"
+        ? (relation.subTier && SUB_TIER[relation.subTier]) || t.profilo.yes
+        : t.profilo.no
       : presto
     : presto;
 
@@ -121,8 +127,11 @@ export default async function Profilo() {
       <h1
         className={`${blowbrush.className} text-center text-4xl tracking-wide text-brand-crema md:text-5xl`}
       >
-        Profilo
+        {t.profilo.title}
       </h1>
+
+      {/* Su desktop l'interruttore lingua è nella barra in alto. */}
+      <LangSwitch className="self-center md:hidden" />
 
       {user ? (
         <>
@@ -153,23 +162,23 @@ export default async function Profilo() {
                 ) : null}
               </div>
               <p className="mt-0.5 text-xs uppercase tracking-[0.14em] text-brand-lavanda">
-                Accesso con Twitch
+                {t.profilo.loginWith}
               </p>
             </div>
           </div>
 
           <div className="card-glass flex flex-col gap-3 p-5 md:p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-lavanda">
-              {isJoe ? "Panoramica canale" : "Statistiche"}
+              {isJoe ? t.profilo.channelOverview : t.profilo.stats}
             </p>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
               {isJoe && overview ? (
                 <>
                   <Stat
-                    label="Stato"
+                    label={t.profilo.status}
                     value={
                       overview.isLive ? (
-                        <span className="text-[#e11d2f]">In diretta</span>
+                        <span className="text-[#e11d2f]">{t.profilo.live}</span>
                       ) : (
                         "Offline"
                       )
@@ -177,19 +186,19 @@ export default async function Profilo() {
                   />
                   {overview.isLive ? (
                     <Stat
-                      label="Spettatori"
+                      label={t.profilo.viewers}
                       value={
                         overview.viewers != null
-                          ? formatCount(overview.viewers)
-                          : "n/d"
+                          ? count(overview.viewers)
+                          : t.profilo.na
                       }
                     />
                   ) : null}
                   {overview.isLive && overview.game ? (
-                    <Stat label="Gioco" value={overview.game} />
+                    <Stat label={t.profilo.game} value={overview.game} />
                   ) : null}
                   <Stat
-                    label="Ultimo VOD"
+                    label={t.profilo.lastVod}
                     value={
                       overview.lastVideo ? (
                         <a
@@ -199,15 +208,15 @@ export default async function Profilo() {
                           title={overview.lastVideo.title}
                           className="underline-offset-2 hover:underline"
                         >
-                          {formatCount(overview.lastVideo.views)} visual.
+                          {count(overview.lastVideo.views)} {t.profilo.views}
                         </a>
                       ) : (
-                        "n/d"
+                        t.profilo.na
                       )
                     }
                   />
                   <Stat
-                    label="Clip top (7 gg)"
+                    label={t.profilo.topClip}
                     value={
                       overview.topClip ? (
                         <a
@@ -217,44 +226,44 @@ export default async function Profilo() {
                           title={overview.topClip.title}
                           className="underline-offset-2 hover:underline"
                         >
-                          {formatCount(overview.topClip.views)} visual.
+                          {count(overview.topClip.views)} {t.profilo.views}
                         </a>
                       ) : (
-                        "n/d"
+                        t.profilo.na
                       )
                     }
                   />
                   <Stat
-                    label="Follower"
+                    label={t.profilo.followers}
                     value={
                       joeStats?.followers != null
-                        ? formatCount(joeStats.followers)
+                        ? count(joeStats.followers)
                         : presto
                     }
                   />
                   <Stat
-                    label="Abbonati"
+                    label={t.profilo.subscribers}
                     value={
                       joeStats?.subscribers != null
-                        ? formatCount(joeStats.subscribers)
+                        ? count(joeStats.subscribers)
                         : presto
                     }
                   />
                   {joeStats?.subPoints != null ? (
                     <Stat
-                      label="Punti sub"
-                      value={formatCount(joeStats.subPoints)}
+                      label={t.profilo.subPoints}
+                      value={count(joeStats.subPoints)}
                     />
                   ) : null}
                 </>
               ) : (
                 <>
-                  <Stat label="Ruolo" value={admin ? "Admin" : "Membro"} />
+                  <Stat label={t.profilo.role} value={admin ? "Admin" : t.profilo.member} />
                   {membroDal ? (
-                    <Stat label="Su maJoekverse da" value={membroDal} />
+                    <Stat label={t.profilo.memberSince} value={membroDal} />
                   ) : null}
-                  <Stat label="Abbonato al canale" value={abbonatoValue} />
-                  <Stat label="Segui Joe da" value={seguiDaValue} />
+                  <Stat label={t.profilo.subscribed} value={abbonatoValue} />
+                  <Stat label={t.profilo.followsSince} value={seguiDaValue} />
                 </>
               )}
             </div>
@@ -262,10 +271,10 @@ export default async function Profilo() {
             {!isJoe && user && (!relation || !relation.connected) ? (
               <form action={signInWithTwitch}>
                 <SubmitButton
-                  pendingText="Apro Twitch…"
+                  pendingText={t.auth.opening}
                   className="w-full rounded-xl border border-brand-lavanda/30 py-2.5 text-sm font-semibold text-brand-lavanda transition hover:bg-brand-lavanda/10 active:scale-[0.98] disabled:opacity-60"
                 >
-                  Aggiorna i permessi Twitch per le statistiche
+                  {t.profilo.refreshPermissions}
                 </SubmitButton>
               </form>
             ) : null}
@@ -273,10 +282,10 @@ export default async function Profilo() {
             {isJoe && joeStats && !joeStats.connected ? (
               <form action={connectTwitchChannel}>
                 <SubmitButton
-                  pendingText="Apro Twitch…"
+                  pendingText={t.auth.opening}
                   className="w-full rounded-xl border border-brand-lavanda/30 py-2.5 text-sm font-semibold text-brand-lavanda transition hover:bg-brand-lavanda/10 active:scale-[0.98] disabled:opacity-60"
                 >
-                  Collega il canale per vedere follower e abbonati
+                  {t.profilo.connectChannel}
                 </SubmitButton>
               </form>
             ) : null}
@@ -288,16 +297,16 @@ export default async function Profilo() {
                 href="/admin"
                 className="card-glass flex items-center justify-between p-5 font-semibold text-brand-crema md:flex-1"
               >
-                Area Admin
+                {t.profilo.adminArea}
                 <span aria-hidden>→</span>
               </Link>
             ) : null}
             <form action={signOut} className={admin ? "md:shrink-0" : "w-full"}>
               <SubmitButton
-                pendingText="Esco…"
+                pendingText={t.profilo.loggingOut}
                 className="w-full rounded-xl border border-brand-corallo/50 py-3 font-semibold text-brand-corallo transition hover:bg-brand-corallo/10 active:scale-[0.98] disabled:opacity-60 md:px-10"
               >
-                Esci
+                {t.profilo.logout}
               </SubmitButton>
             </form>
           </div>
@@ -307,17 +316,14 @@ export default async function Profilo() {
           <div className="grid h-14 w-14 place-items-center rounded-full bg-brand-blu text-2xl">
             👤
           </div>
-          <p className="text-brand-lavanda">
-            Accedi con Twitch per vedere il tuo profilo, le tue statistiche col
-            canale e, se sei admin, gestire i contenuti del sito.
-          </p>
+          <p className="text-brand-lavanda">{t.profilo.loggedOutText}</p>
           <form action={signInWithTwitch} className="w-full">
             <SubmitButton
-              pendingText="Apro Twitch…"
+              pendingText={t.auth.opening}
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#9146ff] py-3 font-semibold text-white transition hover:bg-[#7d3ce0] active:scale-[0.98] disabled:opacity-60"
             >
               <TwitchIcon />
-              Accedi con Twitch
+              {t.auth.login}
             </SubmitButton>
           </form>
         </div>

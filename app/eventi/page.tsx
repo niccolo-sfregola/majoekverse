@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
-import { longDayIt, ddmm } from "@/lib/schedule";
+import { longDay, ddmm } from "@/lib/schedule";
+import { getDict, getLang } from "@/lib/i18n/server";
 import { getChannelInfo } from "@/lib/twitch";
 import { getUserChannelRelation } from "@/lib/twitch-user";
 import { blowbrush } from "@/app/fonts";
@@ -8,16 +9,17 @@ import { blowbrush } from "@/app/fonts";
 const DISCORD_INVITE = "https://discord.com/invite/4FskPTnBts";
 const TWITCH_SUB = "https://www.twitch.tv/subs/majoekoto";
 
-export default function Eventi() {
+export default async function Eventi() {
+  const t = await getDict();
   return (
     <main className="rise-in safe-top mx-auto flex min-h-screen w-full max-w-2xl flex-col gap-4 px-4 pb-10 md:max-w-4xl">
       <h1
         className={`${blowbrush.className} text-center text-4xl tracking-wide text-brand-crema md:text-5xl`}
       >
-        Eventi
+        {t.eventi.title}
       </h1>
       <p className="text-center text-sm text-brand-lavanda">
-        I prossimi appuntamenti della community.
+        {t.eventi.subtitle}
       </p>
 
       <Suspense
@@ -36,6 +38,8 @@ export default function Eventi() {
 
 async function EventiList() {
   const supabase = await createClient();
+  const lang = await getLang();
+  const t = await getDict();
 
   const [{ data: eventi }, { data: auth }] = await Promise.all([
     supabase.from("events").select("*").order("data", { ascending: true }),
@@ -56,7 +60,7 @@ async function EventiList() {
   if (!eventi || eventi.length === 0) {
     return (
       <div className="rise-in card-glass p-6 text-center text-brand-lavanda">
-        Nessun evento in programma per ora. Torna a trovarci!
+        {t.eventi.empty}
       </div>
     );
   }
@@ -73,12 +77,12 @@ async function EventiList() {
             <div className="flex flex-wrap items-center gap-2">
               {item.data ? (
                 <span className="inline-flex items-center rounded-lg bg-brand-blu/40 px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-brand-crema">
-                  {longDayIt(item.data)} {ddmm(item.data)}
+                  {longDay(item.data, lang)} {ddmm(item.data)}
                 </span>
               ) : null}
               {item.solo_abbonati ? (
                 <span className="inline-flex items-center gap-1 rounded-lg bg-brand-corallo/20 px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-brand-corallo">
-                  🔒 Solo abbonati
+                  {t.eventi.subsOnly}
                 </span>
               ) : null}
             </div>
@@ -95,7 +99,7 @@ async function EventiList() {
                 rel="noopener noreferrer"
                 className="mt-auto rounded-xl border border-brand-corallo/50 py-2 text-center text-sm font-semibold text-brand-corallo transition hover:bg-brand-corallo/10 active:scale-[0.98]"
               >
-                Abbonati per partecipare
+                {t.eventi.subscribe}
               </a>
             ) : (
               <a
@@ -104,7 +108,7 @@ async function EventiList() {
                 rel="noopener noreferrer"
                 className="mt-auto rounded-xl bg-brand-blu py-2 text-center font-semibold text-brand-crema transition hover:brightness-110 active:scale-[0.98]"
               >
-                Partecipa →
+                {t.eventi.join}
               </a>
             )}
           </article>
