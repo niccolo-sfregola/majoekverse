@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { shortDayIt, longDayIt, ddmm, timeIt } from "@/lib/schedule";
+import { shortDay, longDay, ddmm, formatTime } from "@/lib/schedule";
+import { useDict, useLang } from "./langProvider";
 
 type ScheduleRow = {
   id: string | number;
@@ -32,6 +33,8 @@ function CloseIcon({ size = 24 }: { size?: number }) {
 
 export default function ScheduleCard({ items }: { items: ScheduleRow[] }) {
   const [open, setOpen] = useState(false);
+  const lang = useLang();
+  const t = useDict();
 
   // Su mobile la schedule si apre a schermo intero: blocco lo scroll dietro
   // e chiudo con Esc. Su desktop resta l'espansione in linea.
@@ -54,8 +57,8 @@ export default function ScheduleCard({ items }: { items: ScheduleRow[] }) {
   if (items.length === 0) {
     return (
       <div className="card-glass flex flex-col gap-2 p-4 md:p-5">
-        <p className={LABEL}>Schedule</p>
-        <p className="text-brand-lavanda">Stiamo per caricare la schedule…</p>
+        <p className={LABEL}>{t.schedule.title}</p>
+        <p className="text-brand-lavanda">{t.schedule.loading}</p>
       </div>
     );
   }
@@ -72,7 +75,7 @@ export default function ScheduleCard({ items }: { items: ScheduleRow[] }) {
           className="flex w-full flex-col gap-2 text-left"
         >
           <div className="flex items-center justify-between gap-2">
-            <span className={LABEL}>Schedule</span>
+            <span className={LABEL}>{t.schedule.title}</span>
             <svg
               width="16"
               height="16"
@@ -91,8 +94,8 @@ export default function ScheduleCard({ items }: { items: ScheduleRow[] }) {
           </div>
 
           <p className="text-brand-crema">
-            <span className="text-brand-lavanda">Prossima · </span>
-            {shortDayIt(next.data)} {timeIt(next.orario)}
+            <span className="text-brand-lavanda">{t.schedule.next} · </span>
+            {shortDay(next.data, lang)} {formatTime(next.orario, lang)}
           </p>
         </button>
 
@@ -106,21 +109,26 @@ export default function ScheduleCard({ items }: { items: ScheduleRow[] }) {
                     key={item.id}
                     className="flex items-baseline gap-3 text-brand-crema"
                   >
-                    <span className="shrink-0">{shortDayIt(item.data)}</span>
+                    <span className="shrink-0">{shortDay(item.data, lang)}</span>
                     <span className="min-w-0 flex-1 truncate text-brand-lavanda">
                       {item.gioco}
                     </span>
-                    <span className="shrink-0">{timeIt(item.orario)}</span>
+                    <span className="shrink-0">{formatTime(item.orario, lang)}</span>
                   </li>
                 ))}
               </ul>
+              {t.schedule.timezoneNote ? (
+                <p className="pt-2 text-xs text-brand-lavanda/70">
+                  {t.schedule.timezoneNote}
+                </p>
+              ) : null}
               <button
                 type="button"
                 onClick={() => setOpen(false)}
                 className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-brand-lavanda transition-colors hover:text-brand-crema"
               >
                 <CloseIcon size={14} />
-                Chiudi
+                {t.common.close}
               </button>
             </div>
           </div>
@@ -136,11 +144,18 @@ export default function ScheduleCard({ items }: { items: ScheduleRow[] }) {
                 className="flex items-center justify-between gap-3 px-5 py-4"
                 style={{ paddingTop: "calc(env(safe-area-inset-top) + 1rem)" }}
               >
-                <span className={LABEL}>Schedule della settimana</span>
+                <span className={LABEL}>
+                  {t.schedule.weekTitle}
+                  {t.schedule.timezoneNote ? (
+                    <span className="block pt-1 text-[0.65rem] normal-case tracking-normal text-brand-lavanda/70">
+                      {t.schedule.timezoneNote}
+                    </span>
+                  ) : null}
+                </span>
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
-                  aria-label="Chiudi"
+                  aria-label={t.common.close}
                   className="-mr-1 grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand-fondo/60 text-brand-crema transition-transform active:scale-90"
                 >
                   <CloseIcon size={22} />
@@ -154,11 +169,11 @@ export default function ScheduleCard({ items }: { items: ScheduleRow[] }) {
                     className="border-b border-brand-lavanda/10 pb-3 last:border-0"
                   >
                     <p className="text-xs uppercase tracking-[0.12em] text-brand-lavanda">
-                      {longDayIt(item.data)} {ddmm(item.data)} ·{" "}
-                      {timeIt(item.orario)}
+                      {longDay(item.data, lang)} {ddmm(item.data)} ·{" "}
+                      {formatTime(item.orario, lang)}
                     </p>
                     <p className="mt-0.5 text-base font-semibold text-brand-crema">
-                      {item.gioco || "Gioco da definire"}
+                      {item.gioco || t.schedule.tbd}
                     </p>
                   </li>
                 ))}
@@ -172,7 +187,7 @@ export default function ScheduleCard({ items }: { items: ScheduleRow[] }) {
                   marginBottom: "calc(env(safe-area-inset-bottom) + 1rem)",
                 }}
               >
-                Chiudi
+                {t.common.close}
               </button>
             </div>,
             document.body,

@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
+import type { Dict } from "@/lib/i18n/dictionaries";
+import { useDict } from "./langProvider";
 
 const iconProps = {
   width: 22,
@@ -44,21 +46,23 @@ const ICONS: Record<string, ReactNode> = {
   ),
 };
 
-const LINKS = [
-  { href: "/helpdesk", label: "Help Desk", icon: "help" },
-  { href: "/eventi", label: "Eventi", icon: "eventi" },
-  { href: "/", label: "Home", icon: "home" },
-  { href: "/profilo", label: "Profilo", icon: "profilo" },
+// key = chiave del dizionario (t.nav.*) da cui prendere l'etichetta.
+const LINKS: { href: string; key: keyof Dict["nav"]; icon: string }[] = [
+  { href: "/helpdesk", key: "helpdesk", icon: "help" },
+  { href: "/eventi", key: "eventi", icon: "eventi" },
+  { href: "/", key: "home", icon: "home" },
+  { href: "/profilo", key: "profilo", icon: "profilo" },
 ];
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const t = useDict();
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   return (
     <nav className="fixed bottom-0 inset-x-0 z-30 flex items-stretch justify-around border-t border-brand-lavanda/15 bg-brand-fondo/90 px-2 pb-[max(0.375rem,env(safe-area-inset-bottom))] pt-1.5 backdrop-blur-md md:hidden">
-      {LINKS.map(({ href, label, icon }) => {
+      {LINKS.map(({ href, key, icon }) => {
         const active = isActive(href);
         return (
           <Link
@@ -85,7 +89,7 @@ export default function BottomNav() {
                 active ? "font-semibold text-brand-crema" : "text-brand-lavanda"
               }`}
             >
-              {label}
+              {t.nav[key]}
             </span>
           </Link>
         );

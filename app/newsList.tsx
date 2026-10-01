@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { useDict } from "./langProvider";
 
 type NewsRow = {
   id: string | number;
@@ -32,6 +33,7 @@ function CloseIcon({ size = 22 }: { size?: number }) {
 export default function NewsList({ items }: { items: NewsRow[] }) {
   const [active, setActive] = useState<NewsRow | null>(null);
   const [closing, setClosing] = useState(false);
+  const t = useDict();
 
   function open(item: NewsRow) {
     setActive(item);
@@ -58,7 +60,7 @@ export default function NewsList({ items }: { items: NewsRow[] }) {
   }, [active]);
 
   if (!items || items.length === 0) {
-    return <p className="text-brand-lavanda">Nessuna news al momento.</p>;
+    return <p className="text-brand-lavanda">{t.news.empty}</p>;
   }
 
   return (
@@ -107,12 +109,12 @@ export default function NewsList({ items }: { items: NewsRow[] }) {
                       {active.icona}
                     </span>
                   ) : null}
-                  News
+                  {t.news.title}
                 </span>
                 <button
                   type="button"
                   onClick={close}
-                  aria-label="Chiudi"
+                  aria-label={t.common.close}
                   className="-mr-1 grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand-fondo/60 text-brand-crema transition-transform active:scale-90"
                 >
                   <CloseIcon />
@@ -140,7 +142,7 @@ export default function NewsList({ items }: { items: NewsRow[] }) {
                   marginBottom: "calc(env(safe-area-inset-bottom) + 1rem)",
                 }}
               >
-                Chiudi
+                {t.common.close}
               </button>
             </div>,
             document.body,

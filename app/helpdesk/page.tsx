@@ -1,4 +1,5 @@
 import { blowbrush } from "@/app/fonts";
+import { getDict } from "@/lib/i18n/server";
 
 const DISCORD_HELP =
   "https://discord.com/channels/1401611321790693416/1520103878228443287";
@@ -11,7 +12,8 @@ function DiscordIcon() {
   );
 }
 
-export default function HelpDesk() {
+export default async function HelpDesk() {
+  const t = await getDict();
   return (
     <main className="rise-in safe-top mx-auto flex min-h-screen w-full max-w-md flex-col gap-4 px-4 pb-10">
       <h1
@@ -24,10 +26,7 @@ export default function HelpDesk() {
         <div className="grid h-14 w-14 place-items-center rounded-full bg-brand-blu text-2xl">
           🛟
         </div>
-        <p className="text-brand-lavanda">
-          Il supporto della community si gestisce su Discord. Apri il canale
-          dedicato, scrivi il tuo problema e ti rispondiamo appena possibile.
-        </p>
+        <p className="text-brand-lavanda">{t.helpdesk.text}</p>
         <a
           href={DISCORD_HELP}
           target="_blank"
@@ -35,7 +34,7 @@ export default function HelpDesk() {
           className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#5865F2] py-3 font-semibold text-white transition hover:bg-[#4752c4] active:scale-[0.98]"
         >
           <DiscordIcon />
-          Apri il canale supporto
+          {t.helpdesk.button}
         </a>
       </div>
     </main>

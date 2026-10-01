@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useDict } from "./langProvider";
 
 // Generatore pseudo-casuale con seme: stessa sequenza sul server e sul client,
 // così l'SVG generato è identico e React non si lamenta in idratazione.
@@ -92,6 +93,7 @@ const GALAXY = buildGalaxy();
 
 export default function Planet() {
   const pathname = usePathname();
+  const t = useDict();
 
   if (pathname === "/universo") {
     return null;
@@ -100,12 +102,12 @@ export default function Planet() {
   return (
     <Link
       href="/universo"
-      aria-label="Esplora l'universo di Joe"
+      aria-label={t.nav.universo}
       className="group fixed right-4 top-[calc(1rem_+_env(safe-area-inset-top))] z-20 flex items-center md:bottom-4 md:top-auto"
     >
       {/* Etichetta: solo desktop, compare al passaggio del mouse. */}
       <span className="pointer-events-none absolute right-full mr-3 hidden whitespace-nowrap rounded-full border border-brand-crema/15 bg-brand-fondo/80 px-3 py-1.5 text-sm text-brand-crema opacity-0 shadow-lg backdrop-blur-md transition-all duration-200 group-hover:opacity-100 md:block md:translate-x-2 md:group-hover:translate-x-0">
-        Esplora l&apos;universo di Joe!
+        {t.nav.universoHover}
       </span>
 
       {/* Galassia a particelle che ruota lentamente (vedi .universo-galaxy). */}

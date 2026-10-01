@@ -58,3 +58,21 @@ export function timeEn(orario: string): string {
   const h12 = ((h + 11) % 12) + 1;
   return `${h12}:${String(m || 0).padStart(2, "0")} ${ampm}`;
 }
+
+// --- Versioni che seguono la lingua dell'utente (interfaccia pubblica) -----
+// Le funzioni ...It/...En qui sopra restano per admin e annunci Discord.
+
+const SHORT_DAY_EN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+export function shortDay(dateStr: string, lang: "it" | "en"): string {
+  const days = lang === "en" ? SHORT_DAY_EN : SHORT_DAY_IT;
+  return days[toDate(dateStr).getUTCDay()] ?? "";
+}
+
+export function longDay(dateStr: string, lang: "it" | "en"): string {
+  return lang === "en" ? longDayEn(dateStr) : longDayIt(dateStr);
+}
+
+export function formatTime(orario: string, lang: "it" | "en"): string {
+  return lang === "en" ? timeEn(orario) : timeIt(orario);
+}

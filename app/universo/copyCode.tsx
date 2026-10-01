@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useDict } from "@/app/langProvider";
 
 export default function CopyCode({ code }: { code: string }) {
   const [copied, setCopied] = useState(false);
+  const t = useDict();
 
   return (
     <button
@@ -19,7 +21,7 @@ export default function CopyCode({ code }: { code: string }) {
     >
       {code}
       <span className="font-sans text-xs font-normal text-brand-lavanda">
-        {copied ? "copiato!" : "copia"}
+        {copied ? t.universo.copied : t.universo.copy}
       </span>
     </button>
   );

@@ -2,11 +2,9 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { getChannelInfo } from "@/lib/twitch";
 import { blowbrush } from "@/app/fonts";
+import { getDict } from "@/lib/i18n/server";
 import CopyCode from "./copyCode";
 import CosmicBackground from "./cosmicBackground";
-
-const bio =
-  "Ciao, sono Joe! Sono un content creator napoletano che vive in Toscana e studente di Scienze dell’Educazione e della Formazione. Creo contenuti dedicati a gaming, tecnologia, lifestyle e skincare, lavoro come UGC creator e porto avanti diversi progetti creativi. Su Twitch condivido soprattutto giochi horror, indie e narrativi, insieme a una community accogliente e inclusiva. Sono anche la mente dietro Koto Mail Club, La Posta del Cuore e il podcast The Big Bear Theory: modi diversi per trasformare le mie passioni in esperienze da condividere, online e offline. 🧸";
 
 const LABEL =
   "text-xs font-semibold uppercase tracking-[0.18em] text-brand-lavanda";
@@ -42,22 +40,28 @@ const socials = [
   },
 ];
 
-const progetti = [
+// desc = chiave del dizionario (t.universo.*) con la descrizione tradotta.
+const progetti: {
+  name: string;
+  desc: "bigBearTheory" | "kotoMailClub" | "postaDelCuore";
+  link: string;
+  logo: string;
+}[] = [
   {
     name: "The Big Bear Theory",
-    desc: "Il podcast di Joe su Spotify: cultura pop, drama di influencer e i temi che gli stanno a cuore, raccontati a modo suo.",
+    desc: "bigBearTheory",
     link: "https://open.spotify.com/show/0Dskk8qdFBWDMtbgQb6slz",
     logo: "/sponsor/the-big-bear-theory.png",
   },
   {
     name: "Koto Mail Club",
-    desc: "Ogni mese Joe ti spedisce a casa lettere, sticker e paper goodies. Su Patreon.",
+    desc: "kotoMailClub",
     link: "https://www.patreon.com/cw/kotomailclub",
     logo: "/sponsor/koto-mail-club.png",
   },
   {
     name: "La Posta del Cuore",
-    desc: "Lascia un pensiero, una confidenza, una poesia, in forma anonima. Verranno letti in diretta.",
+    desc: "postaDelCuore",
     link: "https://forms.gle/6nFhSHwyy2rHiWKJ7",
     logo: "/sponsor/posta-del-cuore.png",
   },
@@ -65,6 +69,7 @@ const progetti = [
 
 export default async function Universo() {
   const supabase = await createClient();
+  const t = await getDict();
   const [{ data: sponsor }, channel] = await Promise.all([
     supabase
       .from("sponsors")
@@ -83,7 +88,7 @@ export default async function Universo() {
         <h1
           className={`${blowbrush.className} text-center text-4xl tracking-wide text-brand-crema md:text-5xl`}
         >
-          Universo di Joe
+          {t.universo.title}
         </h1>
 
         <section className="card-glass flex flex-col items-center gap-4 p-6 text-center md:flex-row md:items-start md:gap-6 md:text-left">
@@ -107,12 +112,12 @@ export default async function Universo() {
             <p className="text-lg font-semibold text-brand-crema">
               {channel.displayName ?? "maJoekoto"}
             </p>
-            <p className="mt-1 text-sm text-brand-lavanda">{bio}</p>
+            <p className="mt-1 text-sm text-brand-lavanda">{t.universo.bio}</p>
           </div>
         </section>
 
         <section className="card-glass flex flex-col gap-3 p-5">
-          <p className={LABEL}>Sui social</p>
+          <p className={LABEL}>{t.universo.socials}</p>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {socials.map((s) => (
               <a
@@ -142,7 +147,7 @@ export default async function Universo() {
             className="relative overflow-hidden rounded-2xl border border-brand-corallo/40 bg-brand-corallo/10 p-6 text-center shadow-[0_0_30px_rgb(239_108_78/0.18)]"
           >
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-corallo">
-              Sponsor
+              {t.universo.sponsor}
             </p>
             <div className="mt-4 flex flex-col items-center gap-3">
               {s.logo ? (
@@ -162,8 +167,8 @@ export default async function Universo() {
               )}
               <p className="text-sm text-brand-lavanda">
                 {s.sconto
-                  ? `Sconto ${s.sconto} con il codice`
-                  : "Usa il codice sconto"}
+                  ? t.universo.discountWithCode(s.sconto)
+                  : t.universo.useCode}
               </p>
               <CopyCode code={s.code} />
               <a
@@ -172,7 +177,7 @@ export default async function Universo() {
                 rel="noopener noreferrer"
                 className="mt-1 rounded-xl bg-brand-corallo px-6 py-2 font-semibold text-brand-crema transition hover:brightness-95 active:scale-[0.98]"
               >
-                Vai al sito →
+                {t.universo.goToSite}
               </a>
             </div>
           </section>
@@ -180,9 +185,9 @@ export default async function Universo() {
 
         {altri.length > 0 ? (
           <section className="card-glass flex flex-col gap-3 p-5">
-            <p className={LABEL}>Affiliazioni</p>
+            <p className={LABEL}>{t.universo.affiliations}</p>
             <p className="-mt-1 text-sm text-brand-lavanda">
-              Codici sconto dei brand con cui Joe collabora.
+              {t.universo.affiliationsText}
             </p>
             <div className="grid gap-3 sm:grid-cols-2">
               {altri.map((s) => (
@@ -210,7 +215,7 @@ export default async function Universo() {
                   )}
                   {s.sconto ? (
                     <span className="rounded-full bg-brand-blu/40 px-2 py-0.5 text-xs font-semibold text-brand-crema">
-                      Sconto {s.sconto}
+                      {t.universo.discount(s.sconto)}
                     </span>
                   ) : null}
                   <span className="font-mono text-sm text-brand-lavanda">
@@ -223,7 +228,7 @@ export default async function Universo() {
         ) : null}
 
         <section className="card-glass flex flex-col gap-3 p-5">
-          <p className={LABEL}>Progetti</p>
+          <p className={LABEL}>{t.universo.projects}</p>
           <div className="flex flex-col gap-3">
             {progetti.map((p) => (
               <a
@@ -247,7 +252,7 @@ export default async function Universo() {
                     {p.name}
                   </span>
                   <span className="mt-0.5 block text-sm text-brand-lavanda">
-                    {p.desc}
+                    {t.universo[p.desc]}
                   </span>
                 </span>
                 <span

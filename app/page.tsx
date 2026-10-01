@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getStreamStatus } from "@/lib/twitch";
 import { getLatestVideo } from "@/lib/youtube";
 import { isUpcoming } from "@/lib/schedule";
+import { getDict } from "@/lib/i18n/server";
 import { blowbrush } from "./fonts";
 import background from "@/public/background.png";
 import LiveBlock from "./liveBlock";
@@ -20,7 +21,8 @@ const CARD_LABEL =
 // La pagina è sincrona: l'hero (senza dati) compare subito a ogni navigazione,
 // mentre le card che dipendono da Twitch/YouTube/DB arrivano in streaming
 // dentro il <Suspense>.
-export default function Home() {
+export default async function Home() {
+  const t = await getDict();
   return (
     <main className="flex min-h-screen flex-col items-center pb-16">
       <section className="relative w-full overflow-hidden">
@@ -41,7 +43,7 @@ export default function Home() {
             maJoekverse
           </h1>
           <p className="max-w-md text-sm text-brand-crema/90 md:text-base">
-            L&apos;app ufficiale di maJoekoto!
+            {t.home.subtitle}
           </p>
         </div>
       </section>
@@ -66,6 +68,7 @@ function HomeCardsSkeleton() {
 
 async function HomeCards() {
   const supabase = await createClient();
+  const t = await getDict();
 
   // Tutte in parallelo: l'attesa è quella della più lenta, non la somma.
   const [liveStatus, ultimoVideo, scheduleRes, newsRes] = await Promise.all([
@@ -87,7 +90,7 @@ async function HomeCards() {
       <ScheduleCard items={prossimeDirette} />
 
       <div className="card-glass col-span-2 flex flex-col gap-2 p-5 md:col-span-1">
-        <p className={CARD_LABEL}>Ultimo video su YouTube</p>
+        <p className={CARD_LABEL}>{t.home.latestVideo}</p>
         {ultimoVideo ? (
           <a
             href={ultimoVideo.url}
@@ -104,14 +107,12 @@ async function HomeCards() {
             <p className="text-brand-crema">{ultimoVideo.title}</p>
           </a>
         ) : (
-          <p className="text-brand-lavanda">
-            Nessun video da mostrare al momento.
-          </p>
+          <p className="text-brand-lavanda">{t.home.noVideo}</p>
         )}
       </div>
 
       <div className="card-glass col-span-2 flex flex-col gap-2 p-5 md:col-span-1">
-        <p className={CARD_LABEL}>News &amp; eventi</p>
+        <p className={CARD_LABEL}>{t.home.news}</p>
         <NewsList items={news ?? []} />
       </div>
     </div>

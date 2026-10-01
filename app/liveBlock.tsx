@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { LiveStatus } from "@/lib/twitch";
+import { useDict } from "./langProvider";
 
 const TWITCH_URL = "https://www.twitch.tv/majoekoto";
 
@@ -9,6 +10,7 @@ const TWITCH_URL = "https://www.twitch.tv/majoekoto";
 // da solo ogni 60 secondi chiamando /api/live.
 export default function LiveBlock({ initial }: { initial: LiveStatus }) {
   const [status, setStatus] = useState(initial);
+  const t = useDict();
 
   useEffect(() => {
     const id = setInterval(async () => {
@@ -30,7 +32,7 @@ export default function LiveBlock({ initial }: { initial: LiveStatus }) {
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#e11d2f] opacity-75 motion-reduce:hidden" />
             <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#e11d2f]" />
           </span>
-          In diretta ora
+          {t.live.liveNow}
         </p>
         {status.game ? <p className="truncate font-medium">{status.game}</p> : null}
         {status.title ? (
@@ -42,7 +44,7 @@ export default function LiveBlock({ initial }: { initial: LiveStatus }) {
           rel="noopener noreferrer"
           className="mt-auto rounded-xl bg-brand-corallo p-2 text-center font-semibold text-brand-crema transition hover:brightness-95 active:scale-[0.98]"
         >
-          Guarda su Twitch →
+          {t.live.watch}
         </a>
       </div>
     );
@@ -51,16 +53,16 @@ export default function LiveBlock({ initial }: { initial: LiveStatus }) {
   return (
     <div className="card-glass flex flex-col gap-2 p-4 md:p-5">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-lavanda">
-        Al momento offline
+        {t.live.offline}
       </p>
-      <p className="text-brand-crema">Nessuna diretta in corso.</p>
+      <p className="text-brand-crema">{t.live.noStream}</p>
       <a
         href={TWITCH_URL}
         target="_blank"
         rel="noopener noreferrer"
         className="mt-auto font-semibold text-brand-corallo transition-opacity hover:opacity-80"
       >
-        Vai al canale
+        {t.live.goToChannel}
       </a>
     </div>
   );
