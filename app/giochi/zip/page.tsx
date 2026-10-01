@@ -2,7 +2,6 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import {
   dayBefore,
-  gamesDevOpen,
   MEDALS,
   romeToday,
   zipLeaderboard,
@@ -71,7 +70,7 @@ export default async function Zip() {
         {today.split("-").reverse().join("/")}
       </p>
 
-      {user || gamesDevOpen() ? (
+      {user ? (
         // key: se la pagina resta aperta oltre mezzanotte e si ricarica, il
         // gioco riparte da zero col giorno nuovo.
         <ZipGame key={today} status={status} />

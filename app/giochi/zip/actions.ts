@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { dailyZip, gamesDevOpen, playerInfo, romeToday } from "@/lib/games";
+import { dailyZip, playerInfo, romeToday } from "@/lib/games";
 import { isSolved, type ZipPuzzle } from "@/lib/zip";
 
 export type ZipStartResult =
@@ -11,7 +11,7 @@ export type ZipStartResult =
   | { ok: false; error: "login" | "played" | "server" };
 
 export type ZipFinishResult =
-  | { ok: true; timeMs: number | null } // null = prova senza login, non salvata
+  | { ok: true; timeMs: number }
   | { ok: false; error: "login" | "invalid" | "server" };
 
 // "Inizia": salva l'ora di partenza e SOLO ORA manda il puzzle al browser.
@@ -22,13 +22,7 @@ export async function startZip(): Promise<ZipStartResult> {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) {
-    // Prova in locale senza login: puzzle sì, salvataggio no.
-    if (gamesDevOpen()) {
-      return { ok: true, puzzle: dailyZip(), elapsedMs: 0 };
-    }
-    return { ok: false, error: "login" };
-  }
+  if (!user) return { ok: false, error: "login" };
 
   const giorno = romeToday();
   const db = createAdminClient();
@@ -69,7 +63,7 @@ export async function finishZip(path: number[]): Promise<ZipFinishResult> {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user && !gamesDevOpen()) return { ok: false, error: "login" };
+  if (!user) return { ok: false, error: "login" };
 
   // Dal browser può arrivare di tutto: controlliamo che sia un elenco di
   // numeri interi prima di usarlo.
@@ -79,13 +73,6 @@ export async function finishZip(path: number[]): Promise<ZipFinishResult> {
     !path.every((c) => Number.isInteger(c))
   ) {
     return { ok: false, error: "invalid" };
-  }
-
-  if (!user) {
-    // Prova in locale senza login: controlliamo e basta.
-    return isSolved(dailyZip(), path)
-      ? { ok: true, timeMs: null }
-      : { ok: false, error: "invalid" };
   }
 
   const db = createAdminClient();

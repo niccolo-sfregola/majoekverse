@@ -150,7 +150,7 @@ Hai già superato la parte più ostica. Da qui è costruire.
 
 ---
 
-## Fase 8 — Giochi
+## ✅ Fase 8 — Giochi (FATTA)
 
 **Obiettivo:** il tab Eventi diventa **Giochi**: uno Zip giornaliero (stile LinkedIn) con classifica a tempo e badge ai primi 3, e un Wordle settimanale per abbonati il cui vincitore propone il titolo di una live. Joe gioca come tutti, contro la sua community.
 
@@ -167,7 +167,7 @@ Hai già superato la parte più ostica. Da qui è costruire.
 - [X] Zip "vero": tabella partite, inizio/fine salvati dal server, un tentativo al giorno, classifica del giorno, badge dei primi 3 di ieri (in profilo e in classifica).
 - [X] Wordle: lista parole italiane (soluzioni comuni + lista più ampia di parole ammesse), parola della settimana sul server, tentativi verificati da Server Action, controllo abbonamento.
 - [X] Wordle: classifica settimanale + vincitore.
-- [ ] Proposte titolo: form per il vincitore, sezione in `/admin` con Accetta/Rifiuta, contatore 3 proposte, scadenza.
+- [X] Proposte titolo: form per il vincitore, sezione in `/admin` con Accetta/Rifiuta, contatore 3 proposte, scadenza.
 
 **Cosa impari:** logica di gioco in React (stato, eventi touch/mouse), perché non ci si fida del client (tempo e soluzioni sul server), date e fusi orari, generazione casuale con un seme, classifiche in SQL.
 
@@ -227,6 +227,8 @@ Aggiungere tutto subito è la strada più veloce per mollare. La v1 così è **c
 
 ## Il tuo prossimo passo, adesso
 
-Fasi 1–7 complete: app online su Vercel (`majoekverse.vercel.app`), installabile come PWA, con dati veri da Supabase, login Twitch, stato live automatico, ultimo video YouTube, area Admin completa (CRUD + annunci Discord + diff schedule + azzeramento settimanale).
+Fasi 1–8 complete: app online su Vercel (`majoekverse.vercel.app`), installabile come PWA, con dati veri da Supabase, login Twitch, stato live automatico, ultimo video YouTube, area Admin completa (CRUD + annunci Discord + diff schedule + azzeramento settimanale).
 
-Prossimo: **Fase 8 — Giochi** — menu, eventi in Home e pagina `/giochi` fatti; Zip (con classifica e badge) e parola della settimana fatti; ora le **proposte di titolo** del vincitore (Accetta/Rifiuta in `/admin`). Prima di chiudere la fase: togliere l'interruttore di prova `GAMES_DEV_OPEN`. Poi **Fase 9 — Notifiche push**.
+Fase 8 fatta: tab Giochi con Zip del giorno (classifica + badge podio) e parola della settimana per abbonati (classifica + proposta di titolo del vincitore, Accetta/Rifiuta in `/admin`). Eventi spostati in Home.
+
+Prossimo: **Fase 9 — Notifiche push** — primo task: chiavi VAPID + tabella `push_subscriptions` + preferenze.

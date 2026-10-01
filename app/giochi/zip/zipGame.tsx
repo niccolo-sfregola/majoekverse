@@ -141,7 +141,7 @@ function ZipBoard({
       // poi aggiorniamo la pagina per far comparire il nome in classifica.
       finishZip(next).then((res) => {
         if (res.ok) {
-          if (res.timeMs != null) setFinalMs(res.timeMs);
+          setFinalMs(res.timeMs);
           router.refresh();
         } else {
           setFinishError(true);

@@ -4,9 +4,9 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
-  gamesDevOpen,
   mondayOf,
   playerInfo,
+  titleState,
   weeklyWord,
   wordleAccess,
 } from "@/lib/games";
@@ -33,17 +33,12 @@ export type GuessResult =
 
 // Un tentativo. La parola segreta non lascia mai il server: al browser
 // tornano solo i colori di ogni riga.
-// `previous` serve SOLO alla prova in locale senza login (non c'è una riga
-// nel database dove tenere i tentativi): normalmente viene ignorato.
-export async function guessWordle(
-  input: string,
-  previous: string[] = [],
-): Promise<GuessResult> {
+export async function guessWordle(input: string): Promise<GuessResult> {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user && !gamesDevOpen()) return { ok: false, error: "login" };
+  if (!user) return { ok: false, error: "login" };
 
   const parola = String(input ?? "").trim().toLowerCase();
   if (parola.length !== LUNGHEZZA || !AMMESSE.has(parola)) {
@@ -52,19 +47,6 @@ export async function guessWordle(
 
   const settimana = mondayOf();
   const segreta = weeklyWord(settimana);
-
-  if (!user) {
-    // Prova in locale senza login: niente salvataggio.
-    const guesses = [...previous, parola].filter((g) => AMMESSE.has(g));
-    const won = parola === segreta;
-    const lost = !won && guesses.length >= MAX_TENTATIVI;
-    return {
-      ok: true,
-      righe: guesses.map((g) => ({ parola: g, esiti: valuta(g, segreta) })),
-      stato: won ? "won" : lost ? "lost" : "playing",
-      timeMs: null,
-    };
-  }
 
   const db = createAdminClient();
 
@@ -78,7 +60,7 @@ export async function guessWordle(
   // Primo tentativo della settimana: controlliamo l'abbonamento (una volta
   // sola, non a ogni parola) e creiamo la riga. Il tempo parte da qui.
   if (!row) {
-    const access = gamesDevOpen() ? "ok" : await wordleAccess(user);
+    const access = await wordleAccess(user);
     if (access !== "ok") return { ok: false, error: access };
 
     const { data: created, error } = await db
@@ -127,4 +109,44 @@ export async function guessWordle(
     stato: won ? "won" : lost ? "lost" : "playing",
     timeMs,
   };
+}
+
+export type ProposeState = { ok: boolean; message: string } | null;
+
+// Il vincitore della settimana scorsa propone un titolo. Tutte le regole
+// (è davvero il vincitore? ha ancora proposte? è nei tempi?) le ricontrolla
+// titleState qui sul server: il form nel browser non decide niente.
+export async function proposeTitle(
+  _prev: ProposeState,
+  formData: FormData,
+): Promise<ProposeState> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, message: "login" };
+
+  const titolo = String(formData.get("titolo") ?? "").trim();
+  if (titolo.length < 1 || titolo.length > 140) {
+    return { ok: false, message: "length" };
+  }
+
+  const state = await titleState(user.id);
+  if (state.kind !== "winner" || state.azione !== "propose") {
+    return { ok: false, message: "notAllowed" };
+  }
+
+  const { error } = await createAdminClient()
+    .from("title_proposals")
+    .insert({
+      user_id: user.id,
+      settimana: state.settimana,
+      titolo,
+      username: playerInfo(user).username,
+    });
+  if (error) return { ok: false, message: "server" };
+
+  revalidatePath("/giochi/parola");
+  revalidatePath("/admin");
+  return { ok: true, message: "sent" };
 }
