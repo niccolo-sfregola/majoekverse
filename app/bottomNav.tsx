@@ -25,10 +25,9 @@ const ICONS: Record<string, ReactNode> = {
       <path d="M10 20v-5h4v5" />
     </svg>
   ),
-  eventi: (
+  giochi: (
     <svg {...iconProps}>
-      <rect x="3.5" y="5" width="17" height="16" rx="2" />
-      <path d="M3.5 9.5h17M8 3v4M16 3v4" />
+      <path d="M5 8h3.5a2 2 0 1 1 4 0H16v3.5a2 2 0 1 1 0 4V19H5z" />
     </svg>
   ),
   profilo: (
@@ -49,7 +48,7 @@ const ICONS: Record<string, ReactNode> = {
 // key = chiave del dizionario (t.nav.*) da cui prendere l'etichetta.
 const LINKS: { href: string; key: keyof Dict["nav"]; icon: string }[] = [
   { href: "/helpdesk", key: "helpdesk", icon: "help" },
-  { href: "/eventi", key: "eventi", icon: "eventi" },
+  { href: "/giochi", key: "giochi", icon: "giochi" },
   { href: "/", key: "home", icon: "home" },
   { href: "/profilo", key: "profilo", icon: "profilo" },
 ];

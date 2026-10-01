@@ -299,6 +299,112 @@ body {
   animation: sheet-out 0.18s ease-in both;
 }
 
+/* Zip: ogni nuovo passo del percorso si "disegna" dal centro della casella
+   precedente (pathLength=1 sulla linea → 1 = lunghezza intera). */
+@keyframes zip-seg {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.zip-seg {
+  stroke-dasharray: 1;
+  animation: zip-seg 0.12s ease-out both;
+}
+
+/* Zip finito: la pagina si sfoca, compare "Hai vinto!", poi torna nitida.
+   Durata unica (1.8s) per fondo e scritta, così finiscono insieme. */
+@keyframes zip-win {
+  0% {
+    backdrop-filter: blur(0);
+    -webkit-backdrop-filter: blur(0);
+    background-color: transparent;
+  }
+  18%,
+  78% {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    background-color: color-mix(in oklab, var(--fondo) 45%, transparent);
+  }
+  100% {
+    backdrop-filter: blur(0);
+    -webkit-backdrop-filter: blur(0);
+    background-color: transparent;
+  }
+}
+@keyframes zip-win-text {
+  0%,
+  12% {
+    opacity: 0;
+    scale: 0.85;
+  }
+  30%,
+  72% {
+    opacity: 1;
+    scale: 1;
+  }
+  90%,
+  100% {
+    opacity: 0;
+    scale: 1.04;
+  }
+}
+.zip-win {
+  animation: zip-win 1.8s ease-in-out both;
+}
+.zip-win-text {
+  animation: zip-win-text 1.8s ease-in-out both;
+}
+/* Il pannello col tempo compare mentre la sfocatura se ne va. */
+.zip-result {
+  animation: rise-in 0.4s ease-out 1.4s both;
+}
+
+/* Parola della settimana: le caselle della riga inviata si "girano" una
+   dopo l'altra (ritardo messo inline), la riga trema se la parola non va,
+   e ogni lettera scritta fa un piccolo "pop". */
+@keyframes tile-reveal {
+  from {
+    transform: rotateX(90deg);
+  }
+  to {
+    transform: rotateX(0);
+  }
+}
+.tile-reveal {
+  animation: tile-reveal 0.3s ease-out both;
+}
+@keyframes row-shake {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  20%,
+  60% {
+    translate: -5px 0;
+  }
+  40%,
+  80% {
+    translate: 5px 0;
+  }
+}
+.row-shake {
+  animation: row-shake 0.3s ease-in-out;
+}
+@keyframes tile-pop {
+  from {
+    scale: 1.08;
+  }
+  to {
+    scale: 1;
+  }
+}
+.tile-pop {
+  animation: tile-pop 0.1s ease-out;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .overlay-fade-in,
   .overlay-fade-out,
@@ -321,6 +427,25 @@ body {
   .onboard-step,
   .rise-in > * {
     animation: none;
+  }
+  .zip-seg,
+  .zip-result {
+    animation: none;
+  }
+  .row-shake,
+  .tile-pop {
+    animation: none;
+  }
+  .tile-reveal {
+    /* Non "none": la festa parte all'animationend dell'ultima casella. */
+    animation-duration: 0.01s;
+    animation-delay: 0s !important;
+  }
+  .zip-win-text {
+    /* Solo dissolvenza, senza zoom. */
+    scale: 1 !important;
+    animation-name: overlay-fade-in;
+    animation-duration: 0.3s;
   }
   .reveal {
     transition: none;

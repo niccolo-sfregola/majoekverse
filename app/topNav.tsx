@@ -9,7 +9,7 @@ import LangSwitch from "./langSwitch";
 // key = chiave del dizionario (t.nav.*) da cui prendere l'etichetta.
 const LINKS: { href: string; key: keyof Dict["nav"] }[] = [
   { href: "/", key: "home" },
-  { href: "/eventi", key: "eventi" },
+  { href: "/giochi", key: "giochi" },
   { href: "/profilo", key: "profilo" },
   { href: "/helpdesk", key: "helpdesk" },
 ];
