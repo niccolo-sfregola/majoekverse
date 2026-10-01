@@ -1,5 +1,6 @@
 import { signInWithTwitch } from "@/app/auth/actions";
 import SubmitButton from "@/app/submitButton";
+import Link from "next/link";
 import { getDict } from "@/lib/i18n/server";
 
 // Riquadro "accedi per giocare", comune a tutti i giochi.
@@ -16,6 +17,13 @@ export default async function LoginPrompt({ text }: { text: string }) {
           {t.auth.login}
         </SubmitButton>
       </form>
+      <p className="text-xs text-brand-lavanda">
+        {t.auth.privacyBefore}{" "}
+        <Link href="/privacy" className="underline hover:text-brand-crema">
+          {t.auth.privacyLink}
+        </Link>
+        .
+      </p>
     </div>
   );
 }

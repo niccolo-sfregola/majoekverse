@@ -4,7 +4,7 @@ import { createClient } from "./supabase/server";
 import { createAdminClient } from "./supabase/admin";
 import { generateZip, seededRandom, type ZipPuzzle } from "./zip";
 import { SOLUZIONI } from "./wordle-words";
-import { JOE_TWITCH_LOGIN } from "./auth";
+import { isJoeUser } from "./auth";
 import { getChannelInfo } from "./twitch";
 import { getUserChannelRelation } from "./twitch-user";
 
@@ -160,10 +160,7 @@ export async function wordleLeaderboard(
 export async function wordleAccess(
   user: User,
 ): Promise<"ok" | "notSub" | "noToken"> {
-  const login = String(
-    user.user_metadata?.preferred_username ?? user.user_metadata?.nickname ?? "",
-  ).toLowerCase();
-  if (login === JOE_TWITCH_LOGIN) return "ok";
+  if (isJoeUser(user)) return "ok";
 
   const channel = await getChannelInfo();
   if (!channel.id) return "noToken";
@@ -202,11 +199,19 @@ export type TitleState =
       rimaste: number;
     };
 
+// Il vincitore è Joe? Allora quella settimana il premio non si assegna:
+// Joe non propone titoli a sé stesso, e nessun altro lo eredita.
+export async function isJoeUserId(userId: string): Promise<boolean> {
+  const { data } = await createAdminClient().auth.admin.getUserById(userId);
+  return isJoeUser(data.user);
+}
+
 // Situazione del premio per questo utente (calcolata sempre dal server).
 export async function titleState(userId: string): Promise<TitleState> {
   const settimana = addDays(mondayOf(), -7);
   const [vincitore] = await wordleLeaderboard(settimana, 1);
   if (vincitore?.user_id !== userId) return { kind: "none" };
+  if (await isJoeUserId(userId)) return { kind: "none" };
 
   const { data } = await createAdminClient()
     .from("title_proposals")
