@@ -15,6 +15,7 @@ import { blowbrush } from "@/app/fonts";
 import SubmitButton from "@/app/submitButton";
 import { zipBadges } from "@/lib/games";
 import LangSwitch from "@/app/langSwitch";
+import Notifiche from "./notifiche";
 import { getDict, getLang } from "@/lib/i18n/server";
 import { DATE_LOCALE } from "@/lib/i18n/dictionaries";
 
@@ -300,6 +301,8 @@ export default async function Profilo() {
               </form>
             ) : null}
           </div>
+
+          <Notifiche />
 
           <div className="flex flex-col gap-3 md:flex-row">
             {admin ? (

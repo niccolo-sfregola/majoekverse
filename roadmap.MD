@@ -199,10 +199,10 @@ Hai già superato la parte più ostica. Da qui è costruire.
 Notifiche della proposta di titolo: a **tutti gli admin** (non solo Joe).
 
 **Task:**
-- [ ] Chiavi VAPID + tabella `push_subscriptions` (utente, endpoint, chiavi) + preferenze (Zip / Wordle e solleciti).
-- [ ] Bottone "Attiva notifiche" + interruttori nel Profilo; gestione `push` e `notificationclick` in `sw.js`.
-- [ ] `lib/push.ts`: invio a un utente / a un gruppo, pulizia delle iscrizioni scadute.
-- [ ] Notifiche del titolo (proposta → admin, esito → vincitore) + posto in classifica Zip ai primi 3.
+- [X] Chiavi VAPID + tabella `push_subscriptions` (utente, endpoint, chiavi) + preferenze (Zip / Wordle e solleciti).
+- [X] Bottone "Attiva notifiche" + interruttori nel Profilo; gestione `push` e `notificationclick` in `sw.js`.
+- [X] `lib/push.ts`: invio a un utente / a un gruppo, pulizia delle iscrizioni scadute.
+- [X] Notifiche del titolo (proposta → admin, esito → vincitore) + posto in classifica Zip ai primi 3.
 - [ ] Route cron protette + pg_cron per annunci e solleciti di Zip e Wordle.
 
 **Cosa impari:** Web Push e service worker, permessi del browser, job programmati, perché le route cron vanno protette.
@@ -231,4 +231,11 @@ Fasi 1–8 complete: app online su Vercel (`majoekverse.vercel.app`), installabi
 
 Fase 8 fatta: tab Giochi con Zip del giorno (classifica + badge podio) e parola della settimana per abbonati (classifica + proposta di titolo del vincitore, Accetta/Rifiuta in `/admin`). Eventi spostati in Home.
 
-Prossimo: **Fase 9 — Notifiche push** — primo task: chiavi VAPID + tabella `push_subscriptions` + preferenze.
+Fase 9 quasi fatta: notifiche push (iscrizione per dispositivo nel Profilo, notifiche del titolo, notifiche a orario via pg_cron → `/api/cron`). Provate in locale.
+
+Prossimo: **mettere online la Fase 9** e chiuderla:
+1. Su Vercel → Environment Variables: `GAMES_SECRET`, `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`, `CRON_SECRET` (stessi valori di `.env.local`).
+2. `git push` → aspettare il deploy.
+3. Supabase: `cron_secret` nel Vault = `CRON_SECRET` vero; `cron.job` con l'indirizzo vero del sito.
+4. Chiamata di prova con `net.http_post` → `net._http_response` deve dare 200.
+5. Dopo un'ora piena: `cron.job_run_details` → `succeeded`. Poi spuntare l'ultimo task della Fase 9.

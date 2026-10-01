@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
@@ -11,6 +12,8 @@ import {
   wordleAccess,
 } from "@/lib/games";
 import { AMMESSE } from "@/lib/wordle-words";
+import { sendToAdmins } from "@/lib/push";
+import { dictionaries } from "@/lib/i18n/dictionaries";
 import { LUNGHEZZA, MAX_TENTATIVI, valuta, type Riga } from "@/lib/wordle";
 
 export type GuessResult =
@@ -145,6 +148,21 @@ export async function proposeTitle(
       username: playerInfo(user).username,
     });
   if (error) return { ok: false, message: "server" };
+
+  // Avvisa gli admin DOPO aver risposto: la proposta è già salvata, e se
+  // l'invio delle notifiche fallisce non cambia niente per il vincitore.
+  const username = playerInfo(user).username;
+  after(async () => {
+    try {
+      await sendToAdmins((lang) => ({
+        title: dictionaries[lang].notifiche.newProposal,
+        body: `${username}: “${titolo}”`,
+        url: "/admin",
+      }));
+    } catch (e) {
+      console.error("Notifica proposta non inviata:", e);
+    }
+  });
 
   revalidatePath("/giochi/parola");
   revalidatePath("/admin");

@@ -1,6 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
+import { sendToUsers } from "@/lib/push";
+import { dictionaries } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdmin } from "@/lib/auth";
@@ -330,12 +333,31 @@ export async function reviewTitle(
       })
       .eq("id", id)
       .eq("stato", "pending")
-      .select("id");
+      .select("id, user_id, titolo");
 
     if (error) return { ok: false, message: `Errore: ${error.message}` };
     if (!data?.length) {
       return { ok: false, message: "Proposta già decisa da qualcun altro." };
     }
+
+    // Esito al vincitore, dopo aver risposto all'admin.
+    const { user_id, titolo } = data[0];
+    after(async () => {
+      try {
+        await sendToUsers([user_id], (lang) => {
+          const n = dictionaries[lang].notifiche;
+          return decisione === "accepted"
+            ? { title: n.accepted, body: `“${titolo}”`, url: "/giochi/parola" }
+            : {
+                title: n.rejected,
+                body: motivo ? `${n.reason}: ${motivo}` : n.rejectedBody,
+                url: "/giochi/parola",
+              };
+        });
+      } catch (e) {
+        console.error("Notifica esito non inviata:", e);
+      }
+    });
 
     revalidatePath("/admin");
     revalidatePath("/giochi/parola");
