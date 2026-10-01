@@ -37,7 +37,7 @@ Hai già superato la parte più ostica. Da qui è costruire.
 - [X] Costruire **Universo di Joe**: bio, link ai canali (Twitch, Instagram, YouTube), sezione sponsor con codici sconto, altri link (Patreon, Posta del cuore) — dati reali, non finti.
 - [X] Costruire le altre schermate con contenuto vero: **Eventi** (lista eventi), **Help Desk** (testo + link Discord), **Profilo** (due stati: loggato/non loggato con ternario, sottoscrizione, personalizzazione avatar interattiva con `useState`, skeleton area admin).
 - [X] Rendere tutto **responsive**: layout a griglia/flex elastici, breakpoint `md:` dove serve.
-- [ ] *(opzionale, rifinitura finale)* Piccola animazione di benvenuto all'avvio: il "mondo" dell'icona Universo gira, poi appare "Benvenuto nel maJoekverse!". Idea carina avuta strada facendo — non blocca il passaggio alla Fase 2, va aggiunta quando c'è voglia.
+- [X] *(opzionale, rifinitura finale)* Piccola animazione di benvenuto all'avvio: il "mondo" dell'icona Universo gira, poi appare "Benvenuto nel maJoekverse!". Idea carina avuta strada facendo — non blocca il passaggio alla Fase 2, va aggiunta quando c'è voglia.
 
 **Cosa impari:** componenti React, come si dividono le schermate in pezzi, Tailwind per lo stile, il layout responsive, `.map()` su liste, ternari per contenuto condizionale, il primo `useState`.
 
@@ -81,7 +81,7 @@ Hai già superato la parte più ostica. Da qui è costruire.
 
 ---
 
-## Fase 4 — Stato "live" automatico
+## ✅ Fase 4 — Stato "live" automatico (FATTA)
 
 **Obiettivo:** la Home mostra da sola se maJoekoto è online, senza inserirlo a mano.
 
@@ -106,7 +106,7 @@ Hai già superato la parte più ostica. Da qui è costruire.
 - [X] Controllo ruolo **lato server**: `lib/auth.ts` (`isAdmin()` via RPC), `/admin` rimbalza i non-admin, ogni action richiama `assertAdmin()`, e comunque la RLS lo impone nel database.
 - [X] Link "Area Admin" nel Profilo, visibile solo agli admin.
 - [X] Modifica in-place (form pre-compilato in un `<details>`) oltre ad aggiungi/elimina, per tutte e 4 le sezioni.
-- [ ] Prova: login admin → `/admin` → aggiungi una news → compare nella Home. Login non-admin → `/admin` rimbalza.
+- [X] Prova: login admin → `/admin` → aggiungi una news → compare nella Home. Login non-admin → `/admin` rimbalza.
 
 **Cosa impari:** permessi e ruoli, come si scrivono dati nel database da un form.
 
@@ -123,14 +123,14 @@ Hai già superato la parte più ostica. Da qui è costruire.
 
 ---
 
-## Fase 6 — UI, rifinitura estetica + PWA installabile
+## ✅ Fase 6 — UI, rifinitura estetica + PWA installabile (FATTA)
 
 **Obiettivo:** portare l'app da "funziona e si vede" a bella davvero, e farla diventare un'app installabile su telefono e PC.
 
-- [ ] **Passata di rifinitura UI vera e propria**: margini, spaziature, animazioni, dettagli estetici, l'animazione di benvenuto rimandata dalla Fase 1. A differenza delle fasi precedenti (dove hai scritto tu quasi tutto il codice per capire i meccanismi), qui il supporto sarà più massiccio — a quel punto conoscerai già l'architettura, quindi appoggiarti di più sul lato estetico non toglie nulla a quanto imparato finora.
-- [ ] Aggiungere il **manifest** (nome, icona = logo J, colore tema scuro) così compare "Installa / Aggiungi a Home".
-- [ ] Aggiungere il **service worker** (con Serwist) per l'installabilità e un minimo di funzionamento offline.
-- [ ] (Opzionale) notifiche push "sono live" su Android e PC. Su iPhone le copriamo con il **bot Telegram** già esistente, come deciso.
+- [X] **Passata di rifinitura UI vera e propria**: margini, spaziature, animazioni, dettagli estetici, l'animazione di benvenuto rimandata dalla Fase 1. A differenza delle fasi precedenti (dove hai scritto tu quasi tutto il codice per capire i meccanismi), qui il supporto sarà più massiccio — a quel punto conoscerai già l'architettura, quindi appoggiarti di più sul lato estetico non toglie nulla a quanto imparato finora.
+- [X] Aggiungere il **manifest** (nome, icona = logo J, colore tema scuro) così compare "Installa / Aggiungi a Home".
+- [X] Aggiungere il **service worker** (con Serwist) per l'installabilità e un minimo di funzionamento offline.
+- [ ] ~~(Opzionale) notifiche push "sono live"~~ → spostate nella **Fase 9** (sistema di notifiche completo).
 
 **Cosa impari:** rifinitura di design con Tailwind, cosa rende un sito una PWA, service worker e manifest.
 
@@ -138,15 +138,76 @@ Hai già superato la parte più ostica. Da qui è costruire.
 
 ---
 
-## Fase 7 — Pubblicazione
+## ✅ Fase 7 — Pubblicazione (FATTA)
 
 **Obiettivo:** metterla online per la community.
 
 - [X] Collegare il repository a **Vercel** → deploy automatico a ogni push. Online su `majoekverse.vercel.app`. Env su Vercel (incl. `NEXT_PUBLIC_SITE_URL`), Supabase URL Configuration aggiornata per il dominio di produzione.
-- [ ] (Opzionale) dominio personalizzato — l'utente lo vuole, serve scegliere il nome + comprarlo.
-- [ ] Provare l'app su **telefoni veri** (Android e iPhone) e sistemare le ultime cose.
+- [X] (Opzionale) dominio personalizzato — l'utente lo vuole, serve scegliere il nome + comprarlo.
+- [X] Provare l'app su **telefoni veri** (Android e iPhone) e sistemare le ultime cose.
 
 **Fatto quando:** c'è un link pubblico, installabile, con dati veri, che Joe può condividere.
+
+---
+
+## Fase 8 — Giochi
+
+**Obiettivo:** il tab Eventi diventa **Giochi**: uno Zip giornaliero (stile LinkedIn) con classifica a tempo e badge ai primi 3, e un Wordle settimanale per abbonati il cui vincitore propone il titolo di una live. Joe gioca come tutti, contro la sua community.
+
+**Decisioni prese:**
+- Gli eventi escono dal menu e finiscono in una card nella **Home**: tap → si apre come una news (stesso modale di `newsList.tsx`) + bottone "Partecipa" (o "Abbonati" se è solo abbonati). La pagina `/eventi` sparisce.
+- Si gioca **solo con login Twitch**. Il Wordle settimanale è **solo per abbonati** (+ Joe, che non è abbonato al proprio canale). Admin e Joe sono in classifica come tutti.
+- **Zip:** stesso puzzle per tutti, cambia a mezzanotte (ora italiana), un tentativo al giorno. Il tempo lo misura il **server** (il puzzle arriva solo quando premi "Inizia"). Badge ai primi 3, **valido solo il giorno dopo**, niente palmarès.
+- **Wordle:** **solo in italiano** (parola e parole ammesse sono italiane, anche per chi usa l'app in inglese — lo dice la descrizione del gioco). Parola **pescata a caso dal server** da una lista nel codice. Nessuno la sceglie, quindi nessuno la conosce (Joe compreso). La scelta usa un segreto (`GAMES_SECRET`, lo stesso del puzzle Zip), così non si può ricavare leggendo il codice. Classifica per **numero di tentativi**, a parità vince chi ci ha messo meno. Il vincitore si decide a fine settimana.
+- **Titolo della live:** il vincitore scrive una **proposta** → `/admin` Accetta / Rifiuta (motivo facoltativo) → se rifiutata può riproporre, **max 3 proposte**. Scade dopo 3 giorni se non la scrive. Nessun automatismo con Twitch: il titolo vero lo mette Joe.
+
+**Task:**
+- [X] Menu: "Eventi" → "Giochi" (top + bottom nav, icona nuova, dizionari IT/EN). Eventi nella Home come card espandibile. Pagina `/giochi` con due card.
+- [X] Zip giocabile: generatore di griglia (percorso che copre tutte le celle + numeri + muri), tracciamento del percorso col dito/mouse, verifica.
+- [X] Zip "vero": tabella partite, inizio/fine salvati dal server, un tentativo al giorno, classifica del giorno, badge dei primi 3 di ieri (in profilo e in classifica).
+- [X] Wordle: lista parole italiane (soluzioni comuni + lista più ampia di parole ammesse), parola della settimana sul server, tentativi verificati da Server Action, controllo abbonamento.
+- [X] Wordle: classifica settimanale + vincitore.
+- [ ] Proposte titolo: form per il vincitore, sezione in `/admin` con Accetta/Rifiuta, contatore 3 proposte, scadenza.
+
+**Cosa impari:** logica di gioco in React (stato, eventi touch/mouse), perché non ci si fida del client (tempo e soluzioni sul server), date e fusi orari, generazione casuale con un seme, classifiche in SQL.
+
+**Fatto quando:** chi fa login gioca lo Zip del giorno e vede la classifica, il giorno dopo i primi 3 hanno il badge; un abbonato vince il Wordle, propone un titolo e Joe lo accetta da `/admin`.
+
+---
+
+## Fase 9 — Notifiche push
+
+**Obiettivo:** avvisare quando i giochi sono online, ricordare a chi non ha ancora giocato, e far girare il flusso del titolo (Joe ↔ vincitore) con notifiche.
+
+**Come funziona:** l'utente attiva le notifiche dal Profilo (il browser chiede il permesso solo dopo un tocco) → l'iscrizione si salva su Supabase → il server invia con `web-push` + chiavi VAPID → `public/sw.js` mostra la notifica e al tocco apre la pagina giusta. Notifiche a orario: **pg_cron su Supabase** chiama `/api/cron/...` protetta da `CRON_SECRET` (il cron gratuito di Vercel è troppo impreciso). Notifiche del titolo: partono subito dalla Server Action, senza cron.
+
+**Calendario (confermato):**
+
+| Notifica | Quando | A chi |
+|---|---|---|
+| Zip di oggi online | ogni giorno 9:00 | iscritti |
+| Sollecito Zip | ogni giorno 20:00 | chi oggi non ha giocato |
+| Wordle della settimana online | lunedì 9:00 | abbonati iscritti |
+| 1° sollecito Wordle | giovedì 20:00 | abbonati che non l'hanno finito |
+| 2° sollecito Wordle | domenica 18:00 | come sopra |
+| Posto in classifica Zip ("🥈 sei arrivato 2° ieri") | ogni giorno 9:00, insieme a "Zip online" | i primi 3 di ieri |
+| Nuova proposta di titolo | subito | tutti gli admin |
+| Esito della proposta | subito | il vincitore |
+
+**Decisioni:** iPhone → solo con l'app installata sulla Home (iOS 16.4+), niente Telegram. Notifica del posto in classifica ai primi 3 dello Zip: sì.
+
+Notifiche della proposta di titolo: a **tutti gli admin** (non solo Joe).
+
+**Task:**
+- [ ] Chiavi VAPID + tabella `push_subscriptions` (utente, endpoint, chiavi) + preferenze (Zip / Wordle e solleciti).
+- [ ] Bottone "Attiva notifiche" + interruttori nel Profilo; gestione `push` e `notificationclick` in `sw.js`.
+- [ ] `lib/push.ts`: invio a un utente / a un gruppo, pulizia delle iscrizioni scadute.
+- [ ] Notifiche del titolo (proposta → admin, esito → vincitore) + posto in classifica Zip ai primi 3.
+- [ ] Route cron protette + pg_cron per annunci e solleciti di Zip e Wordle.
+
+**Cosa impari:** Web Push e service worker, permessi del browser, job programmati, perché le route cron vanno protette.
+
+**Fatto quando:** attivi le notifiche sul telefono, ti arriva "lo Zip è online", la sera ti arriva il sollecito solo se non hai giocato, e Joe riceve la proposta di titolo appena il vincitore la scrive.
 
 ---
 
@@ -157,7 +218,7 @@ Per non affogare, questi restano per dopo — e va bene così:
 - **Ticket / Help Desk completo** → nella v1 basta un pulsante che rimanda al Discord/Telegram esistente. Il sistema ticket vero solo se il volume lo giustifica.
 - **Giveaway a estrazione** → per ora solo informativi/link (per i motivi legali già visti: le estrazioni con premi hanno vincoli seri in Italia).
 - **Sondaggi** → dopo.
-- **Notifiche push complesse / EventSub** → nella v1 polling + Telegram.
+- **EventSub** → stato live con polling. (Le notifiche push sono nella Fase 9.)
 - **News automatiche da Instagram/TikTok** → restano manuali dall'Admin; solo YouTube è automatizzabile facilmente (dopo).
 
 Aggiungere tutto subito è la strada più veloce per mollare. La v1 così è **coerente, utile e finibile**.
@@ -166,6 +227,6 @@ Aggiungere tutto subito è la strada più veloce per mollare. La v1 così è **c
 
 ## Il tuo prossimo passo, adesso
 
-Fasi 1–5 complete + app online su Vercel (`majoekverse.vercel.app`). Funzionano: dati veri da Supabase, login Twitch, stato live automatico, ultimo video YouTube, area Admin completa (CRUD + annunci Discord + diff schedule + azzeramento settimanale).
+Fasi 1–7 complete: app online su Vercel (`majoekverse.vercel.app`), installabile come PWA, con dati veri da Supabase, login Twitch, stato live automatico, ultimo video YouTube, area Admin completa (CRUD + annunci Discord + diff schedule + azzeramento settimanale).
 
-Prossimo: **Fase 6** — (1) passata di rifinitura estetica UI, (2) PWA installabile (manifest + service worker con Serwist), (3) opzionale notifiche push. Poi resta di Fase 7: dominio personalizzato + test su telefoni veri.
+Prossimo: **Fase 8 — Giochi** — menu, eventi in Home e pagina `/giochi` fatti; Zip (con classifica e badge) e parola della settimana fatti; ora le **proposte di titolo** del vincitore (Accetta/Rifiuta in `/admin`). Prima di chiudere la fase: togliere l'interruttore di prova `GAMES_DEV_OPEN`. Poi **Fase 9 — Notifiche push**.

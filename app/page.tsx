@@ -1,7 +1,8 @@
 import { Suspense } from "react";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
-import { getStreamStatus } from "@/lib/twitch";
+import { getStreamStatus, getChannelInfo } from "@/lib/twitch";
+import { getUserChannelRelation } from "@/lib/twitch-user";
 import { getLatestVideo } from "@/lib/youtube";
 import { isUpcoming } from "@/lib/schedule";
 import { getDict } from "@/lib/i18n/server";
@@ -10,6 +11,7 @@ import background from "@/public/background.png";
 import LiveBlock from "./liveBlock";
 import ScheduleCard from "./scheduleCard";
 import NewsList from "./newsList";
+import EventList from "./eventList";
 
 // items-start: ogni card prende solo l'altezza del suo contenuto, invece di
 // stirarsi per pareggiare la più alta della sua riga (di griglia).
@@ -71,17 +73,36 @@ async function HomeCards() {
   const t = await getDict();
 
   // Tutte in parallelo: l'attesa è quella della più lenta, non la somma.
-  const [liveStatus, ultimoVideo, scheduleRes, newsRes] = await Promise.all([
-    getStreamStatus(),
-    getLatestVideo(),
-    supabase.from("schedule").select("*").order("data", { ascending: true }),
-    supabase.from("news").select("*").order("created_at", { ascending: false }),
-  ]);
+  const [liveStatus, ultimoVideo, scheduleRes, newsRes, eventiRes, authRes] =
+    await Promise.all([
+      getStreamStatus(),
+      getLatestVideo(),
+      supabase.from("schedule").select("*").order("data", { ascending: true }),
+      supabase.from("news").select("*").order("created_at", { ascending: false }),
+      supabase.from("events").select("*").order("data", { ascending: true }),
+      supabase.auth.getUser(),
+    ]);
 
   const prossimeDirette = (scheduleRes.data ?? []).filter(
     (item) => item.data && isUpcoming(item.data),
   );
   const news = newsRes.data;
+  // Eventi senza data restano sempre; quelli con data spariscono il giorno dopo.
+  const eventi = (eventiRes.data ?? []).filter(
+    (e) => !e.data || isUpcoming(e.data),
+  );
+
+  // Stato abbonamento: chiamiamo Twitch solo se c'è almeno un evento
+  // riservato e l'utente è loggato.
+  let subscribed = false;
+  const user = authRes.data.user;
+  if (user && eventi.some((e) => e.solo_abbonati)) {
+    const channel = await getChannelInfo();
+    if (channel.id) {
+      const rel = await getUserChannelRelation(user.id, channel.id);
+      subscribed = rel.subscribed;
+    }
+  }
 
   return (
     <div className={`rise-in ${GRID}`}>
@@ -115,6 +136,14 @@ async function HomeCards() {
         <p className={CARD_LABEL}>{t.home.news}</p>
         <NewsList items={news ?? []} />
       </div>
+
+      {/* Fuori dal 2×2: compare solo se ci sono eventi in programma. */}
+      {eventi.length > 0 ? (
+        <div className="card-glass col-span-2 flex flex-col gap-2 p-5">
+          <p className={CARD_LABEL}>{t.home.events}</p>
+          <EventList items={eventi} subscribed={subscribed} />
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -13,6 +13,7 @@ import {
 } from "@/lib/twitch-user";
 import { blowbrush } from "@/app/fonts";
 import SubmitButton from "@/app/submitButton";
+import { zipBadges } from "@/lib/games";
 import LangSwitch from "@/app/langSwitch";
 import { getDict, getLang } from "@/lib/i18n/server";
 import { DATE_LOCALE } from "@/lib/i18n/dictionaries";
@@ -60,7 +61,11 @@ export default async function Profilo() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const admin = user ? await isAdmin() : false;
+  const [admin, badges] = user
+    ? await Promise.all([isAdmin(), zipBadges()])
+    : [false, new Map<string, string>()];
+  // Medaglia del podio Zip di ieri: si vede nel profilo per tutto oggi.
+  const zipBadge = user ? badges.get(user.id) : undefined;
 
   const username =
     user?.user_metadata.nickname ??
@@ -158,6 +163,11 @@ export default async function Profilo() {
                 {admin ? (
                   <span className="rounded-full bg-brand-corallo px-2 py-0.5 text-[0.7rem] font-semibold uppercase tracking-wide text-brand-crema">
                     Admin
+                  </span>
+                ) : null}
+                {zipBadge ? (
+                  <span className="rounded-full bg-brand-blu px-2 py-0.5 text-[0.7rem] font-semibold uppercase tracking-wide text-brand-crema">
+                    {zipBadge} {t.profilo.zipBadge}
                   </span>
                 ) : null}
               </div>

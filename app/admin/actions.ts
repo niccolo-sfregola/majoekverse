@@ -40,7 +40,6 @@ async function assertAdmin() {
 // Rinfresca le pagine pubbliche che mostrano questi dati.
 function refresh() {
   revalidatePath("/");
-  revalidatePath("/eventi");
   revalidatePath("/universo");
   revalidatePath("/admin");
 }

@@ -45,7 +45,7 @@ function TwitchIcon() {
 // I testi stanno nel dizionario: qui solo icona + chiave.
 const SECTIONS: { icon: string; key: keyof Dict["onboarding"]["sections"] }[] = [
   { icon: "🏠", key: "home" },
-  { icon: "📅", key: "eventi" },
+  { icon: "🧩", key: "giochi" },
   { icon: "👤", key: "profilo" },
   { icon: "🛟", key: "helpdesk" },
   { icon: "🌌", key: "universo" },

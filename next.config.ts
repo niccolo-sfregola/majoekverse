@@ -11,6 +11,17 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        // La pagina Eventi non c'è più: gli eventi ora stanno nella Home.
+        // Chi ha ancora il vecchio link finisce lì invece che su un 404.
+        source: "/eventi",
+        destination: "/",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {
