@@ -108,7 +108,8 @@ function ZipBoard({
 
   const [phase, setPhase] = useState<"playing" | "done">("playing");
   const [path, setPath] = useState<number[]>([]);
-  const [now, setNow] = useState(startedAt);
+  // Momento in cui si è finito (null = si sta ancora giocando).
+  const [stoppedAt, setStoppedAt] = useState<number | null>(null);
   // Tempo ufficiale, quello calcolato dal server (null finché non risponde).
   const [finalMs, setFinalMs] = useState<number | null>(null);
   const [finishError, setFinishError] = useState(false);
@@ -120,13 +121,10 @@ function ZipBoard({
   // Copia del percorso sempre aggiornata: durante un trascinamento veloce
   // arrivano più eventi prima che React ridisegni, e `path` sarebbe vecchio.
   const pathRef = useRef<number[]>([]);
-
-  // Cronometro: aggiorna l'orologio a schermo mentre si gioca.
-  useEffect(() => {
-    if (phase !== "playing") return;
-    const id = setInterval(() => setNow(Date.now()), 250);
-    return () => clearInterval(id);
-  }, [phase]);
+  // Posizione della griglia sullo schermo, misurata a inizio trascinamento:
+  // rimisurarla a ogni movimento del dito costringe il browser a ricalcolare
+  // il layout decine di volte al secondo.
+  const rectRef = useRef<DOMRect | null>(null);
 
   // Ogni modifica al percorso passa da qui: se è la soluzione, fine partita.
   function update(next: number[]) {
@@ -134,7 +132,7 @@ function ZipBoard({
     setPath(next);
     if (isSolved(puzzle, next)) {
       dragging.current = false;
-      setNow(Date.now());
+      setStoppedAt(Date.now());
       setPhase("done");
       setCelebrating(true);
       // Il server ricontrolla la soluzione e calcola il tempo ufficiale;
@@ -152,7 +150,7 @@ function ZipBoard({
 
   // Casella sotto il dito/mouse, o -1 se si è fuori dalla griglia.
   function cellAt(e: PointerEvent): number {
-    const rect = svgRef.current!.getBoundingClientRect();
+    const rect = rectRef.current ?? svgRef.current!.getBoundingClientRect();
     const col = Math.floor(((e.clientX - rect.left) / rect.width) * size);
     const row = Math.floor(((e.clientY - rect.top) / rect.height) * size);
     if (col < 0 || row < 0 || col >= size || row >= size) return -1;
@@ -196,6 +194,7 @@ function ZipBoard({
 
   function onPointerDown(e: PointerEvent<SVGSVGElement>) {
     if (phase !== "playing") return;
+    rectRef.current = svgRef.current!.getBoundingClientRect();
     const cell = cellAt(e);
     if (cell < 0) return;
     e.currentTarget.setPointerCapture(e.pointerId);
@@ -229,7 +228,7 @@ function ZipBoard({
     y: Math.floor(cell / size) + 0.5,
   });
   const visited = new Set(path);
-  const elapsed = formatDurata(finalMs ?? now - startedAt);
+  const finalTime = formatDurata(finalMs ?? (stoppedAt ?? startedAt) - startedAt);
   const next = nextNumber(puzzle, path);
   const max = Math.max(...numeri);
 
@@ -244,7 +243,7 @@ function ZipBoard({
               : t.zip.fillAll}
         </span>
         <span className="font-mono text-lg tabular-nums text-brand-crema">
-          {elapsed}
+          {stoppedAt === null ? <Clock startedAt={startedAt} /> : finalTime}
         </span>
       </div>
 
@@ -348,7 +347,9 @@ function ZipBoard({
                 x={center(cell).x}
                 y={center(cell).y}
                 textAnchor="middle"
-                dominantBaseline="central"
+                // Niente dominantBaseline: Safari su iPhone lo ignora e il
+                // numero finisce in alto. dy=0.35em centra in tutti i browser.
+                dy="0.35em"
                 fontSize={0.34}
                 fontWeight={700}
                 className="fill-brand-crema"
@@ -383,7 +384,7 @@ function ZipBoard({
         <div className="zip-result panel flex flex-col items-center gap-1 px-8 py-4 text-center">
           <p className="text-sm text-brand-lavanda">{t.zip.yourTime}</p>
           <p className="font-mono text-3xl tabular-nums text-brand-crema">
-            {elapsed}
+            {finalTime}
           </p>
           {finishError ? (
             <p className="mt-1 text-sm text-brand-corallo">{t.zip.error}</p>
@@ -399,4 +400,15 @@ function ZipBoard({
       ) : null}
     </div>
   );
+}
+
+// Cronometro in un componente a parte: così il suo aggiornamento (4 volte al
+// secondo) ridisegna solo questo testo e non tutta la griglia dello Zip.
+function Clock({ startedAt }: { startedAt: number }) {
+  const [now, setNow] = useState(startedAt);
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 250);
+    return () => clearInterval(id);
+  }, []);
+  return <>{formatDurata(now - startedAt)}</>;
 }
