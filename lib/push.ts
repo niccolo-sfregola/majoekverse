@@ -73,6 +73,8 @@ export async function sendToSubscriptions(
       } catch (e) {
         failed++;
         const status = (e as { statusCode?: number }).statusCode;
+        // Finisce nei log di Vercel (Runtime Logs): utile per capire perché.
+        console.error("[push] invio fallito", status, (e as { body?: string }).body ?? e);
         if (status === 404 || status === 410) gone.push(sub.id);
       }
     }),
