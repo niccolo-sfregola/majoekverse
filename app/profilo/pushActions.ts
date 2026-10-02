@@ -55,6 +55,7 @@ export async function savePushSubscription(
       },
       { onConflict: "endpoint" },
     );
+  if (error) console.error("[push] iscrizione non salvata", error);
   return !error;
 }
 
@@ -88,6 +89,7 @@ export async function updatePushPrefs(
     })
     .eq("endpoint", endpoint)
     .eq("user_id", userId);
+  if (error) console.error("[push] preferenze non salvate", error);
   return !error;
 }
 
@@ -103,7 +105,11 @@ export async function deletePushSubscription(endpoint: string): Promise<void> {
 
 export async function sendTestPush(endpoint: string): Promise<boolean> {
   const userId = await currentUserId();
-  if (!userId || !(await getPushPrefs(endpoint))) return false;
+  if (!userId) return false;
+  if (!(await getPushPrefs(endpoint))) {
+    console.error("[push] prova: dispositivo non trovato in push_subscriptions");
+    return false;
+  }
   const res = await sendToEndpoint(endpoint, (lang) => ({
     title: "maJoekverse",
     body: dictionaries[lang].notifiche.testBody,

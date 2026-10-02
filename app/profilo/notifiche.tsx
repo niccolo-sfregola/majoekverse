@@ -145,6 +145,7 @@ export default function Notifiche() {
     const sub = await currentSubscription();
     const ok = sub ? await updatePushPrefs(sub.endpoint, next, lang) : false;
     if (!ok) {
+      console.error("[notifiche] preferenze non salvate", { hasSub: !!sub });
       setPrefs(prefs);
       setMessage(n.error);
     }
@@ -154,7 +155,13 @@ export default function Notifiche() {
     setBusy(true);
     setMessage(null);
     const sub = await currentSubscription();
-    const ok = sub ? await sendTestPush(sub.endpoint).catch(() => false) : false;
+    const ok = sub
+      ? await sendTestPush(sub.endpoint).catch((e) => {
+          console.error("[notifiche] prova", e);
+          return false;
+        })
+      : false;
+    if (!ok) console.error("[notifiche] prova non inviata", { hasSub: !!sub });
     setMessage(ok ? n.testSent : n.error);
     setBusy(false);
   }
