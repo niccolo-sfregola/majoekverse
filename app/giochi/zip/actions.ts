@@ -38,15 +38,21 @@ export async function startZip(): Promise<ZipStartResult> {
     },
     { onConflict: "user_id,giorno", ignoreDuplicates: true },
   );
-  if (insertError) return { ok: false, error: "server" };
+  if (insertError) {
+    console.error("[zip] partita non creata", insertError);
+    return { ok: false, error: "server" };
+  }
 
-  const { data: row } = await db
+  const { data: row, error: readError } = await db
     .from("zip_games")
     .select("started_at, finished_at")
     .eq("user_id", user.id)
     .eq("giorno", giorno)
     .single();
-  if (!row) return { ok: false, error: "server" };
+  if (!row) {
+    console.error("[zip] partita non letta", readError);
+    return { ok: false, error: "server" };
+  }
   if (row.finished_at) return { ok: false, error: "played" };
 
   return {
@@ -102,7 +108,10 @@ export async function finishZip(path: number[]): Promise<ZipFinishResult> {
     .update({ finished_at: finishedAt.toISOString(), time_ms: timeMs })
     .eq("id", row.id)
     .is("finished_at", null);
-  if (error) return { ok: false, error: "server" };
+  if (error) {
+    console.error("[zip] tempo non salvato", error);
+    return { ok: false, error: "server" };
+  }
 
   revalidatePath("/giochi/zip");
   return { ok: true, timeMs };

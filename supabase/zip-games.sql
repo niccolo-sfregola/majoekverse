@@ -35,3 +35,7 @@ create policy "public read" on public.zip_games
 -- Nessuna policy di INSERT/UPDATE/DELETE: nessun utente può scrivere qui,
 -- nemmeno sulla propria riga. Scrive solo il server con la chiave
 -- service_role (che ignora la RLS), dopo aver controllato la soluzione.
+
+-- Permessi per il server: su questo progetto le tabelle nuove non li danno
+-- in automatico a service_role.
+grant select, insert, update, delete on table public.zip_games to service_role;

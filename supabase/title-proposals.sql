@@ -30,3 +30,7 @@ alter table public.title_proposals enable row level security;
 
 -- Nessuna policy: le proposte le vedono solo il vincitore (dalla sua pagina)
 -- e gli admin, sempre passando dal server con la chiave service_role.
+
+-- Permessi per il server: su questo progetto le tabelle nuove non li danno
+-- in automatico a service_role.
+grant select, insert, update, delete on table public.title_proposals to service_role;
