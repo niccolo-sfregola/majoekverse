@@ -27,3 +27,8 @@ alter table public.push_subscriptions enable row level security;
 
 -- Nessuna policy: legge e scrive solo il server (service_role). Le chiavi
 -- di un'iscrizione permettono di mandare notifiche a quel dispositivo.
+
+-- Permessi per il server: su questo progetto le tabelle nuove non li danno
+-- in automatico a service_role (come per twitch_credentials).
+grant select, insert, update, delete on table public.push_subscriptions to service_role;
+grant usage, select on all sequences in schema public to service_role;

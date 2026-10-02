@@ -111,7 +111,7 @@ export async function sendTestPush(endpoint: string): Promise<boolean> {
     return false;
   }
   const res = await sendToEndpoint(endpoint, (lang) => ({
-    title: "maJoekverse",
+    title: dictionaries[lang].notifiche.testTitle,
     body: dictionaries[lang].notifiche.testBody,
     url: "/profilo",
   }));

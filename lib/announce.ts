@@ -5,6 +5,9 @@ import { longDayIt, longDayEn, ddmm, timeIt, timeEn, fullDateIt } from "./schedu
 
 type Row = Record<string, string>;
 
+// Lunghezza massima di un messaggio Discord (anche via webhook).
+export const DISCORD_MAX = 2000;
+
 export function formatSchedule(rows: Row[]): string {
   const valid = rows.filter((r) => r.data && r.orario && r.gioco);
   if (valid.length === 0) return "";

@@ -18,6 +18,7 @@ create table if not exists public.push_jobs (
 
 alter table public.push_jobs enable row level security;
 -- Nessuna policy: la usa solo il server (service_role).
+grant select, insert, update, delete on table public.push_jobs to service_role;
 
 
 

@@ -329,7 +329,11 @@ export default async function Admin() {
                 title={`Aggiungi ${section.title.toLowerCase()}`}
                 icon="＋"
               >
-                <RowForm table={section.table} fields={section.fields} />
+                <RowForm
+                  table={section.table}
+                  fields={section.fields}
+                  announce={section.announce}
+                />
               </Collapsible>
 
               {rows.length > 0 ? (
@@ -340,6 +344,7 @@ export default async function Admin() {
                         table={section.table}
                         fields={section.fields}
                         row={row}
+                        announce={section.announce}
                       />
                       {section.announce === "news" ? (
                         <AnnounceButton
