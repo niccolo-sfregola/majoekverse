@@ -110,10 +110,11 @@ export default function Notifiche() {
         JSON.parse(JSON.stringify(sub)),
         lang,
       );
-      if (!ok) throw new Error();
+      if (!ok) throw new Error("savePushSubscription ha risposto false");
       setPrefs({ zip: true, wordle: true });
       setStatus("on");
-    } catch {
+    } catch (e) {
+      console.error("[notifiche]", e);
       setMessage(n.error);
     } finally {
       setBusy(false);
@@ -130,7 +131,8 @@ export default function Notifiche() {
         await sub.unsubscribe();
       }
       setStatus("off");
-    } catch {
+    } catch (e) {
+      console.error("[notifiche]", e);
       setMessage(n.error);
     } finally {
       setBusy(false);
