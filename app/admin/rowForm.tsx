@@ -1,9 +1,10 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useCallback, useEffect, useRef, useState } from "react";
 import { saveRow, type MutateState } from "./actions";
 import SponsorLogoField from "./sponsorLogoField";
 import { useNotifyScheduleChanged } from "./scheduleAnnounceContext";
+import { DISCORD_MAX, formatEvent, formatNews } from "@/lib/announce";
 
 export type Field = {
   name: string;
@@ -21,10 +22,12 @@ export default function RowForm({
   table,
   fields,
   row,
+  announce,
 }: {
   table: string;
   fields: Field[];
   row?: Record<string, unknown>;
+  announce?: "schedule" | "news" | "event";
 }) {
   const [state, formAction, pending] = useActionState<MutateState, FormData>(
     saveRow,
@@ -33,14 +36,30 @@ export default function RowForm({
   const formRef = useRef<HTMLFormElement>(null);
   const notifyScheduleChanged = useNotifyScheduleChanged();
 
+  // Contatore caratteri per News ed Eventi: misura il messaggio Discord
+  // COMPLETO (prefisso + titolo + testo), con le stesse funzioni dell'invio.
+  const format =
+    announce === "news" ? formatNews : announce === "event" ? formatEvent : null;
+  const [length, setLength] = useState(0);
+  const measure = useCallback(() => {
+    if (!format || !formRef.current) return;
+    const values = Object.fromEntries(
+      [...new FormData(formRef.current)].map(([k, v]) => [k, String(v)]),
+    );
+    // [...testo] conta le emoji come 1 carattere, come fa Discord.
+    setLength([...format(values)].length);
+  }, [format]);
+  useEffect(measure, [measure]);
+
   // Dopo un inserimento riuscito, svuota i campi (solo nel form "aggiungi",
   // non in quello di modifica: lì i valori salvati vanno tenuti).
   const isNew = !row;
   useEffect(() => {
     if (isNew && state?.ok) {
       formRef.current?.reset();
+      measure();
     }
-  }, [state, isNew]);
+  }, [state, isNew, measure]);
 
   // Avvisa il riquadro "pubblica su Discord" (vedi ScheduleAnnouncePrompt)
   // che è stata salvata una riga della schedule.
@@ -49,7 +68,12 @@ export default function RowForm({
   }, [state, table, notifyScheduleChanged]);
 
   return (
-    <form ref={formRef} action={formAction} className="flex flex-col gap-2">
+    <form
+      ref={formRef}
+      action={formAction}
+      onInput={format ? measure : undefined}
+      className="flex flex-col gap-2"
+    >
       <input type="hidden" name="table" value={table} />
       {row ? <input type="hidden" name="id" value={String(row.id)} /> : null}
       {fields.map((f) => {
@@ -112,6 +136,16 @@ export default function RowForm({
           />
         );
       })}
+      {format ? (
+        <span
+          className={`self-end text-xs tabular-nums ${
+            length > DISCORD_MAX ? "text-brand-corallo" : "text-brand-lavanda/70"
+          }`}
+        >
+          Discord: {length}/{DISCORD_MAX}
+          {length > DISCORD_MAX ? " — verrà tagliato" : ""}
+        </span>
+      ) : null}
       <button
         type="submit"
         disabled={pending}
