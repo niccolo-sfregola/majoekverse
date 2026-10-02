@@ -76,7 +76,10 @@ export async function guessWordle(input: string): Promise<GuessResult> {
       })
       .select("id, guesses, started_at, finished_at")
       .single();
-    if (error || !created) return { ok: false, error: "server" };
+    if (error || !created) {
+      console.error("[parola] partita non creata", error);
+      return { ok: false, error: "server" };
+    }
     row = created;
   }
 
@@ -102,7 +105,10 @@ export async function guessWordle(input: string): Promise<GuessResult> {
     .eq("id", row.id)
     .eq("guesses", `{${row.guesses.join(",")}}`)
     .select("id");
-  if (error || !saved?.length) return { ok: false, error: "server" };
+  if (error || !saved?.length) {
+    console.error("[parola] tentativo non salvato", error);
+    return { ok: false, error: "server" };
+  }
 
   if (won || lost) revalidatePath("/giochi/parola");
 
@@ -147,7 +153,10 @@ export async function proposeTitle(
       titolo,
       username: playerInfo(user).username,
     });
-  if (error) return { ok: false, message: "server" };
+  if (error) {
+    console.error("[parola] proposta non salvata", error);
+    return { ok: false, message: "server" };
+  }
 
   // Avvisa gli admin DOPO aver risposto: la proposta è già salvata, e se
   // l'invio delle notifiche fallisce non cambia niente per il vincitore.

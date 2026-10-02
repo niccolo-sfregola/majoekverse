@@ -31,3 +31,7 @@ alter table public.wordle_games enable row level security;
 -- NESSUNA policy, nemmeno di lettura: i tentativi di chi ha già indovinato
 -- svelerebbero la parola. Legge e scrive solo il server (service_role),
 -- che alla classifica passa solo nome, tentativi e tempo.
+
+-- Permessi per il server: su questo progetto le tabelle nuove non li danno
+-- in automatico a service_role.
+grant select, insert, update, delete on table public.wordle_games to service_role;
