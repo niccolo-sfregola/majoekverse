@@ -21,8 +21,8 @@ import {
 // Le colonne modificabili per ogni tabella. Tutto ciò che non è qui non
 // viene toccato (id e created_at restano al database).
 const FIELDS: Record<string, string[]> = {
-  news: ["icona", "titolo", "testo"],
-  events: ["titolo", "descrizione", "data", "solo_abbonati"],
+  news: ["icona", "titolo", "testo", "immagine"],
+  events: ["titolo", "descrizione", "data", "solo_abbonati", "immagine"],
   schedule: ["data", "orario", "gioco"],
   sponsors: ["name", "link", "code", "sconto", "logo", "ufficiale"],
 };

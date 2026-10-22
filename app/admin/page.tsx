@@ -48,6 +48,7 @@ const SECTIONS: Section[] = [
       { name: "icona", placeholder: "Icona (es. 🎁)" },
       { name: "titolo", placeholder: "Titolo", required: true },
       { name: "testo", placeholder: "Testo", required: true, type: "textarea" },
+      { name: "immagine", placeholder: "Foto (facoltativa)", type: "photo" },
     ],
     label: (r) => `${r.icona ?? ""} ${r.titolo}`,
     announce: "news",
@@ -65,6 +66,7 @@ const SECTIONS: Section[] = [
         type: "textarea",
       },
       { name: "data", placeholder: "Data", type: "date", required: true },
+      { name: "immagine", placeholder: "Foto (facoltativa)", type: "photo" },
       {
         name: "solo_abbonati",
         placeholder: "Solo per abbonati al canale",
@@ -157,7 +159,7 @@ export default async function Admin() {
       ? diffSchedule(scheduleRows, previousSchedule)
       : [];
 
-  // Proposte di titolo dei vincitori della parola della settimana: tutte
+  // Proposte di titolo dei vincitori della classifica settimanale della parola: tutte
   // quelle in attesa + le ultime decise. Tabella senza policy → client admin.
   type Proposta = {
     id: number;

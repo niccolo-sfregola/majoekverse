@@ -3,7 +3,6 @@ import { dictionaries } from "./i18n/dictionaries";
 import {
   dayBefore,
   MEDALS,
-  mondayOf,
   romeToday,
   wordleAccess,
   zipLeaderboard,
@@ -16,9 +15,9 @@ import { sendToSubscriptions, subscriptionsFor, type SubRow } from "./push";
 export type JobName =
   | "zip-morning" // ogni giorno 9:00: Zip online (+ podio di ieri ai primi 3)
   | "zip-reminder" // ogni giorno 20:00: a chi oggi non ha giocato
-  | "wordle-online" // lunedì 9:00: parola nuova
-  | "wordle-reminder" // giovedì 20:00: a chi non l'ha finita
-  | "wordle-last"; // domenica 18:00: ultime ore
+  | "wordle-online" // ogni giorno 9:00: parola nuova
+  | "wordle-reminder" // lun–sab 21:00: a chi oggi non l'ha finita
+  | "wordle-last"; // domenica 21:00: ultima parola, si chiude la classifica
 
 export const JOB_NAMES: JobName[] = [
   "zip-morning",
@@ -43,9 +42,9 @@ export function jobsForNow(now = new Date()): JobName[] {
   const jobs: JobName[] = [];
   if (hour === 9) jobs.push("zip-morning");
   if (hour === 20) jobs.push("zip-reminder");
-  if (day === "Mon" && hour === 9) jobs.push("wordle-online");
-  if (day === "Thu" && hour === 20) jobs.push("wordle-reminder");
-  if (day === "Sun" && hour === 18) jobs.push("wordle-last");
+  if (hour === 9) jobs.push("wordle-online");
+  // Alle 21, non alle 20: così non arriva insieme al promemoria dello Zip.
+  if (hour === 21) jobs.push(day === "Sun" ? "wordle-last" : "wordle-reminder");
   return jobs;
 }
 
@@ -123,11 +122,12 @@ export async function runJob(job: JobName) {
 
     case "wordle-reminder":
     case "wordle-last": {
-      // Chi ha già finito (indovinata o tentativi esauriti) è a posto.
+      // Chi ha già finito la parola di oggi (indovinata o tentativi
+      // esauriti) è a posto.
       const { data } = await db
         .from("wordle_games")
         .select("user_id")
-        .eq("settimana", mondayOf(today))
+        .eq("giorno", today)
         .not("finished_at", "is", null);
       const finito = new Set((data ?? []).map((r) => r.user_id as string));
       const subs = await onlyWordlePlayers(

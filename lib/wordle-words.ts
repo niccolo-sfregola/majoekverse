@@ -1,5 +1,5 @@
 // Parole del Wordle (solo italiano, 5 lettere, senza accenti).
-// SOLO lato server: la parola della settimana non deve mai arrivare al browser.
+// SOLO lato server: la parola del giorno non deve mai arrivare al browser.
 
 // Possibili parole segrete: scelte a mano, nomi e aggettivi comuni.
 // 329 parole = più di 6 anni di settimane senza ripetizioni.

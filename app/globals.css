@@ -362,7 +362,7 @@ body {
   animation: rise-in 0.4s ease-out 1.4s both;
 }
 
-/* Parola della settimana: le caselle della riga inviata si "girano" una
+/* Parola del giorno: le caselle della riga inviata si "girano" una
    dopo l'altra (ritardo messo inline), la riga trema se la parola non va,
    e ogni lettera scritta fa un piccolo "pop". */
 @keyframes tile-reveal {

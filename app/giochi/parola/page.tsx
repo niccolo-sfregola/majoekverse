@@ -3,13 +3,16 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   addDays,
+  dailyWord,
+  dayBefore,
   isJoeUserId,
   mondayOf,
+  puntiDelGiorno,
+  romeToday,
   titleState,
-  weeklyWord,
+  weeklyLeaderboard,
   wordleAccess,
   wordleLeaderboard,
-  type WordleRow,
 } from "@/lib/games";
 import { valuta, type Riga } from "@/lib/wordle";
 import { formatDurata } from "@/lib/durata";
@@ -27,7 +30,9 @@ const CARD_LABEL =
 export default async function Parola() {
   const t = await getDict();
   const p = t.parola;
-  const settimana = mondayOf();
+  const oggi = romeToday();
+  const ieri = dayBefore(oggi);
+  const settimana = mondayOf(oggi);
   const scorsa = addDays(settimana, -7);
   const supabase = await createClient();
 
@@ -35,19 +40,29 @@ export default async function Parola() {
     {
       data: { user },
     },
-    classifica,
+    classificaOggi,
+    classificaSettimana,
     [vincitoreScorsa],
   ] = await Promise.all([
     supabase.auth.getUser(),
-    wordleLeaderboard(settimana),
-    wordleLeaderboard(scorsa, 1),
+    // Tutte le partite vinte di oggi: servono tutte per il bonus velocità.
+    wordleLeaderboard(oggi, 1000),
+    weeklyLeaderboard(settimana),
+    weeklyLeaderboard(scorsa, 1),
   ]);
+  // Classifica di oggi in ordine di punti (col bonus velocità, chi è più
+  // veloce può superare chi ha usato un tentativo in meno), poi di tempo.
+  const puntiOggi = puntiDelGiorno(classificaOggi);
+  const pt = (id: string) => puntiOggi.get(id) ?? 0;
+  const classificaOggiPunti = [...classificaOggi]
+    .sort((a, b) => pt(b.user_id) - pt(a.user_id) || a.time_ms - b.time_ms)
+    .slice(0, 50);
   // Se la settimana scorsa ha vinto Joe, il premio non è stato assegnato.
   const vintaDaJoe = vincitoreScorsa
     ? await isJoeUserId(vincitoreScorsa.user_id)
     : false;
 
-  // La mia partita di questa settimana (letta dal server: la tabella non è
+  // La mia partita di oggi (letta dal server: la tabella non è
   // pubblica). I colori li ricalcoliamo qui, la parola resta sul server.
   let game: {
     righe: Riga[];
@@ -63,11 +78,11 @@ export default async function Parola() {
       .from("wordle_games")
       .select("guesses, solved, finished_at, time_ms")
       .eq("user_id", user.id)
-      .eq("settimana", settimana)
+      .eq("giorno", oggi)
       .maybeSingle();
 
     if (mia) {
-      const segreta = weeklyWord(settimana);
+      const segreta = dailyWord(oggi);
       game = {
         righe: (mia.guesses as string[]).map((g) => ({
           parola: g,
@@ -96,7 +111,7 @@ export default async function Parola() {
         {p.title}
       </h1>
       <p className="text-center text-sm text-brand-lavanda">
-        {p.week(ddmm(settimana), ddmm(addDays(settimana, 6)))}
+        {oggi.split("-").reverse().join("/")}
       </p>
 
       {premio?.kind === "winner" ? <TitleBox state={premio} /> : null}
@@ -132,9 +147,9 @@ export default async function Parola() {
               {p.rules}
             </p>
           ) : null}
-          {/* key: a cambio settimana il gioco riparte da zero. */}
+          {/* key: a cambio giorno il gioco riparte da zero. */}
           <WordleGame
-            key={settimana}
+            key={oggi}
             initialRighe={game?.righe ?? []}
             initialStato={game?.stato ?? "playing"}
             initialTimeMs={game?.timeMs ?? null}
@@ -143,12 +158,12 @@ export default async function Parola() {
       )}
 
       <section className="card-glass flex flex-col gap-2 p-5">
-        <p className={CARD_LABEL}>{p.leaderboard}</p>
-        {classifica.length === 0 ? (
+        <p className={CARD_LABEL}>{p.leaderboardToday}</p>
+        {classificaOggi.length === 0 ? (
           <p className="text-sm text-brand-lavanda">{p.noPlayers}</p>
         ) : (
           <ol className="flex flex-col divide-y divide-brand-lavanda/10">
-            {classifica.map((row, i) => (
+            {classificaOggiPunti.map((row, i) => (
               <li
                 key={row.user_id}
                 className={`flex items-center gap-3 py-2 ${
@@ -166,6 +181,9 @@ export default async function Parola() {
                   <span className="text-sm text-brand-lavanda">
                     {formatDurata(row.time_ms)}
                   </span>
+                  <span className="w-12 text-right text-sm">
+                    +{puntiOggi.get(row.user_id) ?? 0}
+                  </span>
                 </span>
               </li>
             ))}
@@ -173,35 +191,76 @@ export default async function Parola() {
         )}
       </section>
 
-      {/* La parola della settimana scorsa si può svelare: ormai è chiusa. */}
       <section className="card-glass flex flex-col gap-2 p-5">
-        <p className={CARD_LABEL}>{p.lastWeek}</p>
+        <p className={CARD_LABEL}>{p.leaderboardWeek}</p>
+        <p className="text-xs text-brand-lavanda">
+          {p.week(ddmm(settimana), ddmm(addDays(settimana, 6)))}
+        </p>
+        {classificaSettimana.length === 0 ? (
+          <p className="text-sm text-brand-lavanda">{p.noPlayersWeek}</p>
+        ) : (
+          <ol className="flex flex-col divide-y divide-brand-lavanda/10">
+            {classificaSettimana.map((row, i) => (
+              <li
+                key={row.user_id}
+                className={`flex items-center gap-3 py-2 ${
+                  row.user_id === user?.id
+                    ? "text-brand-corallo"
+                    : "text-brand-crema"
+                }`}
+              >
+                <span className="w-6 shrink-0 text-right text-sm tabular-nums text-brand-lavanda">
+                  {i + 1}
+                </span>
+                <Player row={row} />
+                <span className="ml-auto flex shrink-0 items-baseline gap-3 font-mono tabular-nums">
+                  <span className="text-sm text-brand-lavanda">
+                    {p.days(row.giorni)}
+                  </span>
+                  <span className="font-semibold">{p.points(row.punti)}</span>
+                </span>
+              </li>
+            ))}
+          </ol>
+        )}
+      </section>
+
+      {/* La parola di ieri si può svelare: ormai è chiusa. */}
+      <section className="card-glass flex flex-col gap-2 p-5">
+        <p className={CARD_LABEL}>{p.yesterday}</p>
         <p className="text-brand-lavanda">
           {p.lastWord}{" "}
           <span className="font-bold uppercase tracking-widest text-brand-crema">
-            {weeklyWord(scorsa)}
+            {dailyWord(ieri)}
           </span>
         </p>
+      </section>
+
+      <section className="card-glass flex flex-col gap-2 p-5">
+        <p className={CARD_LABEL}>{p.lastWeek}</p>
         {vincitoreScorsa ? (
           <p className="flex items-center gap-2 text-brand-lavanda">
             {p.lastWinner}: 🏆 <Player row={vincitoreScorsa} />
             <span className="font-mono text-sm">
-              {p.attempts(vincitoreScorsa.attempts)}
+              {p.points(vincitoreScorsa.punti)}
             </span>
           </p>
-        ) : null}
+        ) : (
+          <p className="text-sm text-brand-lavanda">{p.noWinner}</p>
+        )}
         {vintaDaJoe ? (
           <p className="text-sm text-brand-lavanda">{p.joeWon}</p>
         ) : null}
-        {vincitoreScorsa ? null : (
-          <p className="text-sm text-brand-lavanda">{p.noWinner}</p>
-        )}
       </section>
     </main>
   );
 }
 
-function Player({ row }: { row: WordleRow }) {
+function Player({
+  row,
+}: {
+  row: { username: string; avatar_url: string | null };
+}) {
   return (
     <span className="flex min-w-0 items-center gap-2">
       {row.avatar_url ? (

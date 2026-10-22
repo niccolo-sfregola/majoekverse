@@ -92,7 +92,7 @@ export async function zipBadges(today = romeToday()): Promise<Map<string, string
   return new Map(podium.map((row, i) => [row.user_id, MEDALS[i]]));
 }
 
-// --- Parola della settimana -------------------------------------------------
+// --- Parola del giorno ------------------------------------------------------
 
 // Lunedì della settimana di `date` ("AAAA-MM-GG"): identifica la settimana.
 export function mondayOf(date = romeToday()): string {
@@ -108,23 +108,23 @@ export function addDays(date: string, days: number): string {
   return d.toISOString().slice(0, 10);
 }
 
-// Primo lunedì da cui contiamo le settimane.
-const WORDLE_EPOCH = "2026-01-05";
+// Primo giorno da cui contiamo le parole giornaliere.
+const WORDLE_EPOCH = "2026-10-19";
 
-// La parola segreta di una settimana. Le soluzioni vengono mescolate UNA
-// volta (con il segreto) e poi si va avanti di una ogni settimana: così non
-// si ripete finché la lista non è finita, e nessuno può prevederla.
-export function weeklyWord(monday = mondayOf()): string {
-  const rand = seededRandom(seedFor("wordle-order"));
+// La parola segreta di un giorno. Le soluzioni vengono mescolate UNA volta
+// (con il segreto) e poi si va avanti di una al giorno: così non si ripete
+// finché la lista non è finita, e nessuno può prevederla.
+export function dailyWord(date = romeToday()): string {
+  const rand = seededRandom(seedFor("wordle-daily-order"));
   const order = [...SOLUZIONI];
   for (let i = order.length - 1; i > 0; i--) {
     const j = Math.floor(rand() * (i + 1));
     [order[i], order[j]] = [order[j], order[i]];
   }
-  const weeks = Math.round(
-    (Date.parse(monday) - Date.parse(WORDLE_EPOCH)) / (7 * 86_400_000),
+  const days = Math.round(
+    (Date.parse(date) - Date.parse(WORDLE_EPOCH)) / 86_400_000,
   );
-  const idx = ((weeks % order.length) + order.length) % order.length;
+  const idx = ((days % order.length) + order.length) % order.length;
   return order[idx];
 }
 
@@ -136,22 +136,100 @@ export type WordleRow = {
   time_ms: number;
 };
 
-// Classifica di una settimana: chi l'ha indovinata, prima per numero di
+// Classifica di un giorno: chi l'ha indovinata, prima per numero di
 // tentativi e poi per tempo. Si legge col client admin perché la tabella non
 // è pubblica (contiene i tentativi, che svelerebbero la parola).
 export async function wordleLeaderboard(
-  monday: string,
+  giorno: string,
   limit = 50,
 ): Promise<WordleRow[]> {
   const { data } = await createAdminClient()
     .from("wordle_games")
     .select("user_id, username, avatar_url, attempts, time_ms")
-    .eq("settimana", monday)
+    .eq("giorno", giorno)
     .eq("solved", true)
     .order("attempts", { ascending: true })
     .order("time_ms", { ascending: true })
     .limit(limit);
   return (data ?? []) as WordleRow[];
+}
+
+// --- Punti ---------------------------------------------------------------------
+// Ogni giorno: indovinata in 1 tentativo = 6 punti, in 2 = 5, … in 6 = 1
+// (persa o saltata = 0). In più i 3 più veloci del giorno, tra chi l'ha
+// indovinata, prendono un bonus. Vince la settimana chi somma più punti.
+
+export const BONUS_VELOCITA = [3, 2, 1];
+
+export function puntiTentativi(attempts: number): number {
+  return Math.max(0, 7 - attempts);
+}
+
+// Punti di ogni partita vinta, dato l'elenco COMPLETO delle partite vinte
+// di UN giorno. Restituisce una mappa user_id → punti (tentativi + bonus).
+export function puntiDelGiorno(partite: WordleRow[]): Map<string, number> {
+  const punti = new Map(
+    partite.map((p) => [p.user_id, puntiTentativi(p.attempts)]),
+  );
+  [...partite]
+    .sort((a, b) => a.time_ms - b.time_ms)
+    .slice(0, BONUS_VELOCITA.length)
+    .forEach((p, i) => {
+      punti.set(p.user_id, (punti.get(p.user_id) ?? 0) + BONUS_VELOCITA[i]);
+    });
+  return punti;
+}
+
+export type WeeklyRow = {
+  user_id: string;
+  username: string;
+  avatar_url: string | null;
+  punti: number;
+  giorni: number; // giorni in cui l'ha indovinata
+  time_ms: number; // tempo totale, per gli spareggi
+};
+
+// Classifica di una settimana: somma dei punti di ogni giorno. A parità di
+// punti, vince chi ci ha messo meno in totale.
+export async function weeklyLeaderboard(
+  monday: string,
+  limit = 50,
+): Promise<WeeklyRow[]> {
+  const { data } = await createAdminClient()
+    .from("wordle_games")
+    .select("user_id, username, avatar_url, attempts, time_ms, giorno")
+    .eq("settimana", monday)
+    .eq("solved", true);
+  const partite = (data ?? []) as (WordleRow & { giorno: string })[];
+
+  // Raggruppa per giorno: il bonus velocità si decide giorno per giorno.
+  const perGiorno = new Map<string, WordleRow[]>();
+  for (const p of partite) {
+    perGiorno.set(p.giorno, [...(perGiorno.get(p.giorno) ?? []), p]);
+  }
+
+  const totali = new Map<string, WeeklyRow>();
+  for (const giorno of perGiorno.values()) {
+    const punti = puntiDelGiorno(giorno);
+    for (const p of giorno) {
+      const tot = totali.get(p.user_id) ?? {
+        user_id: p.user_id,
+        username: p.username,
+        avatar_url: p.avatar_url,
+        punti: 0,
+        giorni: 0,
+        time_ms: 0,
+      };
+      tot.punti += punti.get(p.user_id) ?? 0;
+      tot.giorni += 1;
+      tot.time_ms += p.time_ms;
+      totali.set(p.user_id, tot);
+    }
+  }
+
+  return [...totali.values()]
+    .sort((a, b) => b.punti - a.punti || a.time_ms - b.time_ms)
+    .slice(0, limit);
 }
 
 // Può giocare al Wordle? Solo abbonati, più Joe (che non può abbonarsi a se
@@ -209,7 +287,7 @@ export async function isJoeUserId(userId: string): Promise<boolean> {
 // Situazione del premio per questo utente (calcolata sempre dal server).
 export async function titleState(userId: string): Promise<TitleState> {
   const settimana = addDays(mondayOf(), -7);
-  const [vincitore] = await wordleLeaderboard(settimana, 1);
+  const [vincitore] = await weeklyLeaderboard(settimana, 1);
   if (vincitore?.user_id !== userId) return { kind: "none" };
   if (await isJoeUserId(userId)) return { kind: "none" };
 

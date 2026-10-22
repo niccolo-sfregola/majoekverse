@@ -2,14 +2,16 @@
 
 import { useActionState, useCallback, useEffect, useRef, useState } from "react";
 import { saveRow, type MutateState } from "./actions";
-import SponsorLogoField from "./sponsorLogoField";
+import ImageField from "./imageField";
 import { useNotifyScheduleChanged } from "./scheduleAnnounceContext";
 import { DISCORD_MAX, formatEvent, formatNews } from "@/lib/announce";
 
 export type Field = {
   name: string;
   placeholder: string;
-  type?: string; // "text" (default), "date", "time", "url", "checkbox", "image", "textarea"
+  // "text" (default), "date", "time", "url", "checkbox", "textarea",
+  // "image" (logo sponsor) o "photo" (foto di news/eventi).
+  type?: string;
   required?: boolean;
 };
 
@@ -110,12 +112,15 @@ export default function RowForm({
             />
           );
         }
-        if (f.type === "image") {
+        if (f.type === "image" || f.type === "photo") {
+          const photo = f.type === "photo";
           return (
-            <SponsorLogoField
+            <ImageField
               key={f.name}
               name={f.name}
               label={f.placeholder}
+              bucket={photo ? "content-images" : "sponsor-logos"}
+              variant={photo ? "photo" : "logo"}
               current={
                 typeof row?.[f.name] === "string"
                   ? (row[f.name] as string)

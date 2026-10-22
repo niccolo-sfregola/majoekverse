@@ -14,6 +14,7 @@ type EventRow = {
   descrizione: string | null;
   data: string | null;
   solo_abbonati: boolean | null;
+  immagine: string | null;
 };
 
 // Elenco eventi in Home: come le news (tap → card a schermo intero), ma in
@@ -92,6 +93,14 @@ export default function EventList({
             )
           }
         >
+          {active.immagine ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={active.immagine}
+              alt=""
+              className="mb-4 max-h-80 w-full rounded-xl object-cover"
+            />
+          ) : null}
           <div className="flex flex-wrap items-center gap-2">
             {active.data ? (
               <span className="inline-flex items-center rounded-lg bg-brand-blu/40 px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-brand-crema">

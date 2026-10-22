@@ -5,10 +5,11 @@ import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
+  dailyWord,
   mondayOf,
   playerInfo,
+  romeToday,
   titleState,
-  weeklyWord,
   wordleAccess,
 } from "@/lib/games";
 import { AMMESSE } from "@/lib/wordle-words";
@@ -48,8 +49,8 @@ export async function guessWordle(input: string): Promise<GuessResult> {
     return { ok: false, error: "notWord" };
   }
 
-  const settimana = mondayOf();
-  const segreta = weeklyWord(settimana);
+  const giorno = romeToday();
+  const segreta = dailyWord(giorno);
 
   const db = createAdminClient();
 
@@ -57,11 +58,11 @@ export async function guessWordle(input: string): Promise<GuessResult> {
     .from("wordle_games")
     .select("id, guesses, started_at, finished_at")
     .eq("user_id", user.id)
-    .eq("settimana", settimana)
+    .eq("giorno", giorno)
     .maybeSingle();
 
-  // Primo tentativo della settimana: controlliamo l'abbonamento (una volta
-  // sola, non a ogni parola) e creiamo la riga. Il tempo parte da qui.
+  // Primo tentativo di oggi: controlliamo l'abbonamento (una volta sola,
+  // non a ogni parola) e creiamo la riga. Il tempo parte da qui.
   if (!row) {
     const access = await wordleAccess(user);
     if (access !== "ok") return { ok: false, error: access };
@@ -70,7 +71,9 @@ export async function guessWordle(input: string): Promise<GuessResult> {
       .from("wordle_games")
       .insert({
         user_id: user.id,
-        settimana,
+        giorno,
+        // Il lunedì della settimana: serve a sommare i punti settimanali.
+        settimana: mondayOf(giorno),
         started_at: new Date().toISOString(),
         ...playerInfo(user),
       })

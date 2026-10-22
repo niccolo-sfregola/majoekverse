@@ -39,11 +39,16 @@ export function formatSchedule(rows: Row[]): string {
   ].join("\n");
 }
 
+// La foto va in fondo come link: Discord la mostra da sola in anteprima.
+function fotoRiga(url: string | undefined): string {
+  return url ? `\n${url}` : "";
+}
+
 export function formatNews(n: Row): string {
-  return `📢 ANNUNCIO: **${n.titolo}**\n${n.testo}`;
+  return `📢 ANNUNCIO: **${n.titolo}**\n${n.testo}${fotoRiga(n.immagine)}`;
 }
 
 export function formatEvent(e: Row): string {
   const dataRiga = e.data ? `\n📅 ${fullDateIt(e.data)}` : "";
-  return `📢 NUOVO EVENTO: **${e.titolo}**${dataRiga}\n${e.descrizione}`;
+  return `📢 NUOVO EVENTO: **${e.titolo}**${dataRiga}\n${e.descrizione}${fotoRiga(e.immagine)}`;
 }

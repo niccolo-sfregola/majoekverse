@@ -9,6 +9,7 @@ type NewsRow = {
   icona: string | null;
   titolo: string;
   testo: string;
+  immagine: string | null;
 };
 
 // Elenco news: solo il titolo, tap per aprire una card a schermo intero con
@@ -52,6 +53,14 @@ export default function NewsList({ items }: { items: NewsRow[] }) {
           icon={active.icona}
           onClosed={() => setActive(null)}
         >
+          {active.immagine ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={active.immagine}
+              alt=""
+              className="mb-4 max-h-80 w-full rounded-xl object-cover"
+            />
+          ) : null}
           <h2 className="text-xl font-semibold text-brand-crema">
             {active.titolo}
           </h2>
