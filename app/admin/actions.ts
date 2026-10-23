@@ -7,7 +7,7 @@ import { dictionaries } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdmin } from "@/lib/auth";
-import { sendToDiscord } from "@/lib/discord";
+import { sendToDiscord, editDiscordMessage } from "@/lib/discord";
 import { formatSchedule, formatNews, formatEvent } from "@/lib/announce";
 import {
   normalizeRows,
@@ -258,6 +258,32 @@ export async function announceScheduleChanges(
   }
 }
 
+// Se la riga è già stata annunciata modifica quel messaggio Discord, se no
+// ne manda uno nuovo e salva il suo id nella riga. Se il messaggio vecchio
+// è stato cancellato su Discord ne manda uno nuovo.
+// Restituisce true se ha modificato un messaggio esistente.
+async function publishOrUpdate(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  table: "news" | "events",
+  row: Record<string, string>,
+  content: string,
+): Promise<boolean> {
+  if (row.discord_message_id) {
+    const edited = await editDiscordMessage(row.discord_message_id, content);
+    if (edited) return true;
+  }
+
+  const messageId = await sendToDiscord(content);
+  const { error } = await supabase
+    .from(table)
+    .update({ discord_message_id: messageId })
+    .eq("id", row.id);
+  if (error) throw new Error(`messaggio inviato ma id non salvato (${error.message})`);
+  // Così il bottone passa subito ad "Aggiorna su Discord".
+  refresh();
+  return false;
+}
+
 export async function announceNews(
   _prev: AnnounceState,
   formData: FormData,
@@ -275,8 +301,11 @@ export async function announceNews(
   if (!news) return { ok: false, message: "News non trovata." };
 
   try {
-    await sendToDiscord(formatNews(news));
-    return { ok: true, message: "News annunciata su Discord ✅" };
+    const updated = await publishOrUpdate(supabase, "news", news, formatNews(news));
+    return {
+      ok: true,
+      message: updated ? "News aggiornata su Discord ✅" : "News annunciata su Discord ✅",
+    };
   } catch (e) {
     return { ok: false, message: `Errore: ${(e as Error).message}` };
   }
@@ -299,8 +328,11 @@ export async function announceEvent(
   if (!evento) return { ok: false, message: "Evento non trovato." };
 
   try {
-    await sendToDiscord(formatEvent(evento));
-    return { ok: true, message: "Evento annunciato su Discord ✅" };
+    const updated = await publishOrUpdate(supabase, "events", evento, formatEvent(evento));
+    return {
+      ok: true,
+      message: updated ? "Evento aggiornato su Discord ✅" : "Evento annunciato su Discord ✅",
+    };
   } catch (e) {
     return { ok: false, message: `Errore: ${(e as Error).message}` };
   }

@@ -352,14 +352,22 @@ export default async function Admin() {
                         <AnnounceButton
                           action={announceNews}
                           id={row.id}
-                          label="Annuncia su Discord"
+                          label={
+                            row.discord_message_id
+                              ? "Aggiorna su Discord"
+                              : "Annuncia su Discord"
+                          }
                         />
                       ) : null}
                       {section.announce === "event" ? (
                         <AnnounceButton
                           action={announceEvent}
                           id={row.id}
-                          label="Annuncia su Discord"
+                          label={
+                            row.discord_message_id
+                              ? "Aggiorna su Discord"
+                              : "Annuncia su Discord"
+                          }
                         />
                       ) : null}
                       <DeleteButton
