@@ -284,12 +284,74 @@ export async function isJoeUserId(userId: string): Promise<boolean> {
   return isJoeUser(data.user);
 }
 
+// --- Premio della settimana ----------------------------------------------------
+// Il titolo lo propone il primo in classifica, MA chi aveva già avuto il
+// premio la settimana prima viene saltato: si scende in classifica finché
+// non si trova qualcun altro. Se il primo è stato saltato resta comunque il
+// vincitore, e si prende la corona 👑. Se il primo è Joe, il premio non si
+// assegna (Joe non propone titoli a sé stesso, e nessuno lo eredita).
+
+export type Premio = {
+  vincitore: WeeklyRow | null; // primo in classifica
+  premiato: WeeklyRow | null; // chi propone il titolo
+  corona: boolean; // il vincitore è stato saltato: aveva già il premio
+  vintaDaJoe: boolean;
+};
+
+export async function premioSettimana(settimana: string): Promise<Premio> {
+  const [classifica, giaPremiato] = await Promise.all([
+    weeklyLeaderboard(settimana),
+    premiatoDi(addDays(settimana, -7)),
+  ]);
+  const vincitore = classifica[0] ?? null;
+  const nessuno = { vincitore, premiato: null, corona: false, vintaDaJoe: false };
+  if (!vincitore) return nessuno;
+  if (await isJoeUserId(vincitore.user_id)) {
+    return { ...nessuno, vintaDaJoe: true };
+  }
+
+  const corona = vincitore.user_id === giaPremiato;
+  for (const row of classifica) {
+    if (row.user_id === giaPremiato) continue;
+    if (await isJoeUserId(row.user_id)) continue;
+    return { vincitore, premiato: row, corona, vintaDaJoe: false };
+  }
+  // Nessun altro in classifica: niente titolo questa volta.
+  return { ...nessuno, corona };
+}
+
+// Chi ha avuto il premio in una settimana (user_id, o null se nessuno).
+// Dipende dalla settimana prima, che dipende da quella prima ancora… Per
+// non ricalcolare tutto ogni volta, le settimane CHIUSE le salviamo in
+// wordle_premi: lì il risultato non può più cambiare.
+async function premiatoDi(settimana: string): Promise<string | null> {
+  if (settimana < WORDLE_EPOCH) return null;
+
+  const db = createAdminClient();
+  const { data } = await db
+    .from("wordle_premi")
+    .select("user_id")
+    .eq("settimana", settimana)
+    .maybeSingle();
+  if (data) return data.user_id;
+
+  const { premiato } = await premioSettimana(settimana);
+  const user_id = premiato?.user_id ?? null;
+  if (settimana < mondayOf()) {
+    // ignoreDuplicates: se due richieste lo calcolano insieme, il risultato
+    // è lo stesso e vince la prima.
+    const { error } = await db
+      .from("wordle_premi")
+      .upsert({ settimana, user_id }, { ignoreDuplicates: true });
+    if (error) console.error("[parola] premio non salvato", error);
+  }
+  return user_id;
+}
+
 // Situazione del premio per questo utente (calcolata sempre dal server).
 export async function titleState(userId: string): Promise<TitleState> {
   const settimana = addDays(mondayOf(), -7);
-  const [vincitore] = await weeklyLeaderboard(settimana, 1);
-  if (vincitore?.user_id !== userId) return { kind: "none" };
-  if (await isJoeUserId(userId)) return { kind: "none" };
+  if ((await premiatoDi(settimana)) !== userId) return { kind: "none" };
 
   const { data } = await createAdminClient()
     .from("title_proposals")

@@ -5,8 +5,8 @@ import {
   addDays,
   dailyWord,
   dayBefore,
-  isJoeUserId,
   mondayOf,
+  premioSettimana,
   puntiDelGiorno,
   romeToday,
   titleState,
@@ -15,6 +15,7 @@ import {
   wordleLeaderboard,
 } from "@/lib/games";
 import { valuta, type Riga } from "@/lib/wordle";
+import { difficolta } from "@/lib/wordle-words";
 import { formatDurata } from "@/lib/durata";
 import { ddmm } from "@/lib/schedule";
 import { getDict } from "@/lib/i18n/server";
@@ -42,13 +43,13 @@ export default async function Parola() {
     },
     classificaOggi,
     classificaSettimana,
-    [vincitoreScorsa],
+    premioScorsa,
   ] = await Promise.all([
     supabase.auth.getUser(),
     // Tutte le partite vinte di oggi: servono tutte per il bonus velocità.
     wordleLeaderboard(oggi, 1000),
     weeklyLeaderboard(settimana),
-    weeklyLeaderboard(scorsa, 1),
+    premioSettimana(scorsa),
   ]);
   // Classifica di oggi in ordine di punti (col bonus velocità, chi è più
   // veloce può superare chi ha usato un tentativo in meno), poi di tempo.
@@ -57,10 +58,10 @@ export default async function Parola() {
   const classificaOggiPunti = [...classificaOggi]
     .sort((a, b) => pt(b.user_id) - pt(a.user_id) || a.time_ms - b.time_ms)
     .slice(0, 50);
-  // Se la settimana scorsa ha vinto Joe, il premio non è stato assegnato.
-  const vintaDaJoe = vincitoreScorsa
-    ? await isJoeUserId(vincitoreScorsa.user_id)
-    : false;
+  const vincitoreScorsa = premioScorsa.vincitore;
+  // Chi è stato saltato perché aveva già il premio: 👑 accanto al nome per
+  // tutta la settimana.
+  const conCorona = premioScorsa.corona ? vincitoreScorsa?.user_id : undefined;
 
   // La mia partita di oggi (letta dal server: la tabella non è
   // pubblica). I colori li ricalcoliamo qui, la parola resta sul server.
@@ -70,17 +71,21 @@ export default async function Parola() {
     timeMs: number | null;
   } | null = null;
   let access: "ok" | "notSub" | "noToken" = "ok";
-  // Premio del vincitore della settimana scorsa (proposta di titolo).
-  const premio = user ? await titleState(user.id) : null;
+  // Premio della settimana scorsa (proposta di titolo) e partita di oggi:
+  // non dipendono l'una dall'altra, quindi le chiediamo insieme.
+  const [premio, { data: mia }] = user
+    ? await Promise.all([
+        titleState(user.id),
+        createAdminClient()
+          .from("wordle_games")
+          .select("guesses, solved, finished_at, time_ms")
+          .eq("user_id", user.id)
+          .eq("giorno", oggi)
+          .maybeSingle(),
+      ])
+    : [null, { data: null }];
 
   if (user) {
-    const { data: mia } = await createAdminClient()
-      .from("wordle_games")
-      .select("guesses, solved, finished_at, time_ms")
-      .eq("user_id", user.id)
-      .eq("giorno", oggi)
-      .maybeSingle();
-
     if (mia) {
       const segreta = dailyWord(oggi);
       game = {
@@ -111,7 +116,8 @@ export default async function Parola() {
         {p.title}
       </h1>
       <p className="text-center text-sm text-brand-lavanda">
-        {oggi.split("-").reverse().join("/")}
+        {oggi.split("-").reverse().join("/")} · {p.difficulty}:{" "}
+        {p.livelli[difficolta(dailyWord(oggi))]}
       </p>
 
       {premio?.kind === "winner" ? <TitleBox state={premio} /> : null}
@@ -175,7 +181,10 @@ export default async function Parola() {
                 <span className="w-6 shrink-0 text-right text-sm tabular-nums text-brand-lavanda">
                   {i + 1}
                 </span>
-                <Player row={row} />
+                <Player
+                  row={row}
+                  corona={row.user_id === conCorona ? p.crownTitle : undefined}
+                />
                 <span className="ml-auto flex shrink-0 items-baseline gap-3 font-mono tabular-nums">
                   <span>{p.attempts(row.attempts)}</span>
                   <span className="text-sm text-brand-lavanda">
@@ -212,7 +221,10 @@ export default async function Parola() {
                 <span className="w-6 shrink-0 text-right text-sm tabular-nums text-brand-lavanda">
                   {i + 1}
                 </span>
-                <Player row={row} />
+                <Player
+                  row={row}
+                  corona={row.user_id === conCorona ? p.crownTitle : undefined}
+                />
                 <span className="ml-auto flex shrink-0 items-baseline gap-3 font-mono tabular-nums">
                   <span className="text-sm text-brand-lavanda">
                     {p.days(row.giorni)}
@@ -232,7 +244,8 @@ export default async function Parola() {
           {p.lastWord}{" "}
           <span className="font-bold uppercase tracking-widest text-brand-crema">
             {dailyWord(ieri)}
-          </span>
+          </span>{" "}
+          ({p.livelli[difficolta(dailyWord(ieri))]})
         </p>
       </section>
 
@@ -240,7 +253,8 @@ export default async function Parola() {
         <p className={CARD_LABEL}>{p.lastWeek}</p>
         {vincitoreScorsa ? (
           <p className="flex items-center gap-2 text-brand-lavanda">
-            {p.lastWinner}: 🏆 <Player row={vincitoreScorsa} />
+            {p.lastWinner}: {premioScorsa.corona ? "👑" : "🏆"}{" "}
+            <Player row={vincitoreScorsa} />
             <span className="font-mono text-sm">
               {p.points(vincitoreScorsa.punti)}
             </span>
@@ -248,8 +262,19 @@ export default async function Parola() {
         ) : (
           <p className="text-sm text-brand-lavanda">{p.noWinner}</p>
         )}
-        {vintaDaJoe ? (
+        {premioScorsa.vintaDaJoe ? (
           <p className="text-sm text-brand-lavanda">{p.joeWon}</p>
+        ) : null}
+        {premioScorsa.corona ? (
+          <p className="flex flex-wrap items-center gap-2 text-sm text-brand-lavanda">
+            {premioScorsa.premiato ? (
+              <>
+                {p.crowned} 🏆 <Player row={premioScorsa.premiato} />
+              </>
+            ) : (
+              p.crownedAlone
+            )}
+          </p>
         ) : null}
       </section>
     </main>
@@ -258,8 +283,10 @@ export default async function Parola() {
 
 function Player({
   row,
+  corona,
 }: {
   row: { username: string; avatar_url: string | null };
+  corona?: string; // se c'è, 👑 accanto al nome (il testo è il tooltip)
 }) {
   return (
     <span className="flex min-w-0 items-center gap-2">
@@ -274,6 +301,7 @@ function Player({
         <span className="h-7 w-7 shrink-0 rounded-full bg-brand-blu/50" />
       )}
       <span className="truncate">{row.username}</span>
+      {corona ? <span title={corona}>👑</span> : null}
     </span>
   );
 }

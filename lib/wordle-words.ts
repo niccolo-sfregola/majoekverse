@@ -36,6 +36,37 @@ export const SOLUZIONI: string[] = (
   .trim()
   .split(" ");
 
+// Difficoltà delle soluzioni, scelta a mano: è solo un'etichetta, i punti
+// non cambiano. Le liste sono separate da SOLUZIONI apposta: l'ordine delle
+// parole del giorno dipende da SOLUZIONI, e non va mai toccato.
+// Facili = parole di tutti i giorni; difficili = poco usate, con doppie o
+// lettere rare. Tutte le altre sono medie.
+const FACILI = new Set(
+  (
+    "acqua amica amico bacio bagno banca barca bello birra bocca borsa bosco " +
+    "buono caldo campo carta cielo cuore dolce donna festa fiore fiume forte " +
+    "fuoco gatto gioco gioia latte letto libro madre mamma mondo monte nonna " +
+    "nonno notte padre palla pasta pesce piano pizza porta prato radio rosso " +
+    "scala sedia sogno sport tempo terra testa torta treno verde video zaino"
+  ).split(" "),
+);
+const DIFFICILI = new Set(
+  (
+    "aureo avena calce cappa cinta cobra colle cotta crepa ebano farro felce " +
+    "fieno gazza gesso ghiro giada gilet guado igloo koala lacca lasso liana " +
+    "lince mento merlo mirto orata ovile pigna pinza rampa rombo rullo sidro " +
+    "siepe solco spago talco tarlo trave uscio vello zecca zinco zolfo zolla"
+  ).split(" "),
+);
+
+export type Difficolta = "facile" | "medio" | "difficile";
+
+export function difficolta(parola: string): Difficolta {
+  if (FACILI.has(parola)) return "facile";
+  if (DIFFICILI.has(parola)) return "difficile";
+  return "medio";
+}
+
 // Tentativi ammessi: tutte le parole di 5 lettere del pacchetto
 // "an-array-of-italian-words" (licenza MIT, github.com/hexapode/an-array-of-italian-words)
 // più le soluzioni. La lista è un po' "sporca" (parole accentate troncate,

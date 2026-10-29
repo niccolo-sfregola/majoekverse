@@ -7,8 +7,10 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Gira su tutte le pagine tranne file statici e immagini.
+  // Gira su tutte le pagine tranne file statici e immagini. Esclusi anche
+  // /api/live (il blocco live lo chiama ogni minuto e non usa il login), il
+  // service worker e il manifest.
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|api/live|sw.js|manifest.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

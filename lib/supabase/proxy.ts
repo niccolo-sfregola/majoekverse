@@ -29,7 +29,10 @@ export async function updateSession(request: NextRequest) {
   );
 
   // Questa chiamata è ciò che fa il refresh. Non togliere.
-  await supabase.auth.getUser();
+  // getClaims e non getUser: controlla il token qui sul server, senza
+  // chiedere ogni volta a Supabase (getUser è una chiamata di rete in più
+  // prima di OGNI pagina). Se il token sta per scadere, lo rinnova lo stesso.
+  await supabase.auth.getClaims();
 
   return response;
 }
