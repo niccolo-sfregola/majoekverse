@@ -216,18 +216,6 @@ export async function getJoeChannelStats(
       return NOT_CONNECTED;
     }
 
-    try {
-      const v = await fetch("https://id.twitch.tv/oauth2/validate", {
-        headers: { Authorization: `OAuth ${token}` },
-        cache: "no-store",
-      });
-      console.log(
-        "[joeStats] scope del token:",
-        v.status,
-        v.ok ? (await v.json()).scopes : "",
-      );
-    } catch {}
-
     const headers = {
       "Client-Id": process.env.TWITCH_CLIENT_ID!,
       Authorization: `Bearer ${token}`,

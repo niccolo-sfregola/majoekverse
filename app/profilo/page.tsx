@@ -1,16 +1,15 @@
+import { Suspense } from "react";
 import Link from "next/link";
+import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import {
   signInWithTwitch,
   signOut,
   connectTwitchChannel,
 } from "@/app/auth/actions";
-import { isAdmin, JOE_TWITCH_LOGIN } from "@/lib/auth";
+import { JOE_TWITCH_LOGIN } from "@/lib/auth";
 import { getChannelInfo, getChannelOverview } from "@/lib/twitch";
-import {
-  getJoeChannelStats,
-  getUserChannelRelation,
-} from "@/lib/twitch-user";
+import { getJoeChannelStats, getUserChannelRelation } from "@/lib/twitch-user";
 import { blowbrush } from "@/app/fonts";
 import SubmitButton from "@/app/submitButton";
 import { zipBadges } from "@/lib/games";
@@ -58,14 +57,16 @@ function formatCount(n: number, lang: "it" | "en"): string {
 
 export default async function Profilo() {
   const supabase = await createClient();
-  const [lang, t] = await Promise.all([getLang(), getDict()]);
-  const count = (n: number) => formatCount(n, lang);
+  const t = await getDict();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const [admin, badges] = user
-    ? await Promise.all([isAdmin(), zipBadges()])
-    : [false, new Map<string, string>()];
+  // is_admin() direttamente (e non isAdmin(), che rifarebbe getUser): il
+  // database riconosce l'utente dal token anche da solo.
+  const [adminRes, badges] = user
+    ? await Promise.all([supabase.rpc("is_admin"), zipBadges()])
+    : [null, new Map<string, string>()];
+  const admin = adminRes?.data === true;
   // Medaglia del podio Zip di ieri: si vede nel profilo per tutto oggi.
   const zipBadge = user ? badges.get(user.id) : undefined;
 
@@ -76,58 +77,12 @@ export default async function Profilo() {
     user?.email;
   const avatarUrl =
     user?.user_metadata.avatar_url ?? user?.user_metadata.picture;
-  const membroDal = user?.created_at
-    ? new Date(user.created_at).toLocaleDateString(DATE_LOCALE[lang], {
-        month: "long",
-        year: "numeric",
-      })
-    : null;
-
   const isJoe =
     (
       user?.user_metadata.preferred_username ??
       user?.user_metadata.nickname ??
       ""
     ).toLowerCase() === JOE_TWITCH_LOGIN;
-
-  const [overview, channel] =
-    user
-      ? await Promise.all([
-          isJoe ? getChannelOverview() : Promise.resolve(null),
-          getChannelInfo(),
-        ])
-      : [null, null];
-
-  const joeStats =
-    isJoe && user && channel?.id
-      ? await getJoeChannelStats(user.id, channel.id)
-      : null;
-
-  const relation =
-    !isJoe && user && channel?.id
-      ? await getUserChannelRelation(user.id, channel.id)
-      : null;
-
-  const presto = <span className="text-brand-lavanda/60">{t.profilo.soon}</span>;
-
-  const seguiDaValue = relation
-    ? relation.followsSince
-      ? new Date(relation.followsSince).toLocaleDateString(DATE_LOCALE[lang], {
-          month: "long",
-          year: "numeric",
-        })
-      : relation.connected
-        ? t.profilo.notYet
-        : presto
-    : presto;
-
-  const abbonatoValue = relation
-    ? relation.connected
-      ? relation.subscribed
-        ? (relation.subTier && SUB_TIER[relation.subTier]) || t.profilo.yes
-        : t.profilo.no
-      : presto
-    : presto;
 
   return (
     <main className="rise-in safe-top mx-auto flex min-h-screen w-full max-w-md flex-col gap-4 px-4 pb-10 md:max-w-3xl">
@@ -179,129 +134,11 @@ export default async function Profilo() {
             </div>
           </div>
 
-          <div className="card-glass flex flex-col gap-3 p-5 md:p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-lavanda">
-              {isJoe ? t.profilo.channelOverview : t.profilo.stats}
-            </p>
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-              {isJoe && overview ? (
-                <>
-                  <Stat
-                    label={t.profilo.status}
-                    value={
-                      overview.isLive ? (
-                        <span className="text-[#e11d2f]">{t.profilo.live}</span>
-                      ) : (
-                        "Offline"
-                      )
-                    }
-                  />
-                  {overview.isLive ? (
-                    <Stat
-                      label={t.profilo.viewers}
-                      value={
-                        overview.viewers != null
-                          ? count(overview.viewers)
-                          : t.profilo.na
-                      }
-                    />
-                  ) : null}
-                  {overview.isLive && overview.game ? (
-                    <Stat label={t.profilo.game} value={overview.game} />
-                  ) : null}
-                  <Stat
-                    label={t.profilo.lastVod}
-                    value={
-                      overview.lastVideo ? (
-                        <a
-                          href={overview.lastVideo.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          title={overview.lastVideo.title}
-                          className="underline-offset-2 hover:underline"
-                        >
-                          {count(overview.lastVideo.views)} {t.profilo.views}
-                        </a>
-                      ) : (
-                        t.profilo.na
-                      )
-                    }
-                  />
-                  <Stat
-                    label={t.profilo.topClip}
-                    value={
-                      overview.topClip ? (
-                        <a
-                          href={overview.topClip.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          title={overview.topClip.title}
-                          className="underline-offset-2 hover:underline"
-                        >
-                          {count(overview.topClip.views)} {t.profilo.views}
-                        </a>
-                      ) : (
-                        t.profilo.na
-                      )
-                    }
-                  />
-                  <Stat
-                    label={t.profilo.followers}
-                    value={
-                      joeStats?.followers != null
-                        ? count(joeStats.followers)
-                        : presto
-                    }
-                  />
-                  <Stat
-                    label={t.profilo.subscribers}
-                    value={
-                      joeStats?.subscribers != null
-                        ? count(joeStats.subscribers)
-                        : presto
-                    }
-                  />
-                  {joeStats?.subPoints != null ? (
-                    <Stat
-                      label={t.profilo.subPoints}
-                      value={count(joeStats.subPoints)}
-                    />
-                  ) : null}
-                </>
-              ) : (
-                <>
-                  <Stat label={t.profilo.role} value={admin ? "Admin" : t.profilo.member} />
-                  {membroDal ? (
-                    <Stat label={t.profilo.memberSince} value={membroDal} />
-                  ) : null}
-                  <Stat label={t.profilo.subscribed} value={abbonatoValue} />
-                  <Stat label={t.profilo.followsSince} value={seguiDaValue} />
-                </>
-              )}
-            </div>
-
-            {!isJoe && user && (!relation || !relation.connected) ? (
-              <form action={signInWithTwitch}>
-                <SubmitButton
-                  pendingText={t.auth.opening}
-                  className="w-full rounded-xl border border-brand-lavanda/30 py-2.5 text-sm font-semibold text-brand-lavanda transition hover:bg-brand-lavanda/10 active:scale-[0.98] disabled:opacity-60"
-                >
-                  {t.profilo.refreshPermissions}
-                </SubmitButton>
-              </form>
-            ) : null}
-
-            {isJoe && joeStats && !joeStats.connected ? (
-              <form action={connectTwitchChannel}>
-                <SubmitButton
-                  pendingText={t.auth.opening}
-                  className="w-full rounded-xl border border-brand-lavanda/30 py-2.5 text-sm font-semibold text-brand-lavanda transition hover:bg-brand-lavanda/10 active:scale-[0.98] disabled:opacity-60"
-                >
-                  {t.profilo.connectChannel}
-                </SubmitButton>
-              </form>
-            ) : null}
-          </div>
+          {/* Le statistiche dipendono da Twitch (la parte lenta): arrivano in
+              streaming, intanto il resto del profilo è già visibile. */}
+          <Suspense fallback={<StatsSkeleton />}>
+            <StatsCard user={user} admin={admin} isJoe={isJoe} />
+          </Suspense>
 
           <Notifiche />
 
@@ -315,7 +152,10 @@ export default async function Profilo() {
                 <span aria-hidden>→</span>
               </Link>
             ) : null}
-            <form action={signOut} className={admin ? "md:shrink-0" : "md:flex-1"}>
+            <form
+              action={signOut}
+              className={admin ? "md:shrink-0" : "md:flex-1"}
+            >
               <SubmitButton
                 pendingText={t.profilo.loggingOut}
                 className="w-full rounded-xl border border-brand-corallo/50 py-3 font-semibold text-brand-corallo transition hover:bg-brand-corallo/10 active:scale-[0.98] disabled:opacity-60 md:px-10"
@@ -360,5 +200,203 @@ export default async function Profilo() {
         </div>
       )}
     </main>
+  );
+}
+
+// Card delle statistiche: tutte le chiamate a Twitch stanno qui dentro, così
+// la pagina non le aspetta (vedi il <Suspense> sopra).
+async function StatsCard({
+  user,
+  admin,
+  isJoe,
+}: {
+  user: User;
+  admin: boolean;
+  isJoe: boolean;
+}) {
+  const [lang, t] = await Promise.all([getLang(), getDict()]);
+  const count = (n: number) => formatCount(n, lang);
+  const membroDal = new Date(user.created_at).toLocaleDateString(
+    DATE_LOCALE[lang],
+    { month: "long", year: "numeric" },
+  );
+
+  const [overview, channel] = await Promise.all([
+    isJoe ? getChannelOverview() : Promise.resolve(null),
+    getChannelInfo(),
+  ]);
+
+  const joeStats =
+    isJoe && channel.id ? await getJoeChannelStats(user.id, channel.id) : null;
+
+  const relation =
+    !isJoe && channel.id
+      ? await getUserChannelRelation(user.id, channel.id)
+      : null;
+
+  const presto = (
+    <span className="text-brand-lavanda/60">{t.profilo.soon}</span>
+  );
+
+  const seguiDaValue = relation
+    ? relation.followsSince
+      ? new Date(relation.followsSince).toLocaleDateString(DATE_LOCALE[lang], {
+          month: "long",
+          year: "numeric",
+        })
+      : relation.connected
+        ? t.profilo.notYet
+        : presto
+    : presto;
+
+  const abbonatoValue = relation
+    ? relation.connected
+      ? relation.subscribed
+        ? (relation.subTier && SUB_TIER[relation.subTier]) || t.profilo.yes
+        : t.profilo.no
+      : presto
+    : presto;
+
+  return (
+    <div className="card-glass flex flex-col gap-3 p-5 md:p-6">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-lavanda">
+        {isJoe ? t.profilo.channelOverview : t.profilo.stats}
+      </p>
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+        {isJoe && overview ? (
+          <>
+            <Stat
+              label={t.profilo.status}
+              value={
+                overview.isLive ? (
+                  <span className="text-[#e11d2f]">{t.profilo.live}</span>
+                ) : (
+                  "Offline"
+                )
+              }
+            />
+            {overview.isLive ? (
+              <Stat
+                label={t.profilo.viewers}
+                value={
+                  overview.viewers != null
+                    ? count(overview.viewers)
+                    : t.profilo.na
+                }
+              />
+            ) : null}
+            {overview.isLive && overview.game ? (
+              <Stat label={t.profilo.game} value={overview.game} />
+            ) : null}
+            <Stat
+              label={t.profilo.lastVod}
+              value={
+                overview.lastVideo ? (
+                  <a
+                    href={overview.lastVideo.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={overview.lastVideo.title}
+                    className="underline-offset-2 hover:underline"
+                  >
+                    {count(overview.lastVideo.views)} {t.profilo.views}
+                  </a>
+                ) : (
+                  t.profilo.na
+                )
+              }
+            />
+            <Stat
+              label={t.profilo.topClip}
+              value={
+                overview.topClip ? (
+                  <a
+                    href={overview.topClip.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={overview.topClip.title}
+                    className="underline-offset-2 hover:underline"
+                  >
+                    {count(overview.topClip.views)} {t.profilo.views}
+                  </a>
+                ) : (
+                  t.profilo.na
+                )
+              }
+            />
+            <Stat
+              label={t.profilo.followers}
+              value={
+                joeStats?.followers != null ? count(joeStats.followers) : presto
+              }
+            />
+            <Stat
+              label={t.profilo.subscribers}
+              value={
+                joeStats?.subscribers != null
+                  ? count(joeStats.subscribers)
+                  : presto
+              }
+            />
+            {joeStats?.subPoints != null ? (
+              <Stat
+                label={t.profilo.subPoints}
+                value={count(joeStats.subPoints)}
+              />
+            ) : null}
+          </>
+        ) : (
+          <>
+            <Stat
+              label={t.profilo.role}
+              value={admin ? "Admin" : t.profilo.member}
+            />
+            {membroDal ? (
+              <Stat label={t.profilo.memberSince} value={membroDal} />
+            ) : null}
+            <Stat label={t.profilo.subscribed} value={abbonatoValue} />
+            <Stat label={t.profilo.followsSince} value={seguiDaValue} />
+          </>
+        )}
+      </div>
+
+      {!isJoe && (!relation || !relation.connected) ? (
+        <form action={signInWithTwitch}>
+          <SubmitButton
+            pendingText={t.auth.opening}
+            className="w-full rounded-xl border border-brand-lavanda/30 py-2.5 text-sm font-semibold text-brand-lavanda transition hover:bg-brand-lavanda/10 active:scale-[0.98] disabled:opacity-60"
+          >
+            {t.profilo.refreshPermissions}
+          </SubmitButton>
+        </form>
+      ) : null}
+
+      {isJoe && joeStats && !joeStats.connected ? (
+        <form action={connectTwitchChannel}>
+          <SubmitButton
+            pendingText={t.auth.opening}
+            className="w-full rounded-xl border border-brand-lavanda/30 py-2.5 text-sm font-semibold text-brand-lavanda transition hover:bg-brand-lavanda/10 active:scale-[0.98] disabled:opacity-60"
+          >
+            {t.profilo.connectChannel}
+          </SubmitButton>
+        </form>
+      ) : null}
+    </div>
+  );
+}
+
+function StatsSkeleton() {
+  return (
+    <div className="card-glass flex flex-col gap-3 p-5 md:p-6">
+      <div className="h-3 w-28 rounded bg-brand-darkblu/60 motion-safe:animate-pulse" />
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+        {[0, 1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className="h-[4.25rem] rounded-xl bg-brand-fondo/40 motion-safe:animate-pulse"
+          />
+        ))}
+      </div>
+    </div>
   );
 }
