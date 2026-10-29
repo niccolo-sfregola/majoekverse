@@ -47,6 +47,8 @@ const it = {
   news: {
     title: "News",
     empty: "Nessuna news al momento.",
+    showAll: (n: number) => `Mostra tutte (${n}) ↓`,
+    showLess: "Mostra meno ↑",
   },
   eventi: {
     title: "Evento",
@@ -345,6 +347,8 @@ const en: Dict = {
   news: {
     title: "News",
     empty: "No news right now.",
+    showAll: (n: number) => `Show all (${n}) ↓`,
+    showLess: "Show less ↑",
   },
   eventi: {
     title: "Event",
