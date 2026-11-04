@@ -211,6 +211,7 @@ const it = {
   },
   universo: {
     title: "Universo di Joe",
+    backHome: "Torna alla Home",
     bio: "Ciao, sono Joe! Sono un content creator napoletano che vive in Toscana e studente di Scienze dell’Educazione e della Formazione. Creo contenuti dedicati a gaming, tecnologia, lifestyle e skincare, lavoro come UGC creator e porto avanti diversi progetti creativi. Su Twitch condivido soprattutto giochi horror, indie e narrativi, insieme a una community accogliente e inclusiva. Sono anche la mente dietro Koto Mail Club, La Posta del Cuore e il podcast The Big Bear Theory: modi diversi per trasformare le mie passioni in esperienze da condividere, online e offline. 🧸",
     socials: "Sui social",
     sponsor: "Sponsor",
@@ -511,6 +512,7 @@ const en: Dict = {
   },
   universo: {
     title: "Joe's Universe",
+    backHome: "Back to Home",
     bio: "Hi, I'm Joe! I'm a content creator from Naples living in Tuscany, and a student of Education and Training Sciences. I make content about gaming, tech, lifestyle and skincare, I work as a UGC creator and I run several creative projects. On Twitch I mostly play horror, indie and story-driven games, together with a welcoming and inclusive community. I'm also the mind behind Koto Mail Club, La Posta del Cuore and the podcast The Big Bear Theory: different ways to turn my passions into experiences to share, online and offline. 🧸",
     socials: "Socials",
     sponsor: "Sponsor",

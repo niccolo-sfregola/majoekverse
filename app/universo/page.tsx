@@ -4,6 +4,7 @@ import { getChannelInfo } from "@/lib/twitch";
 import { blowbrush } from "@/app/fonts";
 import { getDict } from "@/lib/i18n/server";
 import CopyCode from "./copyCode";
+import TornaHome from "./tornaHome";
 import CosmicBackground from "./cosmicBackground";
 
 const LABEL =
@@ -84,7 +85,8 @@ export default async function Universo() {
   return (
     <>
       <CosmicBackground />
-      <main className="rise-in safe-top mx-auto flex min-h-screen w-full max-w-2xl flex-col gap-4 px-4 pb-10 md:max-w-3xl">
+      <main className="arriva safe-top mx-auto flex min-h-screen w-full max-w-2xl flex-col gap-4 px-4 pb-10 md:max-w-3xl">
+        <TornaHome />
         <h1
           className={`${blowbrush.className} text-center text-4xl tracking-wide text-brand-crema md:text-5xl`}
         >

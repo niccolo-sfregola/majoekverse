@@ -230,9 +230,18 @@ body {
 .pianeta[data-stato="altrove"] {
   transform: translate(calc(50vw - var(--pianeta-size) / 2 - 2px), -14px) scale(0.3);
 }
+/* Tuffato: centro del pianeta al centro dello schermo (spostamento calcolato
+   in JS, vedi centraTuffo in app/pianeta.tsx), 7 volte più grande, e
+   trasparente alla fine. La curva parte piano e accelera: "ci si cade dentro".
+   Uscendo da questo stato vale la transizione normale, quindi tornando alla
+   Home fa il percorso inverso. */
 .pianeta[data-stato="nascosto"] {
   opacity: 0;
   pointer-events: none;
+  transform: translate(var(--tuffo-x, 0px), var(--tuffo-y, 0px)) scale(7);
+  transition:
+    transform 1.15s cubic-bezier(0.7, 0, 0.9, 0.3),
+    opacity 0.3s ease 0.85s;
 }
 .pianeta-bottone {
   display: block;
@@ -392,6 +401,112 @@ body {
 .nav-voce-desktop:focus-visible {
   outline: 2px solid var(--crema);
   outline-offset: 2px;
+}
+
+/* Tuffo nell'Universo (app/transizione.tsx): raggi di stelle dal centro
+   verso i bordi, poi un lampo lavanda che copre il cambio pagina. Ogni
+   raggio sta in un contenitore ruotato e "cade" verso il basso. */
+.tuffo {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  overflow: hidden;
+  pointer-events: none;
+}
+.tuffo-raggio-rot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+}
+.tuffo-raggio {
+  position: absolute;
+  left: -1px;
+  top: 0;
+  width: 2px;
+  height: 30vmax;
+  background: var(--crema);
+  transform-origin: top;
+  animation: tuffo-raggio 0.75s cubic-bezier(0.5, 0, 1, 0.6) both;
+}
+@keyframes tuffo-raggio {
+  from {
+    transform: translateY(40px) scaleY(0.05);
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.9;
+  }
+  to {
+    transform: translateY(75vmax) scaleY(1);
+    opacity: 0;
+  }
+}
+.tuffo-lampo {
+  position: absolute;
+  inset: 0;
+  background: var(--lavanda-chiara);
+  animation: tuffo-lampo 0.9s ease 0.6s both;
+}
+@keyframes tuffo-lampo {
+  0% {
+    opacity: 0;
+  }
+  42%,
+  55% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Arrivo nell'Universo: il cielo parte "vicino" e si assesta, i contenuti
+   arrivano dal centro uno dopo l'altro. Si usano le proprietà scale/translate
+   (non transform) per non litigare con la deriva del cielo e con l'hover. */
+.cielo-arrivo {
+  animation: cielo-arrivo 1.4s cubic-bezier(0.1, 0.7, 0.2, 1) both;
+}
+@keyframes cielo-arrivo {
+  from {
+    scale: 2.6;
+  }
+  to {
+    scale: 1;
+  }
+}
+.arriva > * {
+  animation: arriva 0.7s cubic-bezier(0.2, 0.9, 0.2, 1) 0.15s both;
+}
+.arriva > *:nth-child(2) {
+  animation-delay: 0.25s;
+}
+.arriva > *:nth-child(3) {
+  animation-delay: 0.4s;
+}
+.arriva > *:nth-child(4) {
+  animation-delay: 0.5s;
+}
+.arriva > *:nth-child(5) {
+  animation-delay: 0.6s;
+}
+.arriva > *:nth-child(n + 6) {
+  animation-delay: 0.7s;
+}
+@keyframes arriva {
+  from {
+    opacity: 0;
+    translate: 0 26px;
+    scale: 0.74;
+    filter: blur(5px);
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+    filter: none;
+  }
 }
 
 /* Ingresso pagina: ogni schermata (e ogni cambio di pagina, via app/template.tsx)
@@ -681,12 +796,21 @@ body {
   }
   .btn,
   .pianeta,
+  .pianeta[data-stato],
   .nav-pastiglia,
   .nav-barretta {
     transition: none;
   }
-  .striscia {
+  .striscia,
+  .tuffo-lampo {
     animation-duration: 0.01s;
+  }
+  .tuffo-raggio {
+    display: none;
+  }
+  .cielo-arrivo,
+  .arriva > * {
+    animation: none;
   }
   .page-enter,
   .onboard-step,

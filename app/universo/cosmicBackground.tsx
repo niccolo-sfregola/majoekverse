@@ -37,8 +37,10 @@ export default function CosmicBackground() {
           var(--fondo)`,
       }}
     >
+      {/* cielo-arrivo: dopo il tuffo le stelle si assestano da vicine a
+          lontane. Sta sull'SVG perché il contenitore ha già la sua deriva. */}
       <svg
-        className="h-full w-full"
+        className="cielo-arrivo h-full w-full"
         viewBox="0 0 100 100"
         preserveAspectRatio="xMidYMid slice"
       >
