@@ -1,11 +1,10 @@
-import Link from "next/link";
 import { getDict } from "@/lib/i18n/server";
-import { blowbrush } from "@/app/fonts";
+import TitoloPagina from "@/app/titoloPagina";
+import Pannello from "@/app/pannello";
+import Button from "@/app/button";
 
-const CARD_LABEL =
-  "text-xs font-semibold uppercase tracking-[0.18em] text-brand-lavanda";
-
-// Le due "vetrine" dei giochi. `href` vuoto = gioco non ancora pronto.
+// Le due "vetrine" dei giochi, un pannello per gioco (vedi DESIGN.md).
+// Il bordo corallo segna il gioco riservato agli abbonati.
 export default async function Giochi() {
   const t = await getDict();
   const g = t.giochi;
@@ -13,15 +12,13 @@ export default async function Giochi() {
   const games = [
     {
       label: g.daily,
-      icon: "🧩",
       name: g.dailyName,
       text: g.dailyText,
       subsOnly: false,
       href: "/giochi/zip",
     },
     {
-      label: g.weekly,
-      icon: "🔤",
+      label: g.weeklySubs,
       name: g.weeklyName,
       text: g.weeklyText,
       subsOnly: true,
@@ -30,43 +27,32 @@ export default async function Giochi() {
   ];
 
   return (
-    <main className="rise-in safe-top mx-auto flex min-h-screen w-full max-w-2xl flex-col gap-4 px-4 pb-10 md:max-w-4xl">
-      <h1
-        className={`${blowbrush.className} text-center text-4xl tracking-wide text-brand-crema md:text-5xl`}
-      >
-        {g.title}
-      </h1>
-      <p className="text-center text-sm text-brand-lavanda">{g.subtitle}</p>
+    <main className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 pb-10 pt-[calc(env(safe-area-inset-top)_+_92px)] md:pt-16 lg:min-h-[560px] lg:gap-[18px] lg:pt-[110px]">
+      <TitoloPagina>{g.title}</TitoloPagina>
 
-      <div className="rise-in grid gap-4 md:grid-cols-2">
+      <div className="entra grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7">
+        <p className="text-brand-lavanda-chiara lg:col-span-2 lg:text-[19px]">{g.subtitle}</p>
         {games.map((game) => (
-          <article key={game.name} className="card-glass flex flex-col gap-3 p-5">
-            <div className="flex flex-wrap items-center gap-2">
-              <p className={CARD_LABEL}>{game.label}</p>
-              {game.subsOnly ? (
-                <span className="inline-flex items-center rounded-lg bg-brand-corallo/20 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-corallo">
-                  {g.subsOnly}
-                </span>
-              ) : null}
-            </div>
-            <h2 className="flex items-center gap-2 text-lg font-semibold text-brand-crema">
-              <span className="text-2xl leading-none">{game.icon}</span>
-              {game.name}
-            </h2>
-            <p className="text-sm text-brand-lavanda">{game.text}</p>
-            {game.href ? (
-              <Link
-                href={game.href}
-                className="mt-auto rounded-xl bg-brand-blu py-2 text-center font-semibold text-brand-crema transition hover:brightness-110 active:scale-[0.98]"
-              >
-                {g.play}
-              </Link>
-            ) : (
-              <span className="mt-auto rounded-xl border border-brand-lavanda/20 py-2 text-center text-sm font-semibold text-brand-lavanda">
-                {g.comingSoon}
-              </span>
-            )}
-          </article>
+          <Pannello
+            key={game.name}
+            bordo={game.subsOnly ? "corallo" : undefined}
+            className="flex flex-col gap-2 p-[18px] lg:gap-2.5 lg:p-[26px]"
+          >
+            <p
+              className={`text-sm lg:text-[15px] ${
+                game.subsOnly ? "text-brand-pesca" : "text-brand-lavanda-chiara"
+              }`}
+            >
+              {game.label}
+            </p>
+            <h2 className="text-[26px] font-bold leading-tight lg:text-[34px]">{game.name}</h2>
+            <p className="leading-[1.45] text-brand-lavanda-chiara lg:mb-2 lg:leading-normal">
+              {game.text}
+            </p>
+            <Button href={game.href} className="mt-2 lg:mt-auto lg:self-start">
+              {g.play}
+            </Button>
+          </Pannello>
         ))}
       </div>
     </main>

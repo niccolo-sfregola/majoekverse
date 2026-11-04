@@ -23,7 +23,7 @@ function mulberry32(seed: number) {
 // 420 stelle; sul telefono si disegnano solo le prime 260.
 const TOTALE = 420;
 const SUL_TELEFONO = 260;
-const TINTE = ["--crema", "--crema", "--crema", "--lavanda", "--stella-pesca"];
+const TINTE = ["--crema", "--crema", "--crema", "--lavanda", "--pesca"];
 const CICLO = 3.6; // secondi per un "brillio" completo
 const FPS = 30; // brillano piano: 30 fotogrammi al secondo bastano
 

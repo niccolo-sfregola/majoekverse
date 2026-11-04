@@ -68,12 +68,13 @@ const it = {
     dailyText:
       "Collega i numeri in ordine passando da tutte le caselle. Vince chi è più veloce: i primi 3 si prendono il badge del giorno.",
     weekly: "Ogni giorno · premio settimanale",
+    weeklySubs: "Solo abbonati, premio settimanale",
     weeklyName: "Parola del giorno",
     weeklyText:
       "Indovina la parola segreta (in italiano) ogni giorno e accumula punti. Chi ne fa di più in settimana propone il titolo di una live di Joe.",
     subsOnly: "🔒 Solo abbonati",
     comingSoon: "In arrivo",
-    play: "Gioca →",
+    play: "Gioca",
     win: "Hai vinto!",
   },
   parola: {
@@ -375,12 +376,13 @@ const en: Dict = {
     dailyText:
       "Connect the numbers in order, passing through every cell. Fastest wins: the top 3 get the badge of the day.",
     weekly: "Every day · weekly prize",
+    weeklySubs: "Subscribers only, weekly prize",
     weeklyName: "Word of the day",
     weeklyText:
       "Guess the secret word every day and collect points — Italian words only! Whoever scores the most in the week suggests the title of one of Joe's streams.",
     subsOnly: "🔒 Subs only",
     comingSoon: "Coming soon",
-    play: "Play →",
+    play: "Play",
     win: "You won!",
   },
   parola: {

@@ -25,8 +25,9 @@
   --pianeta-lava-arancio: #FF870F;
   --pianeta-lava-giallo: #FFC42E;
 
-  /* Tinta calda di qualche stella del cielo (app/cielo.tsx). */
-  --stella-pesca: #FFB9A6;
+  /* Pesca: tinta calda di qualche stella (app/cielo.tsx) e testo delle
+     etichette "solo abbonati" accanto al corallo. */
+  --pesca: #FFB9A6;
 }
 
 @theme inline {
@@ -42,6 +43,7 @@
   --color-brand-neon-testo: var(--neon-testo);
   --color-brand-neon-alone: var(--neon-alone);
   --color-brand-corallo: var(--corallo);
+  --color-brand-pesca: var(--pesca);
   /* Oxanium per tutta l'interfaccia; il resto dello stack è solo un ripiego
      mentre il font si carica o se non fosse disponibile. */
   --font-sans: var(--font-oxanium), -apple-system, BlinkMacSystemFont, "Segoe UI",
@@ -719,6 +721,26 @@ html[data-avviato] .avvio {
   }
 }
 
+/* Titolo di pagina (app/titoloPagina.tsx): le lettere entrano una alla
+   volta, 55ms una dall'altra, con un piccolo rimbalzo (curva oltre 1). */
+.lettera {
+  display: inline-block;
+  white-space: pre;
+  animation: lettera 0.55s cubic-bezier(0.2, 1.4, 0.4, 1) backwards;
+}
+@keyframes lettera {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(1.5) rotate(-8deg);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
 /* Contenuti a cascata: ogni figlio entra da sinistra "svelandosi", 0.1s
    dopo il precedente. Fill "backwards": finita l'animazione l'elemento
    torna al suo stile normale (es. il clip-path dei pannelli). */
@@ -1101,6 +1123,7 @@ html[data-avviato] .avvio {
     transition: none;
   }
   .cielo,
+  .lettera,
   .entra > *,
   .scrivi-car {
     animation: none;
