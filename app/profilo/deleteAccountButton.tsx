@@ -28,12 +28,12 @@ export default function DeleteAccountButton({
       <button
         type="submit"
         disabled={pending}
-        className="w-full rounded-xl border border-brand-lavanda/25 py-3 font-semibold text-brand-lavanda transition hover:bg-brand-lavanda/10 active:scale-[0.98] disabled:opacity-60 md:px-6"
+        className="link-azione text-brand-corallo disabled:opacity-60"
       >
         {pending ? t.profilo.deleting : t.profilo.deleteAccount}
       </button>
       {state?.error ? (
-        <p className="mt-2 text-center text-sm text-brand-corallo">
+        <p className="text-sm text-brand-corallo">
           {t.profilo.deleteError}
         </p>
       ) : null}

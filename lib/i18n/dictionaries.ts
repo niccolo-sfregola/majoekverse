@@ -267,7 +267,7 @@ const it = {
     refreshPermissions: "Aggiorna i permessi Twitch per le statistiche",
     connectChannel: "Collega il canale per vedere follower e abbonati",
     adminArea: "Area Admin",
-    zipBadge: "Zip di ieri",
+    zipBadge: (pos: number) => `${pos}° a Zip ieri`,
     deleteAccount: "Elimina account",
     deleting: "Elimino…",
     deleteConfirm:
@@ -575,7 +575,7 @@ const en: Dict = {
     refreshPermissions: "Update Twitch permissions to see your stats",
     connectChannel: "Connect the channel to see followers and subscribers",
     adminArea: "Admin area",
-    zipBadge: "Yesterday's Zip",
+    zipBadge: (pos: number) => `#${pos} in yesterday's Zip`,
     deleteAccount: "Delete account",
     deleting: "Deleting…",
     deleteConfirm:

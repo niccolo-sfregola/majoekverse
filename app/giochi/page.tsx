@@ -27,7 +27,7 @@ export default async function Giochi() {
   ];
 
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 pb-10 pt-[calc(env(safe-area-inset-top)_+_92px)] md:pt-16 lg:min-h-[560px] lg:gap-[18px] lg:pt-[110px]">
+    <main className="pagina">
       <TitoloPagina>{g.title}</TitoloPagina>
 
       <div className="entra grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7">

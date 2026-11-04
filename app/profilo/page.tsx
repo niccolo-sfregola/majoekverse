@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -10,9 +9,11 @@ import {
 import { JOE_TWITCH_LOGIN } from "@/lib/auth";
 import { getChannelInfo, getChannelOverview } from "@/lib/twitch";
 import { getJoeChannelStats, getUserChannelRelation } from "@/lib/twitch-user";
-import { blowbrush } from "@/app/fonts";
 import SubmitButton from "@/app/submitButton";
-import { zipBadges } from "@/lib/games";
+import { MEDALS, zipBadges } from "@/lib/games";
+import TitoloPagina from "@/app/titoloPagina";
+import Pannello from "@/app/pannello";
+import { TransLink } from "@/app/transizione";
 import LangSwitch from "@/app/langSwitch";
 import Notifiche from "./notifiche";
 import DeleteAccountButton from "./deleteAccountButton";
@@ -28,22 +29,11 @@ const SUB_TIER: Record<string, string> = {
 // Se l'utente loggato è Joe, il profilo mostra la panoramica del canale
 // invece delle statistiche da spettatore. JOE_TWITCH_LOGIN è in lib/auth.
 
-function TwitchIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
-      <path d="M2.149 0 .537 4.119V20.16h5.4V24h3.017l3.844-3.84h4.633L23.463 12V0zm19.164 11.161-3.226 3.226h-5.4l-2.688 2.685v-2.685H5.4V1.92h15.913z" />
-      <path d="M9.6 6.719h1.92v5.645H9.6zm5.28 0h1.92v5.645h-1.92z" />
-    </svg>
-  );
-}
-
 function Stat({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="rounded-xl bg-brand-fondo/40 p-3">
-      <p className="text-[0.7rem] uppercase tracking-[0.12em] text-brand-lavanda">
-        {label}
-      </p>
-      <p className="mt-1 font-semibold text-brand-crema">{value}</p>
+    <div className="bg-brand-fondo p-3">
+      <p className="text-sm text-brand-lavanda-chiara">{label}</p>
+      <p className="mt-1 font-bold text-brand-crema">{value}</p>
     </div>
   );
 }
@@ -67,8 +57,8 @@ export default async function Profilo() {
     ? await Promise.all([supabase.rpc("is_admin"), zipBadges()])
     : [null, new Map<string, string>()];
   const admin = adminRes?.data === true;
-  // Medaglia del podio Zip di ieri: si vede nel profilo per tutto oggi.
-  const zipBadge = user ? badges.get(user.id) : undefined;
+  // Posizione sul podio Zip di ieri (1-3): si vede nel profilo per tutto oggi.
+  const zipPos = user ? MEDALS.indexOf(badges.get(user.id) ?? "") + 1 : 0;
 
   const username =
     user?.user_metadata.nickname ??
@@ -85,19 +75,15 @@ export default async function Profilo() {
     ).toLowerCase() === JOE_TWITCH_LOGIN;
 
   return (
-    <main className="rise-in safe-top mx-auto flex min-h-screen w-full max-w-md flex-col gap-4 px-4 pb-10 md:max-w-3xl">
-      <h1
-        className={`${blowbrush.className} text-center text-4xl tracking-wide text-brand-crema md:text-5xl`}
-      >
-        {t.profilo.title}
-      </h1>
-
-      {/* Su desktop l'interruttore lingua è nella barra in alto. */}
-      <LangSwitch className="self-center md:hidden" />
+    <main className="pagina">
+      <TitoloPagina>{t.profilo.title}</TitoloPagina>
 
       {user ? (
-        <>
-          <div className="card-glass flex items-center gap-4 p-5 md:p-6">
+        <div className="entra flex w-full flex-col gap-4 lg:max-w-3xl">
+          {/* Su desktop l'interruttore lingua è nella barra in alto. */}
+          <LangSwitch className="self-start md:hidden" />
+
+          <Pannello className="flex items-center gap-4 p-[18px] lg:p-[26px]">
             {avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -105,34 +91,28 @@ export default async function Profilo() {
                 alt=""
                 width={80}
                 height={80}
-                className="h-16 w-16 shrink-0 rounded-full ring-2 ring-brand-lavanda/30 md:h-20 md:w-20"
+                className="h-16 w-16 shrink-0 rounded-full ring-2 ring-brand-lavanda lg:h-20 lg:w-20"
               />
             ) : (
-              <div className="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-brand-blu text-2xl font-semibold text-brand-crema md:h-20 md:w-20">
+              <div className="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-brand-blu text-2xl font-bold text-brand-crema lg:h-20 lg:w-20">
                 {username?.charAt(0).toUpperCase()}
               </div>
             )}
             <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <p className="truncate text-lg font-semibold text-brand-crema md:text-xl">
-                  {username}
-                </p>
-                {admin ? (
-                  <span className="rounded-full bg-brand-corallo px-2 py-0.5 text-[0.7rem] font-semibold uppercase tracking-wide text-brand-crema">
-                    Admin
-                  </span>
-                ) : null}
-                {zipBadge ? (
-                  <span className="rounded-full bg-brand-blu px-2 py-0.5 text-[0.7rem] font-semibold uppercase tracking-wide text-brand-crema">
-                    {zipBadge} {t.profilo.zipBadge}
-                  </span>
-                ) : null}
-              </div>
-              <p className="mt-0.5 text-xs uppercase tracking-[0.14em] text-brand-lavanda">
-                {t.profilo.loginWith}
+              <p className="truncate text-xl font-bold text-brand-crema lg:text-2xl">
+                {username}
               </p>
+              <p className="text-sm text-brand-lavanda-chiara">{t.profilo.loginWith}</p>
+              {admin || zipPos ? (
+                <p className="mt-1 flex flex-wrap gap-x-3 text-sm font-semibold">
+                  {admin ? <span className="text-brand-corallo">Admin</span> : null}
+                  {zipPos ? (
+                    <span className="text-brand-lavanda">{t.profilo.zipBadge(zipPos)}</span>
+                  ) : null}
+                </p>
+              ) : null}
             </div>
-          </div>
+          </Pannello>
 
           {/* Le statistiche dipendono da Twitch (la parte lenta): arrivano in
               streaming, intanto il resto del profilo è già visibile. */}
@@ -142,61 +122,61 @@ export default async function Profilo() {
 
           <Notifiche />
 
-          <div className="flex flex-col gap-3 md:flex-row">
-            {admin ? (
-              <Link
-                href="/admin"
-                className="card-glass flex items-center justify-between p-5 font-semibold text-brand-crema md:flex-1"
+          {admin ? (
+            <TransLink href="/admin" className="riga justify-between font-bold">
+              {t.profilo.adminArea}
+              <svg
+                aria-hidden
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="var(--lavanda)"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
-                {t.profilo.adminArea}
-                <span aria-hidden>→</span>
-              </Link>
-            ) : null}
-            <form
-              action={signOut}
-              className={admin ? "md:shrink-0" : "md:flex-1"}
-            >
-              <SubmitButton
-                pendingText={t.profilo.loggingOut}
-                className="w-full rounded-xl border border-brand-corallo/50 py-3 font-semibold text-brand-corallo transition hover:bg-brand-corallo/10 active:scale-[0.98] disabled:opacity-60 md:px-10"
-              >
+                <path d="M9 5l7 7-7 7" />
+              </svg>
+            </TransLink>
+          ) : null}
+
+          {/* Azioni secondarie: link, non bottoni pieni (il bottone
+              principale della pagina è uno solo). */}
+          <div className="flex flex-wrap items-start gap-x-8 gap-y-1">
+            <form action={signOut}>
+              <SubmitButton pendingText={t.profilo.loggingOut} className="link-azione">
                 {t.profilo.logout}
               </SubmitButton>
             </form>
-            <DeleteAccountButton
-              className={admin ? "md:shrink-0" : "md:flex-1"}
-            />
-          </div>
-
-          <Link
-            href="/privacy"
-            className="self-center text-xs text-brand-lavanda underline transition hover:text-brand-crema"
-          >
-            {t.privacy.link}
-          </Link>
-        </>
-      ) : (
-        <div className="card-glass mx-auto flex w-full max-w-md flex-col items-center gap-4 p-6 text-center">
-          <div className="grid h-14 w-14 place-items-center rounded-full bg-brand-blu text-2xl">
-            👤
-          </div>
-          <p className="text-brand-lavanda">{t.profilo.loggedOutText}</p>
-          <form action={signInWithTwitch} className="w-full">
-            <SubmitButton
-              pendingText={t.auth.opening}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#9146ff] py-3 font-semibold text-white transition hover:bg-[#7d3ce0] active:scale-[0.98] disabled:opacity-60"
+            <DeleteAccountButton />
+            <TransLink
+              href="/privacy"
+              className="link-azione font-normal text-brand-lavanda-chiara underline underline-offset-4"
             >
-              <TwitchIcon />
+              {t.privacy.link}
+            </TransLink>
+          </div>
+        </div>
+      ) : (
+        <div className="entra flex flex-col items-start gap-4 lg:max-w-[620px] lg:gap-[18px]">
+          <p className="leading-[1.45] text-brand-lavanda-chiara lg:leading-normal">
+            {t.profilo.loggedOutText}
+          </p>
+          <form action={signInWithTwitch} className="w-full lg:w-auto">
+            <SubmitButton pendingText={t.auth.opening} className="btn">
               {t.auth.login}
             </SubmitButton>
           </form>
-          <p className="text-xs text-brand-lavanda">
+          <p className="text-sm text-brand-lavanda-chiara">
             {t.auth.privacyBefore}{" "}
-            <Link href="/privacy" className="underline hover:text-brand-crema">
+            <TransLink href="/privacy" className="underline underline-offset-4 hover:text-brand-crema">
               {t.auth.privacyLink}
-            </Link>
+            </TransLink>
             .
           </p>
+          {/* Su desktop l'interruttore lingua è nella barra in alto. */}
+          <LangSwitch className="md:hidden" />
         </div>
       )}
     </main>
@@ -235,7 +215,7 @@ async function StatsCard({
       : null;
 
   const presto = (
-    <span className="text-brand-lavanda/60">{t.profilo.soon}</span>
+    <span className="font-normal text-brand-lavanda-chiara">{t.profilo.soon}</span>
   );
 
   const seguiDaValue = relation
@@ -258,10 +238,10 @@ async function StatsCard({
     : presto;
 
   return (
-    <div className="card-glass flex flex-col gap-3 p-5 md:p-6">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-lavanda">
+    <Pannello className="flex flex-col gap-3 p-[18px] lg:p-[26px]">
+      <h2 className="titolo-sezione">
         {isJoe ? t.profilo.channelOverview : t.profilo.stats}
-      </p>
+      </h2>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
         {isJoe && overview ? (
           <>
@@ -269,7 +249,7 @@ async function StatsCard({
               label={t.profilo.status}
               value={
                 overview.isLive ? (
-                  <span className="text-[#e11d2f]">{t.profilo.live}</span>
+                  <span className="text-brand-corallo">{t.profilo.live}</span>
                 ) : (
                   "Offline"
                 )
@@ -362,10 +342,7 @@ async function StatsCard({
 
       {!isJoe && (!relation || !relation.connected) ? (
         <form action={signInWithTwitch}>
-          <SubmitButton
-            pendingText={t.auth.opening}
-            className="w-full rounded-xl border border-brand-lavanda/30 py-2.5 text-sm font-semibold text-brand-lavanda transition hover:bg-brand-lavanda/10 active:scale-[0.98] disabled:opacity-60"
-          >
+          <SubmitButton pendingText={t.auth.opening} className="link-azione text-left">
             {t.profilo.refreshPermissions}
           </SubmitButton>
         </form>
@@ -373,30 +350,24 @@ async function StatsCard({
 
       {isJoe && joeStats && !joeStats.connected ? (
         <form action={connectTwitchChannel}>
-          <SubmitButton
-            pendingText={t.auth.opening}
-            className="w-full rounded-xl border border-brand-lavanda/30 py-2.5 text-sm font-semibold text-brand-lavanda transition hover:bg-brand-lavanda/10 active:scale-[0.98] disabled:opacity-60"
-          >
+          <SubmitButton pendingText={t.auth.opening} className="link-azione text-left">
             {t.profilo.connectChannel}
           </SubmitButton>
         </form>
       ) : null}
-    </div>
+    </Pannello>
   );
 }
 
 function StatsSkeleton() {
   return (
-    <div className="card-glass flex flex-col gap-3 p-5 md:p-6">
-      <div className="h-3 w-28 rounded bg-brand-superficie/60 motion-safe:animate-pulse" />
+    <Pannello className="flex flex-col gap-3 p-[18px] lg:p-[26px]">
+      <div className="h-6 w-32 bg-brand-fondo motion-safe:animate-pulse" />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
         {[0, 1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className="h-[4.25rem] rounded-xl bg-brand-fondo/40 motion-safe:animate-pulse"
-          />
+          <div key={i} className="h-[4.5rem] bg-brand-fondo motion-safe:animate-pulse" />
         ))}
       </div>
-    </div>
+    </Pannello>
   );
 }

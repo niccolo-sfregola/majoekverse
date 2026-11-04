@@ -259,6 +259,30 @@ body {
     }
   }
 
+  /* Pagina interna (Giochi, Profilo, Help Desk…): colonna con lo spazio in
+     alto per stare sotto il pianeta piccolo (telefono) o sotto la nav. */
+  .pagina {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    max-width: 64rem;
+    margin: 0 auto;
+    padding: calc(env(safe-area-inset-top) + 92px) 16px 40px;
+  }
+  @media (min-width: 48rem) {
+    .pagina {
+      padding-top: 64px;
+    }
+  }
+  @media (min-width: 64rem) {
+    .pagina {
+      gap: 18px;
+      min-height: 560px;
+      padding-top: 110px;
+    }
+  }
+
   /* Titoli di sezione: niente maiuscoletto spaziato, solo Oxanium 700. */
   .titolo-sezione {
     font-size: 22px;

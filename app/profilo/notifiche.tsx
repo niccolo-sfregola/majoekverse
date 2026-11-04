@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useDict, useLang } from "@/app/langProvider";
+import Pannello from "@/app/pannello";
+import Button from "@/app/button";
 import {
   deletePushSubscription,
   getPushPrefs,
@@ -34,9 +36,6 @@ function isIos() {
 function isInstalled() {
   return window.matchMedia("(display-mode: standalone)").matches;
 }
-
-const BUTTON =
-  "rounded-xl px-4 py-2.5 text-sm font-semibold transition active:scale-[0.98] disabled:opacity-50";
 
 // Notifiche push di QUESTO dispositivo: attiva/disattiva, cosa ricevere,
 // notifica di prova. Ogni dispositivo (telefono, PC) ha le sue preferenze.
@@ -174,70 +173,54 @@ export default function Notifiche() {
   };
 
   return (
-    <div className="card-glass flex flex-col gap-3 p-5 md:p-6">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-lavanda">
-        {n.title}
-      </p>
+    <Pannello className="flex flex-col gap-3 p-[18px] lg:p-[26px]">
+      <h2 className="titolo-sezione">{n.title}</h2>
 
       {status === "loading" ? (
-        <div className="h-10 rounded-xl bg-brand-superficie/40 motion-safe:animate-pulse" />
+        <div className="h-[52px] bg-brand-fondo motion-safe:animate-pulse" />
       ) : status === "on" ? (
         <>
-          <p className="text-sm text-brand-lavanda">{n.on}</p>
+          <p className="text-brand-lavanda-chiara">{n.on}</p>
           {(["zip", "wordle"] as const).map((key) => (
             <label
               key={key}
-              className="flex cursor-pointer items-center justify-between gap-3 text-brand-crema"
+              className="flex min-h-11 cursor-pointer items-center justify-between gap-3 text-brand-crema"
             >
-              <span className="text-sm">{n[key]}</span>
+              <span>{n[key]}</span>
               <input
                 type="checkbox"
                 checked={prefs[key]}
                 onChange={() => toggle(key)}
-                className="h-5 w-5 shrink-0 accent-brand-corallo"
+                className="h-5 w-5 shrink-0 accent-brand-lavanda"
               />
             </label>
           ))}
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={test}
-              disabled={busy}
-              className={`${BUTTON} bg-brand-blu text-brand-crema hover:brightness-110`}
-            >
+          {/* Azioni secondarie: link, non bottoni pieni. */}
+          <div className="flex flex-wrap gap-x-8">
+            <button type="button" onClick={test} disabled={busy} className="link-azione disabled:opacity-50">
               {n.test}
             </button>
-            <button
-              type="button"
-              onClick={disable}
-              disabled={busy}
-              className={`${BUTTON} border border-brand-lavanda/30 text-brand-lavanda hover:bg-brand-lavanda/10`}
-            >
+            <button type="button" onClick={disable} disabled={busy} className="link-azione disabled:opacity-50">
               {n.disable}
             </button>
           </div>
         </>
       ) : (
         <>
-          <p className="text-sm text-brand-lavanda">{info[status]}</p>
+          <p className="text-brand-lavanda-chiara">{info[status]}</p>
           {status === "off" ? (
-            <button
-              type="button"
-              onClick={enable}
-              disabled={busy}
-              className={`${BUTTON} self-start bg-brand-corallo text-brand-crema hover:brightness-110`}
-            >
+            <Button onClick={enable} disabled={busy} className="mt-1 lg:self-start">
               {busy ? n.enabling : n.enable}
-            </button>
+            </Button>
           ) : null}
         </>
       )}
 
       {message ? (
-        <p className="text-sm text-brand-lavanda" aria-live="polite">
+        <p className="text-brand-lavanda-chiara" aria-live="polite">
           {message}
         </p>
       ) : null}
-    </div>
+    </Pannello>
   );
 }
