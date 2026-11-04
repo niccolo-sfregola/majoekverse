@@ -1,9 +1,9 @@
-import Link from "next/link";
+import { TransLink } from "./transizione";
 
 // Bottone principale dell'app (vedi DESIGN.md): lavanda, angoli tagliati e
 // lampo che lo attraversa. Lo stile vive in .btn (globals.css), qui si sceglie
 // solo il tag giusto:
-// - href interno ("/giochi") → <Link>, navigazione senza ricaricare la pagina
+// - href interno ("/giochi") → <TransLink>, cambio pagina con le strisce
 // - href esterno ("https://…") → <a> che si apre in una nuova scheda
 // - niente href → <button> (onClick, o type="submit" dentro un form)
 type Props = {
@@ -21,9 +21,9 @@ export default function Button(props: Props) {
     const { href, children } = props;
     if (href.startsWith("/")) {
       return (
-        <Link href={href} className={className}>
+        <TransLink href={href} className={className}>
           {children}
-        </Link>
+        </TransLink>
       );
     }
     return (

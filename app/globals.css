@@ -13,6 +13,17 @@
   --neon-testo:       #FFF4EA;
   --neon-alone:       #FF4F6A;
   --corallo:          #FF7A5C;
+
+  /* Colori del pianeta, presi dallo shader "lava" (app/pianetaGL.ts):
+     bande viola della superficie e venature di lava, dalla più fredda
+     alla più calda. Per gli elementi che devono "sembrare il pianeta". */
+  --pianeta-viola-scuro: #451C78;
+  --pianeta-viola:       #783DB8;
+  --pianeta-viola-chiaro: #BD94ED;
+  --pianeta-lava-rosso:  #9E1217;
+  --pianeta-lava:        #F2450D;
+  --pianeta-lava-arancio: #FF870F;
+  --pianeta-lava-giallo: #FFC42E;
 }
 
 @theme inline {
@@ -250,10 +261,10 @@ body {
   transform: scale(0.78);
   background: radial-gradient(circle at 35% 30%, var(--lavanda), var(--blu) 60%, var(--fondo));
 }
-/* Tablet: sotto la nav in alto, che è alta circa 45px. */
+/* Tablet: sotto la nav in alto, che è alta circa 60px. */
 @media (min-width: 48rem) {
   .pianeta {
-    top: 64px;
+    top: 76px;
   }
 }
 /* Desktop: a destra del testo della Home, piccolo sotto la nav altrove. */
@@ -268,13 +279,119 @@ body {
   /* Dal bordo destro (right: 4%) fin quasi al bordo dello schermo, e su
      fino a stare appena sotto la nav. */
   .pianeta[data-stato="altrove"] {
-    transform: translate(calc(4vw - 2px), -53px) scale(0.22);
+    transform: translate(calc(4vw - 2px), -38px) scale(0.22);
   }
 }
 @media (hover: hover) {
   .pianeta:not([data-stato="nascosto"]):hover {
     filter: brightness(1.14);
   }
+}
+
+/* Cambio pagina (app/transizione.tsx): cinque strisce inclinate entrano da
+   sinistra, coprono lo schermo (45-55% dell'animazione) ed escono a destra.
+   Ognuna parte 40ms dopo la precedente (animation-delay inline). */
+.strisce {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  overflow: hidden;
+  pointer-events: none;
+}
+.striscia {
+  position: absolute;
+  top: -8%;
+  bottom: -8%;
+  width: 28%;
+  transform: translateX(-560%) skewX(-14deg);
+  animation: striscia 0.82s cubic-bezier(0.75, 0, 0.25, 1) both;
+}
+@keyframes striscia {
+  0% {
+    transform: translateX(-560%) skewX(-14deg);
+  }
+  45%,
+  55% {
+    transform: translateX(0) skewX(-14deg);
+  }
+  100% {
+    transform: translateX(560%) skewX(-14deg);
+  }
+}
+
+/* Nav del telefono: una sola pastiglia lavanda (angoli tagliati) larga un
+   quarto, spostata con translateX(indice * 100%). La curva con 1.5 fa
+   "rimbalzare" leggermente oltre la voce prima di fermarsi. */
+.nav-pastiglia {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  width: calc((100% - 16px) / 4);
+  height: 56px;
+  transition:
+    transform 0.45s cubic-bezier(0.3, 1.5, 0.5, 1),
+    opacity 0.25s ease;
+}
+.nav-pastiglia > span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--lavanda);
+  box-shadow: 0 0 18px #6f5fd8;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+.nav-pastiglia[data-nascosta="true"],
+.nav-barretta[data-nascosta="true"] {
+  opacity: 0;
+}
+.nav-voce {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 56px;
+  font-size: 11px;
+  transition:
+    color 0.25s ease,
+    transform 0.12s ease;
+}
+.nav-voce:active {
+  transform: scale(0.9);
+}
+
+/* Nav desktop: barretta corallo sotto la voce attiva, stessa curva. */
+.nav-voce-desktop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 16px;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+@media (hover: hover) {
+  .nav-voce-desktop:hover {
+    color: #ffffff;
+  }
+}
+.nav-barretta {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 25%;
+  height: 3px;
+  background: var(--corallo);
+  box-shadow: 0 0 12px var(--neon-alone);
+  transition:
+    transform 0.45s cubic-bezier(0.3, 1.5, 0.5, 1),
+    opacity 0.25s ease;
+}
+.nav-voce:focus-visible,
+.nav-voce-desktop:focus-visible {
+  outline: 2px solid var(--crema);
+  outline-offset: 2px;
 }
 
 /* Ingresso pagina: ogni schermata (e ogni cambio di pagina, via app/template.tsx)
@@ -563,8 +680,13 @@ body {
     animation: none;
   }
   .btn,
-  .pianeta {
+  .pianeta,
+  .nav-pastiglia,
+  .nav-barretta {
     transition: none;
+  }
+  .striscia {
+    animation-duration: 0.01s;
   }
   .page-enter,
   .onboard-step,

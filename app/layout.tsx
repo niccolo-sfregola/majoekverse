@@ -7,6 +7,7 @@ import Pianeta from "./pianeta";
 import Onboarding from "./onboarding";
 import PwaRegister from "./pwaRegister";
 import { LangProvider } from "./langProvider";
+import { TransizioneProvider } from "./transizione";
 import { getLang, getDict } from "@/lib/i18n/server";
 
 // generateMetadata (invece di un oggetto fisso) perché la descrizione
@@ -39,14 +40,16 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       lang={lang}
       className={`${oxanium.variable} ${blowbrush.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col pb-[calc(4rem_+_env(safe-area-inset-bottom))] md:pb-0">
+      <body className="flex min-h-full flex-col pb-[calc(4.5rem_+_env(safe-area-inset-bottom))] md:pb-0">
         <LangProvider lang={lang}>
-          <TopNav />
-          {children}
-          <BottomNav />
-          <Pianeta />
-          <Onboarding />
-          <PwaRegister />
+          <TransizioneProvider>
+            <TopNav />
+            {children}
+            <BottomNav />
+            <Pianeta />
+            <Onboarding />
+            <PwaRegister />
+          </TransizioneProvider>
         </LangProvider>
       </body>
     </html>

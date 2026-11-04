@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import type { Dict } from "@/lib/i18n/dictionaries";
 import { useDict } from "./langProvider";
+import { TransLink, useTransizione } from "./transizione";
 
 const iconProps = {
   width: 22,
@@ -12,7 +12,7 @@ const iconProps = {
   viewBox: "0 0 24 24",
   fill: "none",
   stroke: "currentColor",
-  strokeWidth: 1.6,
+  strokeWidth: 1.8,
   strokeLinecap: "round" as const,
   strokeLinejoin: "round" as const,
 };
@@ -56,41 +56,38 @@ const LINKS: { href: string; key: keyof Dict["nav"]; icon: string }[] = [
 export default function BottomNav() {
   const pathname = usePathname();
   const t = useDict();
+  const { destinazione } = useTransizione();
+  // Durante una transizione conta la pagina cliccata: l'indicatore parte
+  // subito, senza aspettare che la pagina cambi davvero.
+  const corrente = destinazione ?? pathname;
   const isActive = (href: string) =>
-    href === "/" ? pathname === "/" : pathname.startsWith(href);
+    href === "/" ? corrente === "/" : corrente.startsWith(href);
+  const indice = LINKS.findIndex(({ href }) => isActive(href));
 
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-30 flex items-stretch justify-around border-t border-brand-lavanda/15 bg-brand-fondo/90 px-2 pb-[max(0.375rem,env(safe-area-inset-bottom))] pt-1.5 backdrop-blur-md md:hidden">
+    <nav className="fixed bottom-0 inset-x-0 z-30 grid grid-cols-4 border-t border-brand-lavanda bg-brand-superficie p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] md:hidden">
+      {/* Un solo indicatore che scorre fra le voci (vedi .nav-pastiglia).
+          Fuori dalle quattro sezioni (es. /universo) sparisce, ferma sulla Home. */}
+      <span
+        aria-hidden
+        className="nav-pastiglia"
+        data-nascosta={indice < 0}
+        style={{ transform: `translateX(${(indice < 0 ? 2 : indice) * 100}%)` }}
+      >
+        <span />
+      </span>
       {LINKS.map(({ href, key, icon }) => {
         const active = isActive(href);
         return (
-          <Link
+          <TransLink
             key={href}
             href={href}
             aria-current={active ? "page" : undefined}
-            className="relative flex flex-1 flex-col items-center gap-1 px-2 py-1.5"
+            className={`nav-voce ${active ? "text-brand-fondo" : "text-brand-lavanda"}`}
           >
-            {/* "Riflesso" della sezione attiva: pastiglia lucida con luce in alto e alone. */}
-            <span
-              className={`pointer-events-none absolute inset-x-1 inset-y-0 rounded-2xl bg-gradient-to-b from-brand-blu/70 to-brand-blu/15 shadow-[inset_0_1px_0_rgb(255_255_255/0.3),0_0_16px_rgb(46_42_181/0.55)] transition-opacity duration-200 ${
-                active ? "opacity-100" : "opacity-0"
-              }`}
-            />
-            <span
-              className={`relative transition-colors ${
-                active ? "text-brand-crema" : "text-brand-lavanda"
-              }`}
-            >
-              {ICONS[icon]}
-            </span>
-            <span
-              className={`relative text-[10px] leading-none transition-colors ${
-                active ? "font-semibold text-brand-crema" : "text-brand-lavanda"
-              }`}
-            >
-              {t.nav[key]}
-            </span>
-          </Link>
+            {ICONS[icon]}
+            <span className={active ? "font-bold" : undefined}>{t.nav[key]}</span>
+          </TransLink>
         );
       })}
     </nav>
