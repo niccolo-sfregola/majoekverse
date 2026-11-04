@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useDict } from "@/app/langProvider";
 
+// Codice sconto: un tocco lo copia negli appunti.
 export default function CopyCode({ code }: { code: string }) {
   const [copied, setCopied] = useState(false);
   const t = useDict();
@@ -17,10 +18,10 @@ export default function CopyCode({ code }: { code: string }) {
           setTimeout(() => setCopied(false), 1500);
         } catch {}
       }}
-      className="inline-flex items-center gap-2 rounded-lg border border-brand-crema/20 bg-brand-fondo/50 px-3 py-1.5 font-mono text-sm font-semibold text-brand-crema transition hover:border-brand-crema/40 active:scale-[0.98]"
+      className="taglio-piccolo inline-flex min-h-11 items-center gap-3 bg-brand-fondo px-4 font-mono font-bold text-brand-crema transition-transform active:scale-[0.97]"
     >
       {code}
-      <span className="font-sans text-xs font-normal text-brand-lavanda">
+      <span className="font-sans text-sm font-semibold text-brand-lavanda" aria-live="polite">
         {copied ? t.universo.copied : t.universo.copy}
       </span>
     </button>

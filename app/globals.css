@@ -229,6 +229,11 @@ body {
     clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
   }
 
+  /* Taglio piccolo (10px) per elementi minori: social, codici sconto. */
+  .taglio-piccolo {
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  }
+
   /* Pannello (app/pannello.tsx) con angoli tagliati in alto a sinistra e in
      basso a destra. Il bordo è un trucco: un contenitore lavanda con 1px di
      padding e dentro il pannello vero, tagliati allo stesso modo. */
@@ -329,6 +334,43 @@ body {
   }
   .riga:focus-visible,
   .link-azione:focus-visible {
+    outline: 2px solid var(--crema);
+    outline-offset: 2px;
+  }
+
+  /* Bottone di un social (Universo): angoli tagliati da 10px; all'hover si
+     accende di lavanda. */
+  .social {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 52px;
+    font-weight: 700;
+    color: var(--crema);
+    background: var(--superficie);
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+    transition:
+      background 0.2s ease,
+      color 0.2s ease,
+      translate 0.15s ease;
+  }
+  @media (min-width: 64rem) {
+    .social {
+      height: 54px;
+    }
+  }
+  @media (hover: hover) {
+    .social:hover {
+      background: var(--lavanda);
+      color: var(--fondo);
+    }
+  }
+  @media (hover: hover) and (min-width: 64rem) {
+    .social:hover {
+      translate: 0 -3px;
+    }
+  }
+  .social:focus-visible {
     outline: 2px solid var(--crema);
     outline-offset: 2px;
   }
