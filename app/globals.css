@@ -509,6 +509,80 @@ body {
   }
 }
 
+/* Testo neon (logo, titoli): tubo chiaro con alone rosa-corallo, e uno
+   sfarfallio iniziale come un'insegna che si accende. */
+.neon {
+  color: var(--neon-testo);
+  text-shadow:
+    0 0 4px #ffd9cc,
+    0 0 14px var(--neon-alone),
+    0 0 34px #ff3d6e;
+  animation: neon-sfarfalla 2.4s linear 0.5s both;
+}
+@keyframes neon-sfarfalla {
+  0%,
+  9%,
+  12%,
+  21%,
+  24%,
+  30% {
+    opacity: 0.2;
+  }
+  10%,
+  22%,
+  31%,
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Schermata di avvio (app/avvio.tsx): copre tutto, la barra si riempie a
+   scatti (come un vero caricamento) e a 2.1s il tutto svanisce allargandosi.
+   Con data-avviato su <html> (già vista in questa sessione) non c'è proprio. */
+.avvio {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  background: var(--fondo);
+  animation: avvio-esci 0.4s ease 2.1s forwards;
+}
+@keyframes avvio-esci {
+  to {
+    opacity: 0;
+    transform: scale(1.12);
+    visibility: hidden;
+  }
+}
+.avvio-barra {
+  width: 0;
+  height: 100%;
+  background: var(--lavanda);
+  box-shadow: 0 0 14px var(--lavanda);
+  animation: avvio-barra 1.9s cubic-bezier(0.3, 0.1, 0.3, 1) 0.15s forwards;
+}
+@keyframes avvio-barra {
+  30% {
+    width: 22%;
+  }
+  55% {
+    width: 61%;
+  }
+  75% {
+    width: 68%;
+  }
+  to {
+    width: 100%;
+  }
+}
+html[data-avviato] .avvio {
+  display: none;
+}
+
 /* Ingresso pagina: ogni schermata (e ogni cambio di pagina, via app/template.tsx)
    compare con un breve fade. Sobrio, non vistoso. */
 @keyframes page-enter {
@@ -805,8 +879,12 @@ body {
   .tuffo-lampo {
     animation-duration: 0.01s;
   }
-  .tuffo-raggio {
+  .tuffo-raggio,
+  .avvio {
     display: none;
+  }
+  .neon {
+    animation: none;
   }
   .cielo-arrivo,
   .arriva > * {

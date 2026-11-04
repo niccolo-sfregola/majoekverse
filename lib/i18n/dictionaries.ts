@@ -209,6 +209,9 @@ const it = {
     text: "Il supporto della community si gestisce su Discord. Apri il canale dedicato, scrivi il tuo problema e ti rispondiamo appena possibile.",
     button: "Apri il canale supporto",
   },
+  avvio: {
+    loading: "Caricamento dell'universo",
+  },
   universo: {
     title: "Universo di Joe",
     backHome: "Torna alla Home",
@@ -509,6 +512,9 @@ const en: Dict = {
   helpdesk: {
     text: "Community support is handled on Discord. Open the dedicated channel, describe your problem and we'll get back to you as soon as possible.",
     button: "Open the support channel",
+  },
+  avvio: {
+    loading: "Loading the universe",
   },
   universo: {
     title: "Joe's Universe",

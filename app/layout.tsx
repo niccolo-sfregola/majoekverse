@@ -6,6 +6,7 @@ import TopNav from "./topNav";
 import Pianeta from "./pianeta";
 import Onboarding from "./onboarding";
 import PwaRegister from "./pwaRegister";
+import Avvio, { AVVIO_SCRIPT } from "./avvio";
 import { LangProvider } from "./langProvider";
 import { TransizioneProvider } from "./transizione";
 import { getLang, getDict } from "@/lib/i18n/server";
@@ -39,7 +40,13 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang={lang}
       className={`${oxanium.variable} ${blowbrush.variable} h-full antialiased`}
+      // Lo script qui sotto può aggiungere data-avviato prima che React
+      // prenda in mano la pagina: va bene così, React non deve lamentarsi.
+      suppressHydrationWarning
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: AVVIO_SCRIPT }} />
+      </head>
       <body className="flex min-h-full flex-col pb-[calc(4.5rem_+_env(safe-area-inset-bottom))] md:pb-0">
         <LangProvider lang={lang}>
           <TransizioneProvider>
@@ -49,6 +56,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
             <Pianeta />
             <Onboarding />
             <PwaRegister />
+            <Avvio />
           </TransizioneProvider>
         </LangProvider>
       </body>
