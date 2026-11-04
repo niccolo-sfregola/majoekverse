@@ -310,7 +310,7 @@ body {
     outline-offset: 2px;
   }
 
-  /* --- Area admin: niente decorazioni, solo form chiari ----------------- */
+  /* --- Area admin: form chiari ------------------------------------------ */
 
   /* Campo di un form (input, textarea): alto almeno 44px (si tocca bene
      anche col telefono), bordo che si accende quando ci si scrive. */
@@ -360,11 +360,6 @@ body {
   /* Azioni distruttive (Elimina, Azzera): testo corallo. */
   .bottone-pericolo {
     color: var(--corallo);
-  }
-
-  /* Nell'admin il bottone principale non ha il lampo (è decorativo). */
-  .admin .btn::after {
-    display: none;
   }
 
   /* Azione secondaria che sembra un link (es. "Esplora l'universo di Joe!"). */
@@ -476,9 +471,16 @@ body {
 }
 
 /* Cambio pagina (app/transizione.tsx): cinque strisce inclinate entrano da
-   sinistra, coprono lo schermo (45-55% dell'animazione) ed escono a destra.
-   Ognuna parte 40ms dopo la precedente (animation-delay inline). */
+   sinistra, coprono lo schermo ed escono a destra.
+   - Sporgenza: l'inclinazione sposta la cima e il fondo di ogni striscia di
+     circa il 14.5% dell'altezza dello schermo. Su un telefono (stretto e
+     alto) resterebbero scoperti due triangoli negli angoli, quindi le
+     strisce partono e finiscono oltre i bordi di 16vh.
+   - Tempi: ognuna parte 25ms dopo la precedente e resta ferma dal 38% al 62%
+     dell'animazione, così fra ~412 e ~508ms lo schermo è coperto tutto e il
+     cambio pagina (a 430ms) non si vede mai. */
 .strisce {
+  --sporgenza: 16vh;
   position: fixed;
   inset: 0;
   z-index: 50;
@@ -489,7 +491,10 @@ body {
   position: absolute;
   top: -8%;
   bottom: -8%;
-  width: 28%;
+  /* Le cinque strisce si dividono lo schermo più le due sporgenze; +2px di
+     sovrapposizione perché fra una e l'altra non resti una riga di luce. */
+  left: calc(var(--i) * (100% + 2 * var(--sporgenza)) / 5 - var(--sporgenza));
+  width: calc((100% + 2 * var(--sporgenza)) / 5 + 2px);
   transform: translateX(-560%) skewX(-14deg);
   animation: striscia 0.82s cubic-bezier(0.75, 0, 0.25, 1) both;
 }
@@ -497,8 +502,8 @@ body {
   0% {
     transform: translateX(-560%) skewX(-14deg);
   }
-  45%,
-  55% {
+  38%,
+  62% {
     transform: translateX(0) skewX(-14deg);
   }
   100% {

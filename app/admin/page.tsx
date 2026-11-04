@@ -10,7 +10,7 @@ import {
   changeLine,
   type ScheduleRow,
 } from "@/lib/schedule-diff";
-import { blowbrush } from "@/app/fonts";
+import TitoloPagina from "@/app/titoloPagina";
 import {
   clearSchedule,
   announceSchedule,
@@ -182,200 +182,201 @@ export default async function Admin() {
 
   return (
     <ScheduleAnnounceProvider>
-      {/* .admin: niente animazioni decorative (es. il lampo dei bottoni). */}
-      <main className="admin pagina max-w-3xl">
+      <main className="pagina max-w-3xl">
         <div>
-          <h1 className={`${blowbrush.className} text-[46px] leading-none text-brand-crema lg:text-6xl`}>
-            Area Admin
-          </h1>
+          <TitoloPagina>Area Admin</TitoloPagina>
           <p className="mt-2 text-brand-lavanda-chiara">
             Ogni modifica compare subito sul sito. Apri una sezione per gestirla.
           </p>
         </div>
 
-        {/* Riepilogo: quante voci per tabella. */}
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {SECTIONS.map((section, i) => (
-            <div key={section.table} className="taglio-piccolo bg-brand-superficie p-3">
-              <div className="text-2xl font-bold tabular-nums text-brand-crema">
-                {(results[i].data ?? []).length}
+        {/* Riepilogo e sezioni entrano a cascata, come nelle altre pagine. */}
+        <div className="entra flex flex-col gap-4">
+
+          {/* Riepilogo: quante voci per tabella. */}
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {SECTIONS.map((section, i) => (
+              <div key={section.table} className="taglio-piccolo bg-brand-superficie p-3">
+                <div className="text-2xl font-bold tabular-nums text-brand-crema">
+                  {(results[i].data ?? []).length}
+                </div>
+                <div className="text-sm text-brand-lavanda-chiara">{section.title}</div>
               </div>
-              <div className="text-sm text-brand-lavanda-chiara">{section.title}</div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
 
-        {/* Proposte di titolo: aperta da sola se c'è qualcosa da decidere. */}
-        <Collapsible
-          title="Proposte titolo live"
-          subtitle={
-            pendingTitles.length > 0
-              ? `${pendingTitles.length} in attesa`
-              : "Nessuna in attesa"
-          }
-          defaultOpen={pendingTitles.length > 0}
-        >
-          {pendingTitles.map((p) => (
-            <div key={p.id} className={subBox}>
-              <p className={subLabel}>
-                {p.username} · settimana del {ddmm(p.settimana)}
-              </p>
-              <p className="text-brand-crema">“{p.titolo}”</p>
-              <ReviewForm id={p.id} />
-            </div>
-          ))}
-          {reviewedTitles.length > 0 ? (
-            <div className={subBox}>
-              <p className={subLabel}>Ultime decise</p>
-              <ul className="flex flex-col gap-2">
-                {reviewedTitles.map((p) => (
-                  <li key={p.id} className="flex items-start gap-3">
-                    <span
-                      className={`w-20 shrink-0 text-sm font-bold ${
-                        p.stato === "accepted" ? "text-brand-pesca" : "text-brand-lavanda-chiara"
-                      }`}
-                    >
-                      {p.stato === "accepted" ? "Accettato" : "Rifiutato"}
-                    </span>
-                    <span className="min-w-0 flex-1 text-brand-crema">
-                      “{p.titolo}”
-                      <span className="block text-sm text-brand-lavanda-chiara">
-                        {p.username}
-                        {p.motivo ? ` · ${p.motivo}` : ""}
+          {/* Proposte di titolo: aperta da sola se c'è qualcosa da decidere. */}
+          <Collapsible
+            title="Proposte titolo live"
+            subtitle={
+              pendingTitles.length > 0
+                ? `${pendingTitles.length} in attesa`
+                : "Nessuna in attesa"
+            }
+            defaultOpen={pendingTitles.length > 0}
+          >
+            {pendingTitles.map((p) => (
+              <div key={p.id} className={subBox}>
+                <p className={subLabel}>
+                  {p.username} · settimana del {ddmm(p.settimana)}
+                </p>
+                <p className="text-brand-crema">“{p.titolo}”</p>
+                <ReviewForm id={p.id} />
+              </div>
+            ))}
+            {reviewedTitles.length > 0 ? (
+              <div className={subBox}>
+                <p className={subLabel}>Ultime decise</p>
+                <ul className="flex flex-col gap-2">
+                  {reviewedTitles.map((p) => (
+                    <li key={p.id} className="flex items-start gap-3">
+                      <span
+                        className={`w-20 shrink-0 text-sm font-bold ${
+                          p.stato === "accepted" ? "text-brand-pesca" : "text-brand-lavanda-chiara"
+                        }`}
+                      >
+                        {p.stato === "accepted" ? "Accettato" : "Rifiutato"}
                       </span>
-                    </span>
-                    {p.stato === "accepted" ? (
-                      <CopyTitle titolo={p.titolo} />
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : pendingTitles.length === 0 ? (
-            <p className="text-brand-lavanda-chiara">
-              Ancora nessuna proposta. Arrivano dal vincitore della parola della
-              settimana.
-            </p>
-          ) : null}
-        </Collapsible>
-
-        {/* Strumenti Discord per la schedule, separati dalla gestione righe. */}
-        <Collapsible
-          title="Pubblica la schedule"
-          subtitle="Invio su Discord + news automatica"
-        >
-          <div className={subBox}>
-            <p className={subLabel}>Schedule completa (settimana nuova)</p>
-            <pre className={preClass}>
-              {formatSchedule(scheduleRows) || "(schedule vuota)"}
-            </pre>
-            <AnnounceButton
-              action={announceSchedule}
-              label="Pubblica schedule completa"
-            />
-          </div>
-
-          <div className={subBox}>
-            {previousSchedule.length === 0 ? (
-              <p className="text-brand-lavanda-chiara">
-                Nessuna schedule ancora pubblicata: usa il pulsante qui sopra la
-                prima volta.
-              </p>
-            ) : scheduleChanges.length === 0 ? (
-              <p className="text-brand-lavanda-chiara">
-                Nessuna modifica dall&apos;ultima pubblicazione.
-              </p>
-            ) : (
-              <>
-                <p className={subLabel}>Modifiche da annunciare</p>
-                <pre className={preClass}>
-                  {scheduleChanges.map(changeLine).join("\n")}
-                </pre>
-                <AnnounceButton
-                  action={announceScheduleChanges}
-                  label="Annuncia modifiche"
-                />
-              </>
-            )}
-          </div>
-
-          <div className={subBox}>
-            <p className="text-brand-lavanda-chiara">
-              A inizio settimana: svuota la schedule vecchia, poi carica la
-              nuova dalla sezione qui sotto.
-            </p>
-            <AnnounceButton
-              action={clearSchedule}
-              label="Azzera schedule"
-              confirm="Vuoi eliminare tutte le righe della schedule?"
-              pericolo
-            />
-          </div>
-        </Collapsible>
-
-        {SECTIONS.map((section, i) => {
-          const rows = (results[i].data ?? []) as Record<string, string>[];
-          return (
-            <Collapsible
-              key={section.table}
-              title={section.title}
-              subtitle={`${rows.length} ${rows.length === 1 ? "voce" : "voci"}`}
-            >
-              <Collapsible title={`Aggiungi ${section.title.toLowerCase()}`} interno>
-                <RowForm
-                  table={section.table}
-                  fields={section.fields}
-                  announce={section.announce}
-                />
-              </Collapsible>
-
-              {rows.length > 0 ? (
-                <ul className="flex flex-col gap-1.5">
-                  {rows.map((row) => (
-                    <AdminRow key={row.id} label={section.label(row)}>
-                      <RowForm
-                        table={section.table}
-                        fields={section.fields}
-                        row={row}
-                        announce={section.announce}
-                      />
-                      {section.announce === "news" ? (
-                        <AnnounceButton
-                          action={announceNews}
-                          id={row.id}
-                          label={
-                            row.discord_message_id
-                              ? "Aggiorna su Discord"
-                              : "Annuncia su Discord"
-                          }
-                        />
+                      <span className="min-w-0 flex-1 text-brand-crema">
+                        “{p.titolo}”
+                        <span className="block text-sm text-brand-lavanda-chiara">
+                          {p.username}
+                          {p.motivo ? ` · ${p.motivo}` : ""}
+                        </span>
+                      </span>
+                      {p.stato === "accepted" ? (
+                        <CopyTitle titolo={p.titolo} />
                       ) : null}
-                      {section.announce === "event" ? (
-                        <AnnounceButton
-                          action={announceEvent}
-                          id={row.id}
-                          label={
-                            row.discord_message_id
-                              ? "Aggiorna su Discord"
-                              : "Annuncia su Discord"
-                          }
-                        />
-                      ) : null}
-                      <DeleteButton
-                        table={section.table}
-                        id={row.id}
-                        label={section.label(row)}
-                      />
-                    </AdminRow>
+                    </li>
                   ))}
                 </ul>
+              </div>
+            ) : pendingTitles.length === 0 ? (
+              <p className="text-brand-lavanda-chiara">
+                Ancora nessuna proposta. Arrivano dal vincitore della parola della
+                settimana.
+              </p>
+            ) : null}
+          </Collapsible>
+
+          {/* Strumenti Discord per la schedule, separati dalla gestione righe. */}
+          <Collapsible
+            title="Pubblica la schedule"
+            subtitle="Invio su Discord + news automatica"
+          >
+            <div className={subBox}>
+              <p className={subLabel}>Schedule completa (settimana nuova)</p>
+              <pre className={preClass}>
+                {formatSchedule(scheduleRows) || "(schedule vuota)"}
+              </pre>
+              <AnnounceButton
+                action={announceSchedule}
+                label="Pubblica schedule completa"
+              />
+            </div>
+
+            <div className={subBox}>
+              {previousSchedule.length === 0 ? (
+                <p className="text-brand-lavanda-chiara">
+                  Nessuna schedule ancora pubblicata: usa il pulsante qui sopra la
+                  prima volta.
+                </p>
+              ) : scheduleChanges.length === 0 ? (
+                <p className="text-brand-lavanda-chiara">
+                  Nessuna modifica dall&apos;ultima pubblicazione.
+                </p>
               ) : (
-                <p className="text-brand-lavanda-chiara">Ancora niente qui.</p>
+                <>
+                  <p className={subLabel}>Modifiche da annunciare</p>
+                  <pre className={preClass}>
+                    {scheduleChanges.map(changeLine).join("\n")}
+                  </pre>
+                  <AnnounceButton
+                    action={announceScheduleChanges}
+                    label="Annuncia modifiche"
+                  />
+                </>
               )}
-              {section.table === "schedule" ? <ScheduleAnnouncePrompt /> : null}
-            </Collapsible>
-          );
-        })}
+            </div>
+
+            <div className={subBox}>
+              <p className="text-brand-lavanda-chiara">
+                A inizio settimana: svuota la schedule vecchia, poi carica la
+                nuova dalla sezione qui sotto.
+              </p>
+              <AnnounceButton
+                action={clearSchedule}
+                label="Azzera schedule"
+                confirm="Vuoi eliminare tutte le righe della schedule?"
+                pericolo
+              />
+            </div>
+          </Collapsible>
+
+          {SECTIONS.map((section, i) => {
+            const rows = (results[i].data ?? []) as Record<string, string>[];
+            return (
+              <Collapsible
+                key={section.table}
+                title={section.title}
+                subtitle={`${rows.length} ${rows.length === 1 ? "voce" : "voci"}`}
+              >
+                <Collapsible title={`Aggiungi ${section.title.toLowerCase()}`} interno>
+                  <RowForm
+                    table={section.table}
+                    fields={section.fields}
+                    announce={section.announce}
+                  />
+                </Collapsible>
+
+                {rows.length > 0 ? (
+                  <ul className="flex flex-col gap-1.5">
+                    {rows.map((row) => (
+                      <AdminRow key={row.id} label={section.label(row)}>
+                        <RowForm
+                          table={section.table}
+                          fields={section.fields}
+                          row={row}
+                          announce={section.announce}
+                        />
+                        {section.announce === "news" ? (
+                          <AnnounceButton
+                            action={announceNews}
+                            id={row.id}
+                            label={
+                              row.discord_message_id
+                                ? "Aggiorna su Discord"
+                                : "Annuncia su Discord"
+                            }
+                          />
+                        ) : null}
+                        {section.announce === "event" ? (
+                          <AnnounceButton
+                            action={announceEvent}
+                            id={row.id}
+                            label={
+                              row.discord_message_id
+                                ? "Aggiorna su Discord"
+                                : "Annuncia su Discord"
+                            }
+                          />
+                        ) : null}
+                        <DeleteButton
+                          table={section.table}
+                          id={row.id}
+                          label={section.label(row)}
+                        />
+                      </AdminRow>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-brand-lavanda-chiara">Ancora niente qui.</p>
+                )}
+                {section.table === "schedule" ? <ScheduleAnnouncePrompt /> : null}
+              </Collapsible>
+            );
+          })}
+        </div>
       </main>
     </ScheduleAnnounceProvider>
   );

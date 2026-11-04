@@ -109,7 +109,7 @@ Con `prefers-reduced-motion: reduce` si fermano rotazione, stelle, cascate, lett
 - **Giochi:** un pannello per gioco con bordo tagliato. Il bordo corallo indica i contenuti per abbonati.
 - **Universo:** bio, social, sponsor e progetti, sullo stesso cielo stellato, senza pianeta visibile.
 - **Profilo e Help Desk:** titolo animato, testo e un'azione principale.
-- **Admin:** solo token e componenti nuovi, senza animazioni decorative. La priorità è usare i form.
+- **Admin:** token e componenti nuovi, con titolo animato e sezioni a cascata come le altre pagine. La priorità resta usare i form.
 
 ## Come lavorare
 

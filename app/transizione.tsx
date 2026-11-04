@@ -16,11 +16,11 @@ const FINE_MS = 1100;
 // Colori del pianeta in scala, dal più chiaro al più scuro: la lava (giallo,
 // arancio, fuoco) e poi le bande viola della superficie.
 const STRISCE = [
-  { x: "-2%", c: "var(--pianeta-lava-giallo)", d: "0ms" },
-  { x: "18%", c: "var(--pianeta-lava-arancio)", d: "40ms" },
-  { x: "38%", c: "var(--pianeta-lava)", d: "80ms" },
-  { x: "58%", c: "var(--pianeta-viola)", d: "120ms" },
-  { x: "78%", c: "var(--pianeta-viola-scuro)", d: "160ms" },
+  { c: "var(--pianeta-lava-giallo)", d: "0ms" },
+  { c: "var(--pianeta-lava-arancio)", d: "25ms" },
+  { c: "var(--pianeta-lava)", d: "50ms" },
+  { c: "var(--pianeta-viola)", d: "75ms" },
+  { c: "var(--pianeta-viola-scuro)", d: "100ms" },
 ];
 
 // Tuffo nell'Universo (vedi DESIGN.md): il pianeta si centra e si ingrandisce
@@ -115,11 +115,12 @@ export function TransizioneProvider({ children }: { children: React.ReactNode })
       {children}
       {fase?.tipo === "strisce" ? (
         <div aria-hidden className="strisce">
-          {STRISCE.map((s) => (
+          {/* --i = posizione della striscia: il CSS calcola da lì dove sta. */}
+          {STRISCE.map((s, i) => (
             <div
-              key={s.x}
+              key={i}
               className="striscia"
-              style={{ left: s.x, background: s.c, animationDelay: s.d }}
+              style={{ "--i": i, background: s.c, animationDelay: s.d } as React.CSSProperties}
             />
           ))}
         </div>
