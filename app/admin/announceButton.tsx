@@ -12,11 +12,14 @@ export default function AnnounceButton({
   id,
   label,
   confirm: confirmText,
+  pericolo = false,
 }: {
   action: Action;
   id?: string;
   label: string;
   confirm?: string;
+  // Azione distruttiva (es. "Azzera schedule"): testo corallo.
+  pericolo?: boolean;
 }) {
   const [state, formAction, pending] = useActionState<AnnounceState, FormData>(
     action,
@@ -35,13 +38,13 @@ export default function AnnounceButton({
       <button
         type="submit"
         disabled={pending}
-        className="rounded-lg bg-brand-blu px-3 py-1.5 text-sm font-semibold text-brand-crema transition hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
+        className={`bottone-secondario ${pericolo ? "bottone-pericolo" : ""}`}
       >
         {pending ? "Invio…" : label}
       </button>
       {state ? (
         <span
-          className={`text-sm ${state.ok ? "text-brand-lavanda" : "text-brand-corallo"}`}
+          className={`text-sm ${state.ok ? "text-brand-lavanda-chiara" : "text-brand-pesca"}`}
         >
           {state.message}
         </span>

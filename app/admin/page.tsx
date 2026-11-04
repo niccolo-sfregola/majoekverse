@@ -30,7 +30,6 @@ import ScheduleAnnouncePrompt from "./scheduleAnnouncePrompt";
 type Section = {
   table: string;
   title: string;
-  icon: string;
   fields: Field[];
   label: (row: Record<string, string>) => string;
   announce?: "schedule" | "news" | "event";
@@ -43,20 +42,17 @@ const SECTIONS: Section[] = [
   {
     table: "news",
     title: "News",
-    icon: "📰",
     fields: [
-      { name: "icona", placeholder: "Icona (es. 🎁)" },
       { name: "titolo", placeholder: "Titolo", required: true },
       { name: "testo", placeholder: "Testo", required: true, type: "textarea" },
       { name: "immagine", placeholder: "Foto (facoltativa)", type: "photo" },
     ],
-    label: (r) => `${r.icona ?? ""} ${r.titolo}`,
+    label: (r) => r.titolo,
     announce: "news",
   },
   {
     table: "events",
     title: "Eventi",
-    icon: "📅",
     fields: [
       { name: "titolo", placeholder: "Titolo", required: true },
       {
@@ -73,14 +69,13 @@ const SECTIONS: Section[] = [
         type: "checkbox",
       },
     ],
-    label: (r) => `${r.solo_abbonati ? "🔒 " : ""}${r.data} · ${r.titolo}`,
+    label: (r) => `${r.data} · ${r.titolo}${r.solo_abbonati ? " · solo abbonati" : ""}`,
     announce: "event",
     orderBy: "data",
   },
   {
     table: "schedule",
     title: "Schedule",
-    icon: "🗓️",
     fields: [
       { name: "data", placeholder: "Data", type: "date", required: true },
       { name: "orario", placeholder: "Orario", type: "time", required: true },
@@ -96,7 +91,6 @@ const SECTIONS: Section[] = [
   {
     table: "sponsors",
     title: "Sponsor",
-    icon: "🤝",
     fields: [
       { name: "name", placeholder: "Nome", required: true },
       {
@@ -115,13 +109,12 @@ const SECTIONS: Section[] = [
       },
     ],
     label: (r) =>
-      `${r.ufficiale ? "⭐ " : ""}${r.name}${r.sconto ? ` · ${r.sconto}` : ""}`,
+      `${r.name}${r.sconto ? ` · ${r.sconto}` : ""}${r.ufficiale ? " · sponsor ufficiale" : ""}`,
   },
 ];
 
-const subBox = "flex flex-col gap-2 rounded-xl bg-brand-fondo/45 p-4";
-const subLabel =
-  "text-xs font-semibold uppercase tracking-[0.16em] text-brand-lavanda";
+const subBox = "flex flex-col gap-3 bg-brand-fondo p-4";
+const subLabel = "font-bold text-brand-lavanda";
 const preClass = "whitespace-pre-wrap text-sm text-brand-crema";
 
 export default async function Admin() {
@@ -189,26 +182,25 @@ export default async function Admin() {
 
   return (
     <ScheduleAnnounceProvider>
-      <main className="rise-in safe-top mx-auto flex min-h-screen w-full max-w-3xl flex-col gap-4 px-4 pb-10">
-        <h1
-          className={`${blowbrush.className} text-center text-4xl tracking-wide text-brand-crema md:text-5xl`}
-        >
-          Area Admin
-        </h1>
-        <p className="text-center text-sm text-brand-lavanda">
-          Ogni modifica compare subito sul sito. Apri una sezione per gestirla.
-        </p>
+      {/* .admin: niente animazioni decorative (es. il lampo dei bottoni). */}
+      <main className="admin pagina max-w-3xl">
+        <div>
+          <h1 className={`${blowbrush.className} text-[46px] leading-none text-brand-crema lg:text-6xl`}>
+            Area Admin
+          </h1>
+          <p className="mt-2 text-brand-lavanda-chiara">
+            Ogni modifica compare subito sul sito. Apri una sezione per gestirla.
+          </p>
+        </div>
 
         {/* Riepilogo: quante voci per tabella. */}
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {SECTIONS.map((section, i) => (
-            <div key={section.table} className="panel p-3 text-center">
-              <div className="text-2xl font-semibold text-brand-crema">
+            <div key={section.table} className="taglio-piccolo bg-brand-superficie p-3">
+              <div className="text-2xl font-bold tabular-nums text-brand-crema">
                 {(results[i].data ?? []).length}
               </div>
-              <div className="text-[0.7rem] uppercase tracking-[0.12em] text-brand-lavanda">
-                {section.title}
-              </div>
+              <div className="text-sm text-brand-lavanda-chiara">{section.title}</div>
             </div>
           ))}
         </div>
@@ -221,7 +213,6 @@ export default async function Admin() {
               ? `${pendingTitles.length} in attesa`
               : "Nessuna in attesa"
           }
-          icon="🏆"
           defaultOpen={pendingTitles.length > 0}
         >
           {pendingTitles.map((p) => (
@@ -238,13 +229,17 @@ export default async function Admin() {
               <p className={subLabel}>Ultime decise</p>
               <ul className="flex flex-col gap-2">
                 {reviewedTitles.map((p) => (
-                  <li key={p.id} className="flex items-start gap-2 text-sm">
-                    <span className="shrink-0">
-                      {p.stato === "accepted" ? "✅" : "❌"}
+                  <li key={p.id} className="flex items-start gap-3">
+                    <span
+                      className={`w-20 shrink-0 text-sm font-bold ${
+                        p.stato === "accepted" ? "text-brand-pesca" : "text-brand-lavanda-chiara"
+                      }`}
+                    >
+                      {p.stato === "accepted" ? "Accettato" : "Rifiutato"}
                     </span>
                     <span className="min-w-0 flex-1 text-brand-crema">
                       “{p.titolo}”
-                      <span className="block text-xs text-brand-lavanda">
+                      <span className="block text-sm text-brand-lavanda-chiara">
                         {p.username}
                         {p.motivo ? ` · ${p.motivo}` : ""}
                       </span>
@@ -257,7 +252,7 @@ export default async function Admin() {
               </ul>
             </div>
           ) : pendingTitles.length === 0 ? (
-            <p className="text-sm text-brand-lavanda">
+            <p className="text-brand-lavanda-chiara">
               Ancora nessuna proposta. Arrivano dal vincitore della parola della
               settimana.
             </p>
@@ -268,7 +263,6 @@ export default async function Admin() {
         <Collapsible
           title="Pubblica la schedule"
           subtitle="Invio su Discord + news automatica"
-          icon="📢"
         >
           <div className={subBox}>
             <p className={subLabel}>Schedule completa (settimana nuova)</p>
@@ -283,12 +277,12 @@ export default async function Admin() {
 
           <div className={subBox}>
             {previousSchedule.length === 0 ? (
-              <p className="text-sm text-brand-lavanda">
+              <p className="text-brand-lavanda-chiara">
                 Nessuna schedule ancora pubblicata: usa il pulsante qui sopra la
                 prima volta.
               </p>
             ) : scheduleChanges.length === 0 ? (
-              <p className="text-sm text-brand-lavanda">
+              <p className="text-brand-lavanda-chiara">
                 Nessuna modifica dall&apos;ultima pubblicazione.
               </p>
             ) : (
@@ -306,7 +300,7 @@ export default async function Admin() {
           </div>
 
           <div className={subBox}>
-            <p className="text-sm text-brand-lavanda">
+            <p className="text-brand-lavanda-chiara">
               A inizio settimana: svuota la schedule vecchia, poi carica la
               nuova dalla sezione qui sotto.
             </p>
@@ -314,6 +308,7 @@ export default async function Admin() {
               action={clearSchedule}
               label="Azzera schedule"
               confirm="Vuoi eliminare tutte le righe della schedule?"
+              pericolo
             />
           </div>
         </Collapsible>
@@ -325,12 +320,8 @@ export default async function Admin() {
               key={section.table}
               title={section.title}
               subtitle={`${rows.length} ${rows.length === 1 ? "voce" : "voci"}`}
-              icon={section.icon}
             >
-              <Collapsible
-                title={`Aggiungi ${section.title.toLowerCase()}`}
-                icon="＋"
-              >
+              <Collapsible title={`Aggiungi ${section.title.toLowerCase()}`} interno>
                 <RowForm
                   table={section.table}
                   fields={section.fields}
@@ -339,7 +330,7 @@ export default async function Admin() {
               </Collapsible>
 
               {rows.length > 0 ? (
-                <ul className="flex flex-col gap-2">
+                <ul className="flex flex-col gap-1.5">
                   {rows.map((row) => (
                     <AdminRow key={row.id} label={section.label(row)}>
                       <RowForm
@@ -379,7 +370,7 @@ export default async function Admin() {
                   ))}
                 </ul>
               ) : (
-                <p className="text-sm text-brand-lavanda">Ancora niente qui.</p>
+                <p className="text-brand-lavanda-chiara">Ancora niente qui.</p>
               )}
               {section.table === "schedule" ? <ScheduleAnnouncePrompt /> : null}
             </Collapsible>

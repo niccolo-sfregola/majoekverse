@@ -88,13 +88,15 @@ export default function ImageField({
   }
 
   return (
-    <div className="flex flex-col gap-2 rounded-xl bg-brand-fondo/40 p-3">
-      <span className="text-sm text-brand-crema">{label}</span>
+    <div className="flex flex-col gap-2 border border-brand-lavanda/40 bg-brand-fondo p-3">
+      <span className="text-brand-crema">{label}</span>
       <input ref={inputRef} type="hidden" name={name} value={url} />
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         {url ? (
           variant === "logo" ? (
-            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-brand-crema p-1.5">
+            // Su fondo scuro come nell'Universo (lì il logo viene schiarito
+            // se serve: vedi lib/logo.ts).
+            <span className="flex h-14 w-14 shrink-0 items-center justify-center bg-brand-superficie p-1.5">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={url}
@@ -107,11 +109,11 @@ export default function ImageField({
             <img
               src={url}
               alt=""
-              className="h-14 w-20 shrink-0 rounded-lg object-cover"
+              className="taglio-piccolo h-14 w-20 shrink-0 object-cover"
             />
           )
         ) : null}
-        <label className="cursor-pointer rounded-lg border border-brand-lavanda/25 bg-brand-fondo/60 px-3 py-2 text-sm font-semibold text-brand-crema transition hover:border-brand-lavanda/45 active:scale-[0.98]">
+        <label className="bottone-secondario cursor-pointer">
           {busy ? "Carico…" : url ? "Cambia" : "Carica immagine"}
           <input
             type="file"
@@ -125,13 +127,13 @@ export default function ImageField({
           <button
             type="button"
             onClick={() => setUrl("")}
-            className="text-xs text-brand-lavanda transition-colors hover:text-brand-crema"
+            className="link-azione text-sm text-brand-lavanda"
           >
             Rimuovi
           </button>
         ) : null}
       </div>
-      {error ? <span className="text-sm text-brand-corallo">{error}</span> : null}
+      {error ? <span className="text-sm text-brand-pesca">{error}</span> : null}
     </div>
   );
 }

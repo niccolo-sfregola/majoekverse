@@ -14,17 +14,18 @@ export default function AdminRow({
   const [open, setOpen] = useState(false);
 
   return (
-    <li className="overflow-hidden rounded-xl bg-brand-fondo/45">
+    <li className="overflow-hidden bg-brand-fondo">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        className="flex w-full items-center justify-between gap-3 p-3 text-left"
+        className="flex min-h-11 w-full items-center justify-between gap-3 p-3 text-left"
       >
-        <span className="min-w-0 truncate text-sm text-brand-crema">
+        <span className="min-w-0 truncate text-brand-crema">
           {label}
         </span>
         <svg
+          aria-hidden
           width="16"
           height="16"
           viewBox="0 0 24 24"
@@ -42,7 +43,7 @@ export default function AdminRow({
       </button>
       <div className="reveal" data-open={open}>
         <div>
-          <div className="flex flex-col gap-3 border-t border-brand-lavanda/10 p-3">
+          <div className="flex flex-col gap-3 border-t border-brand-superficie-hover p-3">
             {children}
           </div>
         </div>

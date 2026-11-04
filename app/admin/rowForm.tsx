@@ -15,8 +15,6 @@ export type Field = {
   required?: boolean;
 };
 
-const inputClass =
-  "w-full rounded-lg border border-brand-lavanda/15 bg-brand-fondo/70 p-2 text-brand-crema outline-none transition placeholder:text-brand-lavanda/50 focus:border-brand-lavanda/40";
 
 // Form usato sia per aggiungere (nessun id) sia per modificare (con id).
 // Mostra l'esito del salvataggio sotto al bottone.
@@ -74,7 +72,7 @@ export default function RowForm({
       ref={formRef}
       action={formAction}
       onInput={format ? measure : undefined}
-      className="flex flex-col gap-2"
+      className="flex flex-col gap-3"
     >
       <input type="hidden" name="table" value={table} />
       {row ? <input type="hidden" name="id" value={String(row.id)} /> : null}
@@ -83,7 +81,7 @@ export default function RowForm({
           return (
             <label
               key={f.name}
-              className="flex items-center justify-between gap-3 rounded-xl bg-brand-fondo/40 p-3 text-sm text-brand-crema"
+              className="flex min-h-11 cursor-pointer items-center justify-between gap-3 border border-brand-lavanda/40 bg-brand-fondo p-3 text-brand-crema"
             >
               <span>{f.placeholder}</span>
               <span className="relative inline-flex shrink-0">
@@ -93,7 +91,7 @@ export default function RowForm({
                   defaultChecked={row?.[f.name] === true}
                   className="peer sr-only"
                 />
-                <span className="block h-6 w-11 rounded-full bg-brand-lavanda/25 transition-colors peer-checked:bg-brand-blu peer-focus-visible:ring-2 peer-focus-visible:ring-brand-lavanda/50" />
+                <span className="block h-6 w-11 rounded-full bg-brand-superficie-hover transition-colors peer-checked:bg-brand-lavanda peer-focus-visible:ring-2 peer-focus-visible:ring-brand-crema" />
                 <span className="pointer-events-none absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-brand-crema transition-transform peer-checked:translate-x-5" />
               </span>
             </label>
@@ -108,7 +106,7 @@ export default function RowForm({
               required={f.required}
               defaultValue={String(row?.[f.name] ?? "")}
               rows={4}
-              className={`${inputClass} resize-y`}
+              className="campo resize-y"
             />
           );
         }
@@ -137,30 +135,27 @@ export default function RowForm({
             placeholder={f.placeholder}
             required={f.required}
             defaultValue={String(row?.[f.name] ?? "")}
-            className={inputClass}
+            className="campo"
           />
         );
       })}
       {format ? (
         <span
-          className={`self-end text-xs tabular-nums ${
-            length > DISCORD_MAX ? "text-brand-corallo" : "text-brand-lavanda/70"
+          className={`self-end text-sm tabular-nums ${
+            length > DISCORD_MAX ? "text-brand-pesca" : "text-brand-lavanda-chiara"
           }`}
         >
           Discord: {length}/{DISCORD_MAX}
           {length > DISCORD_MAX ? " — verrà tagliato" : ""}
         </span>
       ) : null}
-      <button
-        type="submit"
-        disabled={pending}
-        className="rounded-lg bg-brand-blu p-2 font-semibold text-brand-crema transition hover:brightness-110 active:scale-[0.99] disabled:opacity-50"
-      >
+      {/* Azione principale del form: il .btn (senza lampo nell'admin). */}
+      <button type="submit" disabled={pending} className="btn lg:self-start">
         {pending ? "Salvataggio…" : row ? "Salva modifiche" : "Aggiungi"}
       </button>
       {state ? (
         <span
-          className={`text-sm ${state.ok ? "text-brand-lavanda" : "text-brand-corallo"}`}
+          className={`text-sm ${state.ok ? "text-brand-lavanda-chiara" : "text-brand-pesca"}`}
         >
           {state.message}
         </span>

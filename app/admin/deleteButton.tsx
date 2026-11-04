@@ -40,12 +40,12 @@ export default function DeleteButton({
       <button
         type="submit"
         disabled={pending}
-        className="rounded-lg border border-brand-corallo/50 px-3 py-1.5 text-sm font-semibold text-brand-corallo transition hover:bg-brand-corallo/10 active:scale-[0.98] disabled:opacity-50"
+        className="bottone-secondario bottone-pericolo"
       >
         {pending ? "…" : "Elimina"}
       </button>
       {state && !state.ok ? (
-        <span className="text-sm text-brand-corallo">{state.message}</span>
+        <span className="text-sm text-brand-pesca">{state.message}</span>
       ) : null}
     </form>
   );

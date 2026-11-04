@@ -18,9 +18,9 @@ export function ReviewForm({ id }: { id: number }) {
         name="motivo"
         placeholder="Motivo del rifiuto (facoltativo)"
         maxLength={200}
-        className="rounded-lg border border-brand-lavanda/25 bg-brand-fondo/60 px-3 py-2 text-sm text-brand-crema placeholder:text-brand-lavanda/50 focus:border-brand-lavanda/60 focus:outline-none"
+        className="campo"
       />
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-3">
         {/* Due bottoni nello stesso form: il valore di quello premuto
             arriva alla server action come "decisione". */}
         <button
@@ -28,7 +28,7 @@ export function ReviewForm({ id }: { id: number }) {
           name="decisione"
           value="accepted"
           disabled={pending}
-          className="rounded-lg bg-brand-blu px-3 py-1.5 text-sm font-semibold text-brand-crema transition hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
+          className="btn w-auto"
         >
           Accetta
         </button>
@@ -37,13 +37,13 @@ export function ReviewForm({ id }: { id: number }) {
           name="decisione"
           value="rejected"
           disabled={pending}
-          className="rounded-lg border border-brand-corallo/50 px-3 py-1.5 text-sm font-semibold text-brand-corallo transition hover:bg-brand-corallo/10 active:scale-[0.98] disabled:opacity-50"
+          className="bottone-secondario bottone-pericolo"
         >
           Rifiuta
         </button>
         {state ? (
           <span
-            className={`text-sm ${state.ok ? "text-brand-lavanda" : "text-brand-corallo"}`}
+            className={`text-sm ${state.ok ? "text-brand-lavanda-chiara" : "text-brand-pesca"}`}
           >
             {state.message}
           </span>
@@ -66,9 +66,9 @@ export function CopyTitle({ titolo }: { titolo: string }) {
           setTimeout(() => setCopied(false), 1500);
         } catch {}
       }}
-      className="shrink-0 rounded-lg border border-brand-lavanda/30 px-2.5 py-1 text-xs font-semibold text-brand-lavanda transition hover:bg-brand-lavanda/10 active:scale-[0.98]"
+      className="bottone-secondario shrink-0"
     >
-      {copied ? "Copiato ✓" : "Copia"}
+      {copied ? "Copiato" : "Copia"}
     </button>
   );
 }
