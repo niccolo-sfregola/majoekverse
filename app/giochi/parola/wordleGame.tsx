@@ -10,10 +10,11 @@ import { guessWordle } from "./actions";
 
 type Stato = "playing" | "won" | "lost";
 
+// Testo scuro sul corallo: con il crema il contrasto sarebbe troppo basso.
 const TILE_COLORS: Record<Esito, string> = {
-  giusta: "border-brand-corallo bg-brand-corallo text-brand-crema",
+  giusta: "border-brand-corallo bg-brand-corallo text-brand-fondo",
   presente: "border-brand-lavanda bg-brand-lavanda text-brand-fondo",
-  assente: "border-brand-superficie bg-brand-superficie text-brand-lavanda/60",
+  assente: "border-brand-superficie bg-brand-superficie text-brand-lavanda",
 };
 
 const KEY_ROWS = ["qwertyuiop", "asdfghjkl", "⏎zxcvbnm⌫"];
@@ -151,12 +152,12 @@ export default function WordleGame({
                         ? () => setCelebrating(true)
                         : undefined
                     }
-                    className={`grid h-12 w-12 place-items-center rounded-lg border-2 text-2xl font-bold uppercase md:h-14 md:w-14 ${
+                    className={`taglio-piccolo grid h-12 w-12 place-items-center border-2 text-2xl font-bold uppercase md:h-14 md:w-14 ${
                       esito
                         ? TILE_COLORS[esito]
                         : letter
-                          ? "tile-pop border-brand-lavanda/60 text-brand-crema"
-                          : "border-brand-lavanda/15 text-brand-crema"
+                          ? "tile-pop border-brand-lavanda bg-brand-superficie text-brand-crema"
+                          : "border-brand-superficie-hover bg-brand-superficie/60 text-brand-crema"
                     } ${revealing ? "tile-reveal" : ""}`}
                   >
                     {letter}
@@ -168,7 +169,7 @@ export default function WordleGame({
         })}
       </div>
 
-      <p className="min-h-5 text-center text-sm text-brand-lavanda" aria-live="polite">
+      <p className="min-h-6 text-center text-brand-lavanda-chiara" aria-live="polite">
         {stato === "won"
           ? t.parola.wonIn(righe.length, formatDurata(timeMs ?? 0))
           : stato === "lost"
@@ -193,12 +194,12 @@ export default function WordleGame({
                     aria-label={
                       key === "⏎" ? t.parola.enter : key === "⌫" ? t.parola.delete : key
                     }
-                    className={`h-12 rounded-md text-sm font-semibold uppercase transition-colors duration-200 active:scale-95 ${
+                    className={`taglio-mini h-12 text-sm font-bold uppercase transition-colors duration-200 active:scale-95 ${
                       wide ? "flex-[1.5] text-base" : "flex-1"
                     } ${
                       esito
                         ? TILE_COLORS[esito]
-                        : "bg-brand-blu/40 text-brand-crema"
+                        : "bg-brand-blu text-brand-crema"
                     }`}
                   >
                     {key}

@@ -247,6 +247,11 @@ body {
     mix-blend-mode: screen;
   }
 
+  /* Taglio minimo (6px) per elementi piccolissimi: tasti della tastiera. */
+  .taglio-mini {
+    clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+  }
+
   /* Pannello (app/pannello.tsx) con angoli tagliati in alto a sinistra e in
      basso a destra. Il bordo è un trucco: un contenitore lavanda con 1px di
      padding e dentro il pannello vero, tagliati allo stesso modo. */

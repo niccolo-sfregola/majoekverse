@@ -5,11 +5,14 @@ import type { TitleState } from "@/lib/games";
 import { longDay, ddmm } from "@/lib/schedule";
 import { useDict, useLang } from "@/app/langProvider";
 import { proposeTitle, type ProposeState } from "./actions";
+import Pannello from "@/app/pannello";
+import Button from "@/app/button";
 
-const CHIP: Record<string, string> = {
-  pending: "bg-brand-lavanda/20 text-brand-lavanda",
-  accepted: "bg-brand-corallo text-brand-crema",
-  rejected: "bg-brand-superficie text-brand-lavanda/70",
+// Stato di ogni proposta: solo colore del testo, niente etichette a pillola.
+const STATO_COLORE: Record<string, string> = {
+  pending: "text-brand-lavanda",
+  accepted: "text-brand-pesca",
+  rejected: "text-brand-lavanda-chiara/70",
 };
 
 // Premio del vincitore della settimana scorsa: propone il titolo di una live,
@@ -53,9 +56,9 @@ export default function TitleBox({
   }[state.azione];
 
   return (
-    <section className="card-glass flex flex-col gap-3 p-5">
-      <h2 className="text-lg font-semibold text-brand-crema">🏆 {tt.heading}</h2>
-      <p className="text-sm text-brand-lavanda">{status}</p>
+    <Pannello className="flex flex-col gap-3 p-[18px] lg:p-[26px]">
+      <h2 className="titolo-sezione">{tt.heading}</h2>
+      <p className="text-brand-lavanda-chiara">{status}</p>
 
       {state.azione === "propose" ? (
         <form action={formAction} className="flex flex-col gap-2">
@@ -67,45 +70,39 @@ export default function TitleBox({
             rows={2}
             required
             placeholder={tt.placeholder}
-            className="w-full resize-none rounded-xl border border-brand-lavanda/25 bg-brand-fondo/60 p-3 text-brand-crema placeholder:text-brand-lavanda/50 focus:border-brand-lavanda/60 focus:outline-none"
+            className="w-full resize-none border border-brand-lavanda/40 bg-brand-fondo p-3 text-brand-crema placeholder:text-brand-lavanda-chiara/60 focus:border-brand-lavanda focus:outline-none"
           />
-          <div className="flex items-center justify-between gap-3">
-            <span className="text-xs tabular-nums text-brand-lavanda">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <span className="text-sm tabular-nums text-brand-lavanda-chiara">
               {titolo.length}/140
             </span>
-            <button
-              type="submit"
-              disabled={pending || titolo.trim().length === 0}
-              className="rounded-xl bg-brand-corallo px-5 py-2 font-semibold text-brand-crema transition hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
-            >
+            <Button type="submit" disabled={pending || titolo.trim().length === 0}>
               {pending ? tt.sending : tt.send}
-            </button>
+            </Button>
           </div>
         </form>
       ) : null}
 
       {result ? (
         <p
-          className={`text-sm ${result.ok ? "text-brand-lavanda" : "text-brand-corallo"}`}
+          className={result.ok ? "text-brand-lavanda-chiara" : "text-brand-pesca"}
         >
           {result.ok ? tt.sent : (errors[result.message] ?? tt.errorServer)}
         </p>
       ) : null}
 
       {state.proposte.length > 0 ? (
-        <ul className="flex flex-col gap-2 border-t border-brand-lavanda/10 pt-3">
+        <ul className="flex flex-col gap-1.5 pt-1">
           {state.proposte.map((p) => (
-            <li key={p.id} className="flex flex-col gap-1">
+            <li key={p.id} className="flex flex-col gap-1 bg-brand-fondo p-3">
               <div className="flex items-start justify-between gap-3">
                 <span className="text-brand-crema">“{p.titolo}”</span>
-                <span
-                  className={`shrink-0 rounded-full px-2 py-0.5 text-[0.7rem] font-semibold uppercase tracking-wide ${CHIP[p.stato]}`}
-                >
+                <span className={`shrink-0 text-sm font-bold ${STATO_COLORE[p.stato]}`}>
                   {tt.stati[p.stato]}
                 </span>
               </div>
               {p.motivo ? (
-                <span className="text-xs text-brand-lavanda">
+                <span className="text-sm text-brand-lavanda-chiara">
                   {tt.reason}: {p.motivo}
                 </span>
               ) : null}
@@ -113,6 +110,6 @@ export default function TitleBox({
           ))}
         </ul>
       ) : null}
-    </section>
+    </Pannello>
   );
 }

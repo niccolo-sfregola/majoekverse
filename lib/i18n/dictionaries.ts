@@ -81,7 +81,7 @@ const it = {
     title: "Parola del giorno",
     week: (da: string, a: string) => `Settimana dal ${da} al ${a}`,
     rules:
-      "Indovina la parola segreta di 5 lettere (in italiano) in massimo 6 tentativi; ogni giorno ce n'è una nuova. Corallo = lettera giusta al posto giusto, lavanda = lettera presente ma in un altro posto. Punti: 6 se la indovini al primo tentativo, 5 al secondo… 1 al sesto, più +3/+2/+1 ai 3 più veloci del giorno (il bonus si decide a mezzanotte). Chi fa più punti in settimana propone il titolo di una live di Joe; se l'aveva già proposto la settimana prima, si prende la corona 👑 e il titolo passa al successivo in classifica.",
+      "Indovina la parola segreta di 5 lettere (in italiano) in massimo 6 tentativi; ogni giorno ce n'è una nuova. Corallo = lettera giusta al posto giusto, lavanda = lettera presente ma in un altro posto. Punti: 6 se la indovini al primo tentativo, 5 al secondo… 1 al sesto, più +3/+2/+1 ai 3 più veloci del giorno (il bonus si decide a mezzanotte). Chi fa più punti in settimana propone il titolo di una live di Joe; se l'aveva già proposto la settimana prima, si prende la corona e il titolo passa al successivo in classifica.",
     loginText:
       "Accedi con Twitch per giocare alla parola del giorno. È riservata agli abbonati del canale.",
     notSub:
@@ -111,10 +111,12 @@ const it = {
     lastWord: "La parola era",
     lastWinner: "Ha vinto",
     noWinner: "Nessuno l'ha indovinata.",
-    joeWon: "Joe vi ha battuti tutti 😏 Questa volta niente titolo da proporre: rifatevi questa settimana!",
-    crowned: "👑 Aveva già avuto il premio la settimana prima: si tiene la corona, e il titolo lo propone",
-    crownedAlone: "👑 Aveva già avuto il premio la settimana prima: si tiene la corona. Nessun altro in classifica, niente titolo questa volta.",
+    joeWon: "Joe vi ha battuti tutti! Questa volta niente titolo da proporre: rifatevi questa settimana!",
+    crowned: "Aveva già avuto il premio la settimana prima: si tiene la corona, e il titolo lo propone",
+    crownedAlone: "Aveva già avuto il premio la settimana prima: si tiene la corona. Nessun altro in classifica, niente titolo questa volta.",
     crownTitle: "Ha vinto la settimana scorsa",
+    // Etichetta accanto al nome di chi tiene la corona.
+    crown: "Corona",
     difficulty: "Difficoltà",
     livelli: { facile: "facile", medio: "media", difficile: "difficile" },
     attempts: (n: number) => `${n}/6`,
@@ -391,7 +393,7 @@ const en: Dict = {
     title: "Word of the day",
     week: (da: string, a: string) => `Week from ${da} to ${a}`,
     rules:
-      "Guess the secret 5-letter word (Italian words only!) in at most 6 tries; there's a new one every day. Coral = right letter in the right spot, lavender = the letter is in the word but somewhere else. Points: 6 if you get it on the first try, 5 on the second… 1 on the sixth, plus +3/+2/+1 for the 3 fastest of the day (the bonus is settled at midnight). Whoever scores the most in the week suggests the title of one of Joe's streams; if they already suggested one the week before, they get the crown 👑 and the title goes to the next player on the leaderboard.",
+      "Guess the secret 5-letter word (Italian words only!) in at most 6 tries; there's a new one every day. Coral = right letter in the right spot, lavender = the letter is in the word but somewhere else. Points: 6 if you get it on the first try, 5 on the second… 1 on the sixth, plus +3/+2/+1 for the 3 fastest of the day (the bonus is settled at midnight). Whoever scores the most in the week suggests the title of one of Joe's streams; if they already suggested one the week before, they get the crown and the title goes to the next player on the leaderboard.",
     loginText:
       "Sign in with Twitch to play the word of the day. It's for channel subscribers only.",
     notSub:
@@ -421,10 +423,11 @@ const en: Dict = {
     lastWord: "The word was",
     lastWinner: "Winner",
     noWinner: "Nobody guessed it.",
-    joeWon: "Joe beat you all 😏 No title to suggest this time: get your revenge this week!",
-    crowned: "👑 They already had the prize the week before: they keep the crown, and the title goes to",
-    crownedAlone: "👑 They already had the prize the week before: they keep the crown. Nobody else on the leaderboard, so no title this time.",
+    joeWon: "Joe beat you all! No title to suggest this time: get your revenge this week!",
+    crowned: "They already had the prize the week before: they keep the crown, and the title goes to",
+    crownedAlone: "They already had the prize the week before: they keep the crown. Nobody else on the leaderboard, so no title this time.",
     crownTitle: "Won last week",
+    crown: "Crown",
     difficulty: "Difficulty",
     livelli: { facile: "easy", medio: "medium", difficile: "hard" },
     attempts: (n: number) => `${n}/6`,
