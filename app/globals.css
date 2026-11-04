@@ -708,14 +708,19 @@ body {
   }
 }
 
-/* Testo neon (logo, titoli): tubo chiaro con alone rosa-corallo, e uno
-   sfarfallio iniziale come un'insegna che si accende. */
-.neon {
+/* Testo neon (logo, titoli): tubo chiaro con alone rosa-corallo.
+   .neon-luce è solo l'aspetto; .neon aggiunge lo sfarfallio iniziale, come
+   un'insegna che si accende (separati: chi ha già la sua animazione, come
+   "Hai vinto!", usa solo .neon-luce). */
+.neon,
+.neon-luce {
   color: var(--neon-testo);
   text-shadow:
     0 0 4px #ffd9cc,
     0 0 14px var(--neon-alone),
     0 0 34px #ff3d6e;
+}
+.neon {
   animation: neon-sfarfalla 2.4s linear 0.5s both;
 }
 @keyframes neon-sfarfalla {

@@ -16,7 +16,7 @@ export default function WinOverlay({ onDone }: { onDone: () => void }) {
       }}
     >
       <p
-        className={`${blowbrush.className} zip-win-text logo-title text-6xl md:text-8xl`}
+        className={`${blowbrush.className} zip-win-text neon-luce text-6xl md:text-8xl`}
       >
         {t.giochi.win}
       </p>

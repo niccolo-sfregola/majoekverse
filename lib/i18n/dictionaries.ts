@@ -58,7 +58,7 @@ const it = {
     title: "Evento",
     subsOnly: "🔒 Solo abbonati",
     subscribe: "Abbonati per partecipare",
-    join: "Partecipa →",
+    join: "Partecipa",
   },
   giochi: {
     title: "Giochi",
@@ -185,7 +185,7 @@ const it = {
   },
   zip: {
     title: "Zip del giorno",
-    back: "← Giochi",
+    back: "Giochi",
     rules:
       "Parti dall'1 e trascina un unico percorso che tocca i numeri in ordine e passa da tutte le caselle, senza attraversare i muri. Il tempo parte quando premi Inizia.",
     start: "Inizia",
@@ -193,7 +193,7 @@ const it = {
     fillAll: "Ora riempi tutte le caselle!",
     undo: "Annulla",
     reset: "Ricomincia",
-    done: "Completato! 🎉",
+    done: "Completato!",
     loading: "Carico…",
     resume: "Riprendi",
     inProgress:
@@ -209,6 +209,8 @@ const it = {
     yesterday: "Podio di ieri",
     you: "tu",
     yourTime: "Il tuo tempo",
+    // Accanto al nome di chi era sul podio ieri.
+    badge: (pos: number) => `${pos}° ieri`,
   },
   helpdesk: {
     text: "Il supporto della community si gestisce su Discord. Apri il canale dedicato, scrivi il tuo problema e ti rispondiamo appena possibile.",
@@ -366,7 +368,7 @@ const en: Dict = {
     title: "Event",
     subsOnly: "🔒 Subs only",
     subscribe: "Subscribe to join",
-    join: "Join →",
+    join: "Join",
   },
   giochi: {
     title: "Games",
@@ -493,7 +495,7 @@ const en: Dict = {
   },
   zip: {
     title: "Daily Zip",
-    back: "← Games",
+    back: "Games",
     rules:
       "Start from 1 and drag a single path that hits the numbers in order and goes through every cell, without crossing the walls. The timer starts when you press Start.",
     start: "Start",
@@ -501,7 +503,7 @@ const en: Dict = {
     fillAll: "Now fill every cell!",
     undo: "Undo",
     reset: "Restart",
-    done: "Solved! 🎉",
+    done: "Solved!",
     loading: "Loading…",
     resume: "Resume",
     inProgress:
@@ -517,6 +519,7 @@ const en: Dict = {
     yesterday: "Yesterday's podium",
     you: "you",
     yourTime: "Your time",
+    badge: (pos: number) => `#${pos} yesterday`,
   },
   helpdesk: {
     text: "Community support is handled on Discord. Open the dedicated channel, describe your problem and we'll get back to you as soon as possible.",

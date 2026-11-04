@@ -11,10 +11,9 @@ import {
 import { useDict } from "@/app/langProvider";
 import { formatDurata } from "@/lib/durata";
 import WinOverlay from "../winOverlay";
+import Pannello from "@/app/pannello";
+import Button from "@/app/button";
 import { startZip, finishZip } from "./actions";
-
-const START_BUTTON =
-  "rounded-xl bg-brand-corallo px-8 py-3 font-semibold text-brand-crema transition hover:brightness-110 active:scale-[0.98] disabled:opacity-60";
 
 // Stato della partita di oggi, deciso dal server quando carica la pagina.
 export type ZipStatus =
@@ -62,35 +61,30 @@ export default function ZipGame({ status }: { status: ZipStatus }) {
 
   if (status.kind === "finished") {
     return (
-      <div className="panel flex flex-col items-center gap-1 px-8 py-5 text-center">
-        <p className="text-sm text-brand-lavanda">{t.zip.todayTime}</p>
-        <p className="font-mono text-3xl tabular-nums text-brand-crema">
+      <Pannello className="flex flex-col gap-1 p-[18px] lg:p-[26px]">
+        <p className="text-brand-lavanda-chiara">{t.zip.todayTime}</p>
+        <p className="neon-luce font-mono text-4xl font-bold tabular-nums">
           {formatDurata(status.timeMs)}
         </p>
-        <p className="mt-2 text-sm text-brand-lavanda">{t.zip.comeBack}</p>
-      </div>
+        <p className="mt-2 text-brand-lavanda-chiara">{t.zip.comeBack}</p>
+      </Pannello>
     );
   }
 
   return (
-    <div className="panel flex flex-col items-center gap-4 p-6 text-center">
-      <p className="text-brand-lavanda">
+    <Pannello className="flex flex-col items-start gap-4 p-[18px] lg:p-[26px]">
+      <p className="text-brand-lavanda-chiara">
         {status.kind === "inProgress" ? t.zip.inProgress : t.zip.rules}
       </p>
-      <button
-        type="button"
-        onClick={start}
-        disabled={loading}
-        className={START_BUTTON}
-      >
+      <Button onClick={start} disabled={loading}>
         {loading
           ? t.zip.loading
           : status.kind === "inProgress"
             ? t.zip.resume
             : t.zip.start}
-      </button>
-      {error ? <p className="text-sm text-brand-corallo">{error}</p> : null}
-    </div>
+      </Button>
+      {error ? <p className="text-brand-pesca">{error}</p> : null}
+    </Pannello>
   );
 }
 
@@ -235,14 +229,14 @@ function ZipBoard({
   return (
     <div className="flex flex-col items-center gap-4">
       <div className="flex w-full max-w-md items-center justify-between text-sm">
-        <span className="text-brand-lavanda">
+        <span className="text-brand-lavanda-chiara">
           {phase === "done"
             ? t.zip.done
             : next <= max
               ? t.zip.next(next)
               : t.zip.fillAll}
         </span>
-        <span className="font-mono text-lg tabular-nums text-brand-crema">
+        <span className="font-mono text-lg font-bold tabular-nums text-brand-crema">
           {stoppedAt === null ? <Clock startedAt={startedAt} /> : finalTime}
         </span>
       </div>
@@ -250,7 +244,7 @@ function ZipBoard({
       <svg
         ref={svgRef}
         viewBox={`0 0 ${size} ${size}`}
-        className="aspect-square w-full max-w-md touch-none select-none rounded-2xl bg-brand-superficie/40"
+        className="taglio aspect-square w-full max-w-md touch-none select-none bg-brand-superficie"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
@@ -265,7 +259,7 @@ function ZipBoard({
             y={Math.floor(cell / size)}
             width={1}
             height={1}
-            className={`fill-brand-corallo/15 transition-opacity duration-200 ${
+            className={`fill-brand-corallo/20 transition-opacity duration-200 ${
               visited.has(cell) ? "opacity-100" : "opacity-0"
             }`}
           />
@@ -362,12 +356,12 @@ function ZipBoard({
       </svg>
 
       {phase === "playing" ? (
-        <div className="flex gap-3">
+        <div className="flex gap-8">
           <button
             type="button"
             onClick={() => update(path.slice(0, -1))}
             disabled={path.length === 0}
-            className="rounded-xl border border-brand-lavanda/30 px-5 py-2 text-sm font-semibold text-brand-crema transition active:scale-[0.98] disabled:opacity-40"
+            className="link-azione disabled:opacity-40"
           >
             {t.zip.undo}
           </button>
@@ -375,20 +369,18 @@ function ZipBoard({
             type="button"
             onClick={() => update([])}
             disabled={path.length === 0}
-            className="rounded-xl border border-brand-lavanda/30 px-5 py-2 text-sm font-semibold text-brand-crema transition active:scale-[0.98] disabled:opacity-40"
+            className="link-azione disabled:opacity-40"
           >
             {t.zip.reset}
           </button>
         </div>
       ) : (
-        <div className="zip-result panel flex flex-col items-center gap-1 px-8 py-4 text-center">
-          <p className="text-sm text-brand-lavanda">{t.zip.yourTime}</p>
-          <p className="font-mono text-3xl tabular-nums text-brand-crema">
-            {finalTime}
-          </p>
-          {finishError ? (
-            <p className="mt-1 text-sm text-brand-corallo">{t.zip.error}</p>
-          ) : null}
+        <div className="zip-result w-full max-w-md">
+          <Pannello className="flex flex-col items-center gap-1 p-[18px] text-center">
+            <p className="text-brand-lavanda-chiara">{t.zip.yourTime}</p>
+            <p className="neon-luce font-mono text-4xl font-bold tabular-nums">{finalTime}</p>
+            {finishError ? <p className="mt-1 text-brand-pesca">{t.zip.error}</p> : null}
+          </Pannello>
         </div>
       )}
 

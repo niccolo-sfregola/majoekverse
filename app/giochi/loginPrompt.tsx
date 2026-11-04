@@ -1,29 +1,27 @@
 import { signInWithTwitch } from "@/app/auth/actions";
 import SubmitButton from "@/app/submitButton";
-import Link from "next/link";
+import Pannello from "@/app/pannello";
+import { TransLink } from "@/app/transizione";
 import { getDict } from "@/lib/i18n/server";
 
 // Riquadro "accedi per giocare", comune a tutti i giochi.
 export default async function LoginPrompt({ text }: { text: string }) {
   const t = await getDict();
   return (
-    <div className="panel flex flex-col items-center gap-4 p-6 text-center">
-      <p className="text-brand-lavanda">{text}</p>
-      <form action={signInWithTwitch}>
-        <SubmitButton
-          pendingText={t.auth.opening}
-          className="rounded-xl bg-[#9146ff] px-6 py-3 font-semibold text-white transition hover:brightness-110 active:scale-[0.98] disabled:opacity-60"
-        >
+    <Pannello className="flex flex-col items-start gap-4 p-[18px] lg:p-[26px]">
+      <p className="text-brand-lavanda-chiara">{text}</p>
+      <form action={signInWithTwitch} className="w-full lg:w-auto">
+        <SubmitButton pendingText={t.auth.opening} className="btn">
           {t.auth.login}
         </SubmitButton>
       </form>
-      <p className="text-xs text-brand-lavanda">
+      <p className="text-sm text-brand-lavanda-chiara">
         {t.auth.privacyBefore}{" "}
-        <Link href="/privacy" className="underline hover:text-brand-crema">
+        <TransLink href="/privacy" className="underline underline-offset-4 hover:text-brand-crema">
           {t.auth.privacyLink}
-        </Link>
+        </TransLink>
         .
       </p>
-    </div>
+    </Pannello>
   );
 }
