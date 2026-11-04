@@ -7,6 +7,7 @@ import Pianeta from "./pianeta";
 import Onboarding from "./onboarding";
 import PwaRegister from "./pwaRegister";
 import Avvio, { AVVIO_SCRIPT } from "./avvio";
+import Cielo from "./cielo";
 import { LangProvider } from "./langProvider";
 import { TransizioneProvider } from "./transizione";
 import { getLang, getDict } from "@/lib/i18n/server";
@@ -50,6 +51,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       <body className="flex min-h-full flex-col pb-[calc(4.5rem_+_env(safe-area-inset-bottom))] md:pb-0">
         <LangProvider lang={lang}>
           <TransizioneProvider>
+            <Cielo />
             <TopNav />
             {children}
             <BottomNav />

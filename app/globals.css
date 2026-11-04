@@ -24,6 +24,9 @@
   --pianeta-lava:        #F2450D;
   --pianeta-lava-arancio: #FF870F;
   --pianeta-lava-giallo: #FFC42E;
+
+  /* Tinta calda di qualche stella del cielo (app/cielo.tsx). */
+  --stella-pesca: #FFB9A6;
 }
 
 @theme inline {
@@ -138,72 +141,187 @@ body {
   }
 }
 
-/* Bottone principale (componente Button): lavanda con angoli tagliati in alto
-   a sinistra e in basso a destra. Il lampo bianco (::after) lo attraversa ogni
-   3.6s: resta fermo fuori a sinistra per il 62% del ciclo, poi scorre. */
-.btn {
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 52px;
-  padding: 0 1.25rem;
-  border: 0;
-  cursor: pointer;
-  background: var(--lavanda);
-  color: var(--fondo);
-  font-weight: 700;
-  font-size: 17px;
-  text-decoration: none;
-  clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
-  transition: transform 0.12s ease, background 0.2s ease;
-}
-.btn::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 60px;
-  left: -90px;
-  background: #ffffff;
-  opacity: 0.55;
-  transform: skewX(-24deg);
-  animation: btn-lampo 3.6s ease-in-out infinite;
-  pointer-events: none;
-}
-@keyframes btn-lampo {
-  0%,
-  62% {
+/* Componenti (bottone, pannelli, righe, titoli) in un layer: così le classi
+   Tailwind scritte nei componenti possono sovrascriverli quando serve. */
+@layer components {
+  /* Bottone principale (componente Button): lavanda con angoli tagliati in alto
+     a sinistra e in basso a destra. Il lampo bianco (::after) lo attraversa ogni
+     3.6s: resta fermo fuori a sinistra per il 62% del ciclo, poi scorre. */
+  .btn {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 52px;
+    padding: 0 1.25rem;
+    border: 0;
+    cursor: pointer;
+    background: var(--lavanda);
+    color: var(--fondo);
+    font-weight: 700;
+    font-size: 17px;
+    text-decoration: none;
+    clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+    transition: transform 0.12s ease, background 0.2s ease;
+  }
+  .btn::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 60px;
     left: -90px;
+    background: #ffffff;
+    opacity: 0.55;
+    transform: skewX(-24deg);
+    animation: btn-lampo 3.6s ease-in-out infinite;
+    pointer-events: none;
   }
-  88%,
-  100% {
-    left: 120%;
+  @keyframes btn-lampo {
+    0%,
+    62% {
+      left: -90px;
+    }
+    88%,
+    100% {
+      left: 120%;
+    }
   }
-}
-@media (hover: hover) {
-  .btn:hover {
-    background: var(--lavanda-chiara);
+  @media (hover: hover) {
+    .btn:hover {
+      background: var(--lavanda-chiara);
+    }
   }
-}
-.btn:active {
-  transform: scale(0.96);
-}
-.btn:focus-visible {
-  outline: 2px solid var(--crema);
-  outline-offset: 2px;
-}
-/* Disattivato (es. form in invio): niente lampo e niente pressione. */
-.btn:disabled {
-  cursor: default;
-  opacity: 0.6;
-  transform: none;
-}
-.btn:disabled::after {
-  animation: none;
-  display: none;
+  .btn:active {
+    transform: scale(0.96);
+  }
+  .btn:focus-visible {
+    outline: 2px solid var(--crema);
+    outline-offset: 2px;
+  }
+  /* Disattivato (es. form in invio): niente lampo e niente pressione. */
+  .btn:disabled {
+    cursor: default;
+    opacity: 0.6;
+    transform: none;
+  }
+  .btn:disabled::after {
+    animation: none;
+    display: none;
+  }
+  /* Desktop: largo quanto il testo (con un minimo), non tutta la riga. */
+  @media (min-width: 64rem) {
+    .btn {
+      display: inline-flex;
+      width: auto;
+      min-width: 220px;
+      height: 54px;
+      padding: 0 28px;
+    }
+  }
+
+  /* Solo il taglio degli angoli (es. immagini, miniature). */
+  .taglio {
+    clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+  }
+
+  /* Pannello (app/pannello.tsx) con angoli tagliati in alto a sinistra e in
+     basso a destra. Il bordo è un trucco: un contenitore lavanda con 1px di
+     padding e dentro il pannello vero, tagliati allo stesso modo. */
+  .pannello,
+  .pannello > .pannello-dentro {
+    clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+  }
+  .pannello {
+    padding: 1px;
+    background: var(--lavanda);
+  }
+  /* Bordo corallo: contenuti riservati agli abbonati. */
+  .pannello[data-bordo="corallo"] {
+    background: var(--corallo);
+  }
+  .pannello > .pannello-dentro {
+    height: 100%;
+    background: var(--superficie);
+  }
+  /* Da desktop il pannello sparisce e resta solo il contenuto (es. il
+     conto alla rovescia, che lì sta "libero" accanto al pianeta). */
+  @media (min-width: 64rem) {
+    .pannello-solo-telefono,
+    .pannello-solo-telefono > .pannello-dentro {
+      padding: 0;
+      background: none;
+      clip-path: none;
+    }
+  }
+
+  /* Titoli di sezione: niente maiuscoletto spaziato, solo Oxanium 700. */
+  .titolo-sezione {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--lavanda);
+  }
+  @media (min-width: 64rem) {
+    .titolo-sezione {
+      font-size: 24px;
+    }
+  }
+
+  /* Riga di un elenco (schedule, news, eventi). All'hover scivola di 6px a
+     destra; si usa "translate" così non litiga con altre trasformazioni. */
+  .riga {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 48px;
+    padding: 0 12px;
+    text-align: left;
+    background: var(--superficie);
+    transition:
+      translate 0.15s ease,
+      background 0.15s ease;
+  }
+  @media (min-width: 64rem) {
+    .riga {
+      min-height: 52px;
+    }
+  }
+  @media (hover: hover) {
+    .riga:hover {
+      translate: 6px 0;
+      background: var(--superficie-hover);
+    }
+  }
+  /* La prossima diretta: blu con il bordo crema a sinistra. */
+  .riga-attiva,
+  .riga-attiva:hover {
+    background: var(--blu);
+    border-left: 3px solid var(--crema);
+  }
+  .riga:focus-visible,
+  .link-azione:focus-visible {
+    outline: 2px solid var(--crema);
+    outline-offset: 2px;
+  }
+
+  /* Azione secondaria che sembra un link (es. "Esplora l'universo di Joe!"). */
+  .link-azione {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    font-weight: 600;
+    color: var(--crema);
+    transition: color 0.2s ease;
+  }
+  @media (hover: hover) {
+    .link-azione:hover {
+      color: #ffffff;
+    }
+  }
 }
 
 /* Pianeta (app/pianeta.tsx). Un solo elemento che resta montato fra le
@@ -583,6 +701,97 @@ html[data-avviato] .avvio {
   display: none;
 }
 
+/* Cielo stellato dietro tutta l'app (app/cielo.tsx): il canvas con le
+   stelle che brillano, e qui solo la deriva lentissima di tutto il cielo. */
+.cielo {
+  position: fixed;
+  inset: -4%;
+  z-index: -10;
+  pointer-events: none;
+  animation: cielo-deriva 90s ease-in-out infinite alternate;
+}
+@keyframes cielo-deriva {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-2.5%, -1.5%, 0);
+  }
+}
+
+/* Contenuti a cascata: ogni figlio entra da sinistra "svelandosi", 0.1s
+   dopo il precedente. Fill "backwards": finita l'animazione l'elemento
+   torna al suo stile normale (es. il clip-path dei pannelli). */
+.entra > * {
+  animation: entra 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+}
+.entra > *:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.entra > *:nth-child(3) {
+  animation-delay: 0.2s;
+}
+.entra > *:nth-child(4) {
+  animation-delay: 0.3s;
+}
+.entra > *:nth-child(5) {
+  animation-delay: 0.4s;
+}
+.entra > *:nth-child(n + 6) {
+  animation-delay: 0.5s;
+}
+@keyframes entra {
+  from {
+    opacity: 0;
+    translate: -34px 0;
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* Scrittura a macchina (app/scrivi.tsx): ogni lettera compare al suo turno
+   (ritardo inline) e per un attimo ha il cursore a destra; sull'ultima il
+   cursore resta e lampeggia. */
+.scrivi-car {
+  animation-name: scrivi-appari, scrivi-cursore;
+  animation-duration: 0s, var(--passo);
+  animation-timing-function: step-end;
+  animation-fill-mode: both, none;
+}
+.scrivi-car:last-child {
+  animation-name: scrivi-appari, scrivi-lampeggia;
+  animation-duration: 0s, 0.7s;
+  animation-iteration-count: 1, infinite;
+}
+@keyframes scrivi-appari {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes scrivi-cursore {
+  0%,
+  100% {
+    box-shadow: 2px 0 0 var(--lavanda);
+  }
+}
+@keyframes scrivi-lampeggia {
+  0%,
+  49% {
+    box-shadow: 2px 0 0 var(--lavanda);
+  }
+  50%,
+  100% {
+    box-shadow: none;
+  }
+}
+
 /* Ingresso pagina: ogni schermata (e ogni cambio di pagina, via app/template.tsx)
    compare con un breve fade. Sobrio, non vistoso. */
 @keyframes page-enter {
@@ -601,32 +810,6 @@ html[data-avviato] .avvio {
 /* Passi dell'onboarding: breve fade a ogni cambio di schermata. */
 .onboard-step {
   animation: page-enter 0.2s ease-out both;
-}
-
-/* Sfondo cosmico della sezione Universo: deriva lentissima + stelle che
-   pulsano appena. */
-@keyframes cosmic-drift {
-  from {
-    transform: translate3d(0, 0, 0);
-  }
-  to {
-    transform: translate3d(-2.5%, -1.5%, 0);
-  }
-}
-@keyframes cosmic-twinkle {
-  0%,
-  100% {
-    opacity: 0.15;
-  }
-  50% {
-    opacity: 0.75;
-  }
-}
-.cosmic-bg {
-  animation: cosmic-drift 100s ease-in-out infinite alternate;
-}
-.cosmic-star-tw {
-  animation: cosmic-twinkle 5s ease-in-out infinite;
 }
 
 /* Spazio in cima alle pagine senza hero: almeno 2.5rem, di più su iPhone per
@@ -917,8 +1100,9 @@ html[data-avviato] .avvio {
   .reveal {
     transition: none;
   }
-  .cosmic-bg,
-  .cosmic-star-tw {
+  .cielo,
+  .entra > *,
+  .scrivi-car {
     animation: none;
   }
 }

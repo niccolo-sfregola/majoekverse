@@ -5,7 +5,6 @@ import { blowbrush } from "@/app/fonts";
 import { getDict } from "@/lib/i18n/server";
 import CopyCode from "./copyCode";
 import TornaHome from "./tornaHome";
-import CosmicBackground from "./cosmicBackground";
 
 const LABEL =
   "text-xs font-semibold uppercase tracking-[0.18em] text-brand-lavanda";
@@ -84,7 +83,6 @@ export default async function Universo() {
 
   return (
     <>
-      <CosmicBackground />
       <main className="arriva safe-top mx-auto flex min-h-screen w-full max-w-2xl flex-col gap-4 px-4 pb-10 md:max-w-3xl">
         <TornaHome />
         <h1

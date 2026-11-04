@@ -17,31 +17,24 @@ const VISIBILI = 3;
 
 // Elenco news: solo il titolo, tap per aprire una card a schermo intero con
 // il testo completo. Si vedono le ultime 3, le altre si aprono col tasto.
+// L'icona (emoji) delle news non si mostra più: niente emoji nell'interfaccia.
 export default function NewsList({ items }: { items: NewsRow[] }) {
   const [active, setActive] = useState<NewsRow | null>(null);
   const [espanso, setEspanso] = useState(false);
   const t = useDict();
 
   if (!items || items.length === 0) {
-    return <p className="text-brand-lavanda">{t.news.empty}</p>;
+    return <p className="text-brand-lavanda-chiara">{t.news.empty}</p>;
   }
 
   const altre = items.slice(VISIBILI);
 
   const riga = (item: NewsRow) => (
     <li key={item.id}>
-      <button
-        type="button"
-        onClick={() => setActive(item)}
-        className="flex w-full items-center gap-3 py-2.5 text-left"
-      >
-        <span className="shrink-0 text-xl leading-none">{item.icona}</span>
-        <span className="min-w-0 flex-1 truncate text-brand-crema">
-          {item.titolo}
-        </span>
-        <span aria-hidden className="shrink-0 text-brand-lavanda">
-          →
-        </span>
+      <button type="button" onClick={() => setActive(item)} className="riga">
+        {/* min-w-0 + flex-1: senza, alcuni browser (Safari) danno al testo
+            troncato larghezza zero dentro un <button> in flex. */}
+        <span className="min-w-0 flex-1 truncate text-brand-crema">{item.titolo}</span>
       </button>
     </li>
   );
@@ -51,7 +44,7 @@ export default function NewsList({ items }: { items: NewsRow[] }) {
       {/* Lista e parte espandibile nello stesso div: da chiusa, la parte
           nascosta non deve prendersi lo spazio (gap) della card. */}
       <div>
-        <ul className="flex flex-col divide-y divide-brand-lavanda/10">
+        <ul className="flex flex-col gap-1.5">
           {items.slice(0, VISIBILI).map(riga)}
         </ul>
 
@@ -69,7 +62,7 @@ export default function NewsList({ items }: { items: NewsRow[] }) {
                 : "grid-rows-[0fr] opacity-0"
             }`}
           >
-            <ul className="flex min-h-0 flex-col divide-y divide-brand-lavanda/10 overflow-hidden border-t border-brand-lavanda/10">
+            <ul className="flex min-h-0 flex-col gap-1.5 overflow-hidden pt-1.5">
               {altre.map(riga)}
             </ul>
           </div>
@@ -82,7 +75,7 @@ export default function NewsList({ items }: { items: NewsRow[] }) {
           onClick={() => setEspanso((e) => !e)}
           aria-expanded={espanso}
           aria-controls="news-altre"
-          className="self-start text-sm text-brand-lavanda transition hover:text-brand-crema"
+          className="riga font-bold text-brand-lavanda"
         >
           {espanso ? t.news.showLess : t.news.showAll(items.length)}
         </button>
@@ -92,7 +85,6 @@ export default function NewsList({ items }: { items: NewsRow[] }) {
         <Sheet
           key={active.id}
           label={t.news.title}
-          icon={active.icona}
           onClosed={() => setActive(null)}
         >
           {active.immagine ? (
@@ -100,13 +92,13 @@ export default function NewsList({ items }: { items: NewsRow[] }) {
             <img
               src={active.immagine}
               alt=""
-              className="mb-4 max-h-80 w-full rounded-xl object-cover"
+              className="taglio mb-4 max-h-80 w-full object-cover"
             />
           ) : null}
-          <h2 className="text-xl font-semibold text-brand-crema">
+          <h2 className="text-xl font-bold text-brand-crema">
             {active.titolo}
           </h2>
-          <p className="mt-3 whitespace-pre-line text-brand-lavanda">
+          <p className="mt-3 whitespace-pre-line text-brand-lavanda-chiara">
             {active.testo}
           </p>
         </Sheet>

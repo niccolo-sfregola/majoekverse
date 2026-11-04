@@ -76,3 +76,25 @@ export function longDay(dateStr: string, lang: "it" | "en"): string {
 export function formatTime(orario: string, lang: "it" | "en"): string {
   return lang === "en" ? timeEn(orario) : timeIt(orario);
 }
+
+// "2026-08-20" + "21:00" (ora italiana) -> l'istante esatto di inizio.
+// Serve al conto alla rovescia, che deve funzionare anche per chi è in un
+// altro fuso. Si parte dall'ora presa come UTC e si toglie lo scarto che
+// Roma ha in quel momento (1h d'inverno, 2h d'estate).
+export function inizioDiretta(dateStr: string, orario: string): Date {
+  const [y, mo, d] = dateStr.split("-").map(Number);
+  const [h, m] = orario.split(":").map(Number);
+  const comeUtc = Date.UTC(y, mo - 1, d, h, m || 0);
+  const parti = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Europe/Rome",
+    hourCycle: "h23",
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+  }).formatToParts(new Date(comeUtc));
+  const n = (tipo: string) => Number(parti.find((p) => p.type === tipo)?.value);
+  const aRoma = Date.UTC(n("year"), n("month") - 1, n("day"), n("hour"), n("minute"));
+  return new Date(comeUtc - (aRoma - comeUtc));
+}

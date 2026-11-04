@@ -4,6 +4,7 @@ import { useState } from "react";
 import { longDay, ddmm } from "@/lib/schedule";
 import { useDict, useLang } from "./langProvider";
 import Sheet from "./sheet";
+import Button from "./button";
 
 const DISCORD_INVITE = "https://discord.com/invite/4FskPTnBts";
 const TWITCH_SUB = "https://www.twitch.tv/subs/majoekoto";
@@ -20,6 +21,7 @@ type EventRow = {
 // Elenco eventi in Home: come le news (tap → card a schermo intero), ma in
 // fondo alla card c'è "Partecipa" — o "Abbonati" se l'evento è riservato e
 // l'utente non è abbonato. `subscribed` lo calcola il server.
+// I riservati agli abbonati sono segnati in corallo (niente lucchetto emoji).
 export default function EventList({
   items,
   subscribed,
@@ -36,30 +38,25 @@ export default function EventList({
 
   return (
     <>
-      <ul className="flex flex-col divide-y divide-brand-lavanda/10">
+      <ul className="flex flex-col gap-1.5">
         {items.map((item) => (
           <li key={item.id}>
             <button
               type="button"
               onClick={() => setActive(item)}
-              className="flex w-full items-center gap-3 py-2.5 text-left"
+              className="riga grid grid-cols-[auto_minmax(0,1fr)_auto] gap-x-3"
             >
-              {item.data ? (
-                <span className="shrink-0 rounded-lg bg-brand-blu/40 px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-crema">
-                  {ddmm(item.data)}
-                </span>
-              ) : null}
-              <span className="min-w-0 flex-1 truncate text-brand-crema">
-                {item.titolo}
+              <span className="font-bold tabular-nums text-brand-lavanda">
+                {item.data ? ddmm(item.data) : ""}
               </span>
+              <span className="min-w-0 truncate text-brand-crema">{item.titolo}</span>
               {item.solo_abbonati ? (
-                <span aria-label={t.eventi.subsOnly} className="shrink-0">
-                  🔒
+                <span className="text-sm font-semibold text-brand-corallo">
+                  {t.eventi.subsOnly}
                 </span>
-              ) : null}
-              <span aria-hidden className="shrink-0 text-brand-lavanda">
-                →
-              </span>
+              ) : (
+                <span />
+              )}
             </button>
           </li>
         ))}
@@ -69,28 +66,11 @@ export default function EventList({
         <Sheet
           key={active.id}
           label={t.eventi.title}
-          icon="📅"
           onClosed={() => setActive(null)}
           action={
-            locked ? (
-              <a
-                href={TWITCH_SUB}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rounded-xl border border-brand-corallo/50 py-3 text-center font-semibold text-brand-corallo transition active:scale-[0.98]"
-              >
-                {t.eventi.subscribe}
-              </a>
-            ) : (
-              <a
-                href={DISCORD_INVITE}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rounded-xl bg-brand-blu py-3 text-center font-semibold text-brand-crema transition active:scale-[0.98]"
-              >
-                {t.eventi.join}
-              </a>
-            )
+            <Button href={locked ? TWITCH_SUB : DISCORD_INVITE}>
+              {locked ? t.eventi.subscribe : t.eventi.join}
+            </Button>
           }
         >
           {active.immagine ? (
@@ -98,25 +78,21 @@ export default function EventList({
             <img
               src={active.immagine}
               alt=""
-              className="mb-4 max-h-80 w-full rounded-xl object-cover"
+              className="taglio mb-4 max-h-80 w-full object-cover"
             />
           ) : null}
-          <div className="flex flex-wrap items-center gap-2">
+          <p className="flex flex-wrap gap-x-3 font-semibold">
             {active.data ? (
-              <span className="inline-flex items-center rounded-lg bg-brand-blu/40 px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-brand-crema">
-                {when(active.data)}
-              </span>
+              <span className="text-brand-lavanda">{when(active.data)}</span>
             ) : null}
             {active.solo_abbonati ? (
-              <span className="inline-flex items-center gap-1 rounded-lg bg-brand-corallo/20 px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-brand-corallo">
-                {t.eventi.subsOnly}
-              </span>
+              <span className="text-brand-corallo">{t.eventi.subsOnly}</span>
             ) : null}
-          </div>
-          <h2 className="mt-3 text-xl font-semibold text-brand-crema">
+          </p>
+          <h2 className="mt-2 text-xl font-bold text-brand-crema">
             {active.titolo}
           </h2>
-          <p className="mt-3 whitespace-pre-line text-brand-lavanda">
+          <p className="mt-3 whitespace-pre-line text-brand-lavanda-chiara">
             {active.descrizione}
           </p>
         </Sheet>

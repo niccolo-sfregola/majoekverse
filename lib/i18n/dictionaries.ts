@@ -28,11 +28,15 @@ const it = {
     noVideo: "Nessun video da mostrare al momento.",
     news: "News",
     events: "Eventi",
+    explore: "Esplora l'universo di Joe!",
   },
   live: {
     liveNow: "In diretta ora",
-    watch: "Guarda su Twitch →",
+    watch: "Guarda su Twitch",
     offline: "Al momento offline",
+    nextIn: "Al momento offline. Prossima diretta tra",
+    // Suffisso dei giorni nel conto alla rovescia: "2g 03:15:20".
+    days: "g",
     noStream: "Nessuna diretta in corso.",
     goToChannel: "Vai al canale",
   },
@@ -47,8 +51,8 @@ const it = {
   news: {
     title: "News",
     empty: "Nessuna news al momento.",
-    showAll: (n: number) => `Mostra tutte (${n}) ↓`,
-    showLess: "Mostra meno ↑",
+    showAll: (n: number) => `Mostra tutte (${n})`,
+    showLess: "Mostra meno",
   },
   eventi: {
     title: "Evento",
@@ -332,11 +336,14 @@ const en: Dict = {
     noVideo: "No video to show right now.",
     news: "News",
     events: "Events",
+    explore: "Explore Joe's universe!",
   },
   live: {
     liveNow: "Live now",
-    watch: "Watch on Twitch →",
+    watch: "Watch on Twitch",
     offline: "Currently offline",
+    nextIn: "Currently offline. Next stream in",
+    days: "d",
     noStream: "No stream right now.",
     goToChannel: "Go to channel",
   },
@@ -351,8 +358,8 @@ const en: Dict = {
   news: {
     title: "News",
     empty: "No news right now.",
-    showAll: (n: number) => `Show all (${n}) ↓`,
-    showLess: "Show less ↑",
+    showAll: (n: number) => `Show all (${n})`,
+    showLess: "Show less",
   },
   eventi: {
     title: "Event",
