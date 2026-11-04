@@ -2,6 +2,7 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { blowbrush } from "@/app/fonts";
 import { getDict } from "@/lib/i18n/server";
+import { tipoLogo, type TipoLogo } from "@/lib/logo";
 import CopyCode from "./copyCode";
 import TornaHome from "./tornaHome";
 import Pannello from "@/app/pannello";
@@ -52,8 +53,16 @@ export default async function Universo() {
     .select("*")
     .order("created_at", { ascending: true });
 
-  const ufficiali = (sponsor ?? []).filter((s) => s.ufficiale);
-  const altri = (sponsor ?? []).filter((s) => !s.ufficiale);
+  // Per ogni logo: com'è fatto (chiaro, scuro, su riquadro bianco), così
+  // sul pannello scuro si vede sempre bene. Vedi lib/logo.ts.
+  const conTipo = await Promise.all(
+    (sponsor ?? []).map(async (s) => ({
+      ...s,
+      tipo: s.logo ? await tipoLogo(s.logo) : ("chiaro" as TipoLogo),
+    })),
+  );
+  const ufficiali = conTipo.filter((s) => s.ufficiale);
+  const altri = conTipo.filter((s) => !s.ufficiale);
 
   return (
     <main className="arriva pagina max-w-[880px] gap-[18px] pt-[calc(env(safe-area-inset-top)_+_20px)] md:pt-10 lg:min-h-0 lg:gap-[26px] lg:pt-10">
@@ -83,15 +92,15 @@ export default async function Universo() {
       {ufficiali.map((s) => (
         <section key={s.id} className="flex flex-col gap-2.5 lg:gap-3">
           <h2 className="titolo-sezione">{t.universo.sponsor}</h2>
-          <Pannello className="flex flex-col items-start gap-3 p-[18px] lg:p-[26px]">
+          <Pannello className="flex flex-col items-center gap-3 p-[18px] text-center lg:p-[26px]">
             {s.logo ? (
-              <span className="taglio-piccolo flex h-24 w-full max-w-xs items-center justify-center bg-brand-crema p-4">
+              <span className="flex h-24 w-full max-w-xs items-center justify-center">
                 <Image
                   src={s.logo}
                   alt={s.name}
                   width={360}
                   height={140}
-                  className="max-h-full w-auto object-contain"
+                  className={`max-h-full w-auto object-contain logo-${s.tipo}`}
                 />
               </span>
             ) : (
@@ -101,7 +110,7 @@ export default async function Universo() {
               {s.sconto ? t.universo.discountWithCode(s.sconto) : t.universo.useCode}
             </p>
             <CopyCode code={s.code} />
-            <Button href={s.link} className="mt-2">
+            <Button href={s.link} className="mt-2 lg:self-center">
               {t.universo.goToSite}
             </Button>
           </Pannello>
@@ -122,13 +131,13 @@ export default async function Universo() {
                 className="riga flex-col items-start gap-2.5 p-3 lg:p-4"
               >
                 {s.logo ? (
-                  <span className="flex h-16 w-full items-center justify-center bg-brand-crema p-3">
+                  <span className="flex h-16 w-full items-center justify-center">
                     <Image
                       src={s.logo}
                       alt={s.name}
                       width={220}
                       height={90}
-                      className="max-h-full w-auto object-contain"
+                      className={`max-h-full w-auto object-contain logo-${s.tipo}`}
                     />
                   </span>
                 ) : (
@@ -157,11 +166,13 @@ export default async function Universo() {
               rel="noopener noreferrer"
               className="riga items-start gap-3 p-3 lg:flex-col lg:gap-2.5 lg:p-4"
             >
-              <span className="flex h-16 w-16 shrink-0 items-center justify-center bg-brand-crema p-1.5 lg:h-[72px] lg:w-[72px] lg:p-2">
+              {/* Largo e non quadrato: alcuni loghi (Posta del Cuore) sono
+                  scritte lunghe e in un quadrato diventerebbero minuscole. */}
+              <span className="flex h-16 w-24 shrink-0 items-center justify-center lg:h-[72px] lg:w-44 lg:justify-start">
                 <Image
                   src={p.logo}
                   alt=""
-                  width={72}
+                  width={176}
                   height={72}
                   className="max-h-full max-w-full object-contain"
                 />

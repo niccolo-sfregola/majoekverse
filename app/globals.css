@@ -234,6 +234,19 @@ body {
     clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
   }
 
+  /* Loghi degli sponsor sul pannello scuro (tipo calcolato in lib/logo.ts).
+     invert + hue-rotate(180°) scambia chiaro e scuro ma lascia i colori
+     quasi uguali (un rosso scuro diventa un rosa chiaro, non un azzurro).
+     Per i riquadri bianchi, "screen" fa sparire il nero del riquadro
+     invertito: resta solo il logo, chiaro, come un'insegna. */
+  .logo-scuro,
+  .logo-riquadro {
+    filter: invert(1) hue-rotate(180deg);
+  }
+  .logo-riquadro {
+    mix-blend-mode: screen;
+  }
+
   /* Pannello (app/pannello.tsx) con angoli tagliati in alto a sinistra e in
      basso a destra. Il bordo è un trucco: un contenitore lavanda con 1px di
      padding e dentro il pannello vero, tagliati allo stesso modo. */
