@@ -38,7 +38,9 @@ export default async function Home() {
           className="object-cover object-center"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-brand-fondo/20 via-brand-fondo/60 to-brand-fondo" />
-        <div className="relative z-10 flex flex-col items-center gap-3 px-4 py-20 text-center md:py-28">
+        {/* Il pianeta (in layout.tsx) sta sopra il testo su telefono e tablet,
+            a destra da desktop: i padding qui gli lasciano lo spazio. */}
+        <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center gap-3 px-4 pb-20 pt-[calc(env(safe-area-inset-top)_+_19rem)] text-center md:pt-[20rem] lg:min-h-[44rem] lg:items-start lg:pt-28 lg:text-left">
           <h1
             className={`${blowbrush.className} logo-title text-5xl md:text-7xl`}
           >

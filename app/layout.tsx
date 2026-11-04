@@ -3,7 +3,7 @@ import "./globals.css";
 import { oxanium, blowbrush } from "./fonts";
 import BottomNav from "./bottomNav";
 import TopNav from "./topNav";
-import Planet from "./universoIcon";
+import Pianeta from "./pianeta";
 import Onboarding from "./onboarding";
 import PwaRegister from "./pwaRegister";
 import { LangProvider } from "./langProvider";
@@ -44,7 +44,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           <TopNav />
           {children}
           <BottomNav />
-          <Planet />
+          <Pianeta />
           <Onboarding />
           <PwaRegister />
         </LangProvider>
