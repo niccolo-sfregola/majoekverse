@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>maJoekverse, sito desktop</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+@font-face { font-family: "Blowbrush"; src: url("/_blob/0da105dcef3cbff20a1ab314a73c6bc5") format("woff2"); font-display: swap; }
+body { margin: 0; background: #0A0826; }
+a { color: #F6ECD8; } a:hover { color: #FFFFFF; }
+button { font: inherit; }
+
+.pw { position: absolute; right: 4%; top: 96px; width: 600px; height: 600px; z-index: 3; transition: transform 1s cubic-bezier(.7, 0, .2, 1), opacity .5s ease, filter .25s ease; }
+.pw.altrove { transform: translate(174px, -198px) scale(.42); }
+.pw.tuffo { transform: translate(calc(300px - 46vw), calc(50vh - 396px)) scale(7); opacity: 0; transition: transform 1.15s cubic-bezier(.7, 0, .9, .3), opacity .3s ease .85s; }
+.pw:not(.tuffo):hover { filter: brightness(1.14); }
+
+.neon { color: #FFF4EA; text-shadow: 0 0 5px #FFD9CC, 0 0 18px #FF4F6A, 0 0 48px #FF3D6E; animation: sfarfalla 2.4s linear .5s both; }
+@keyframes sfarfalla { 0%, 9%, 12%, 21%, 24%, 30% { opacity: .2; } 10%, 22%, 31%, 100% { opacity: 1; } }
+
+.lettera { display: inline-block; white-space: pre; animation: lettera .55s cubic-bezier(.2, 1.4, .4, 1) both; }
+@keyframes lettera { from { opacity: 0; transform: translateY(26px) scale(1.5) rotate(-8deg); filter: blur(5px); } to { opacity: 1; transform: none; filter: none; } }
+
+.scrivi { display: inline-block; max-width: 0; overflow: hidden; white-space: nowrap; vertical-align: bottom; border-right: 2px solid #B9A8E6; animation: scrivi 1.3s steps(29) .7s forwards, cursore .7s step-end infinite; }
+@keyframes scrivi { to { max-width: 100%; } }
+@keyframes cursore { 50% { border-color: transparent; } }
+
+.entra > * { animation: entra .6s cubic-bezier(.2, .8, .2, 1) both; }
+.entra > *:nth-child(2) { animation-delay: .12s; }
+.entra > *:nth-child(3) { animation-delay: .24s; }
+.entra > *:nth-child(4) { animation-delay: .36s; }
+@keyframes entra { from { opacity: 0; transform: translateY(26px); clip-path: inset(0 100% 0 0); } to { opacity: 1; transform: none; clip-path: inset(0 0 0 0); } }
+
+.taglio { clip-path: polygon(18px 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%, 0 18px); }
+.bordo { transition: background .2s ease, transform .2s ease; }
+.bordo:hover { background: #FFFFFF; transform: translateY(-4px); }
+
+.btn { position: relative; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; min-width: 220px; height: 54px; padding: 0 28px; box-sizing: border-box; border: 0; cursor: pointer; background: #B9A8E6; color: #0A0826; font-weight: 700; font-size: 17px; text-decoration: none; clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px); transition: transform .12s ease, background .2s ease; }
+.btn::after { content: ""; position: absolute; top: 0; bottom: 0; width: 60px; left: -90px; background: #FFFFFF; opacity: .55; transform: skewX(-24deg); animation: lampo 3.6s ease-in-out infinite; }
+@keyframes lampo { 0%, 62% { left: -90px; } 88%, 100% { left: 120%; } }
+.btn:hover { background: #D9CFF5; color: #0A0826; }
+.btn:active { transform: scale(.96); }
+.btn:focus-visible, .voce:focus-visible { outline: 2px solid #F6ECD8; outline-offset: 3px; }
+
+.riga { transition: transform .15s ease, background .15s ease; }
+.riga:hover { transform: translateX(8px); background: #231E63; }
+
+.striscia { position: fixed; top: -8%; bottom: -8%; width: 28%; transform: translateX(-560%) skewX(-14deg); animation: striscia .82s cubic-bezier(.75, 0, .25, 1) both; }
+@keyframes striscia { 0% { transform: translateX(-560%) skewX(-14deg); } 45%, 55% { transform: translateX(0) skewX(-14deg); } 100% { transform: translateX(560%) skewX(-14deg); } }
+
+.boot { animation: bootesci .4s ease 2.1s forwards; }
+@keyframes bootesci { to { opacity: 0; transform: scale(1.08); visibility: hidden; } }
+.barra { height: 100%; width: 0; background: #B9A8E6; box-shadow: 0 0 14px #B9A8E6; animation: barra 1.9s cubic-bezier(.3, .1, .3, 1) .15s forwards; }
+@keyframes barra { 30% { width: 22%; } 55% { width: 61%; } 75% { width: 68%; } to { width: 100%; } }
+
+.voce { position: relative; min-height: 44px; padding: 0 16px; border: 0; background: transparent; cursor: pointer; font-weight: 600; font-size: 16px; transition: color .2s ease; }
+.voce:hover { color: #FFFFFF; }
+.barretta { position: absolute; left: 0; bottom: 0; height: 3px; width: 25%; background: #FF7A5C; box-shadow: 0 0 12px #FF4F6A; transition: transform .45s cubic-bezier(.3, 1.5, .5, 1); }
+.pos0 { transform: translateX(0); } .pos1 { transform: translateX(100%); } .pos2 { transform: translateX(200%); } .pos3 { transform: translateX(300%); }
+.linee { background-image: repeating-linear-gradient(0deg, #FFFFFF 0 1px, transparent 1px 4px); opacity: .02; }
+.barretta.nascosta { opacity: 0; }
+.tw { animation: tw 3.6s ease-in-out infinite; }
+@keyframes tw { 0%, 100% { opacity: .15; } 50% { opacity: .95; } }
+.deriva { animation: deriva 90s ease-in-out infinite alternate; }
+@keyframes deriva { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(-2.5%, -1.5%, 0); } }
+@media (prefers-reduced-motion: reduce) { .tw, .deriva { animation: none; } }
+.invito { position: absolute; left: 0; right: 0; bottom: 18px; text-align: center; pointer-events: none; color: #FFF4EA; font-size: 17px; font-weight: 600; text-shadow: 0 0 3px #0A0826, 0 0 12px #FF4F6A; animation: invito 1.8s ease-in-out infinite alternate; }
+@keyframes invito { from { opacity: .6; } to { opacity: 1; } }
+.linklike { display: inline-flex; align-items: center; min-height: 44px; padding: 0; border: 0; background: transparent; color: #F6ECD8; cursor: pointer; font-weight: 600; font-size: 17px; text-decoration: underline; text-underline-offset: 5px; }
+.linklike:hover { color: #FFFFFF; }
+.linklike:focus-visible, .social:focus-visible { outline: 2px solid #F6ECD8; outline-offset: 2px; }
+.warp { position: fixed; inset: 0; z-index: 14; overflow: hidden; pointer-events: none; }
+.raggio-rot { position: absolute; left: 50%; top: 50%; width: 0; height: 0; }
+.raggio { position: absolute; left: -1px; top: 0; width: 2px; height: 30vmax; background: #F6ECD8; transform-origin: top; animation: raggio .75s cubic-bezier(.5, 0, 1, .6) both; }
+@keyframes raggio { from { transform: translateY(40px) scaleY(.05); opacity: 0; } 30% { opacity: .9; } to { transform: translateY(75vmax) scaleY(1); opacity: 0; } }
+.bagliore { position: absolute; inset: 0; background: #EDE6FF; animation: bagliore .9s ease .6s both; }
+@keyframes bagliore { 0% { opacity: 0; } 42%, 55% { opacity: 1; } 100% { opacity: 0; } }
+.cielo { animation: cielo 1.4s cubic-bezier(.1, .7, .2, 1) both; }
+@keyframes cielo { from { transform: scale(2.6); } to { transform: none; } }
+.arriva > * { animation: arriva .7s cubic-bezier(.2, .9, .2, 1) .15s both; }
+.arriva > *:nth-child(2) { animation-delay: .25s; }
+.arriva > *:nth-child(3) { animation-delay: .4s; }
+.arriva > *:nth-child(4) { animation-delay: .5s; }
+.arriva > *:nth-child(5) { animation-delay: .6s; }
+@keyframes arriva { from { opacity: 0; transform: translateY(30px) scale(.74); filter: blur(6px); } to { opacity: 1; transform: none; filter: none; } }
+.social { display: flex; align-items: center; justify-content: center; height: 54px; background: #15123F; color: #F6ECD8; font-weight: 700; text-decoration: none; transition: background .2s ease, color .2s ease, transform .15s ease; clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px); }
+.social:hover { background: #B9A8E6; color: #0A0826; transform: translateY(-3px); }
+@media (prefers-reduced-motion: reduce) {
+  .raggio, .cielo, .arriva > *, .invito { animation: none; }
+  .raggio { display: none; }
+  .bagliore { animation-duration: .01s; }
+}
+
+@media (max-width: 1000px) {
+  .pw { position: relative; right: auto; top: auto; margin: 16px auto 0; width: 320px; height: 320px; display: block; }
+  .pw > * { transform: scale(.533); transform-origin: top left; }
+  .pw.altrove { display: none; }
+  .pw.tuffo { transform: scale(5); }
+  .hero-testo { padding-top: 16px !important; min-height: 0 !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .neon, .lettera, .scrivi, .entra > *, .btn::after, .boot, .barra { animation: none; }
+  .scrivi { max-width: 100%; border: 0; }
+  .boot { display: none; }
+  .striscia { animation-duration: .01s; }
+  .pw, .barretta { transition: none; }
+}
+</style>
+</helmet>
+<div style="position: relative; width: 100%; min-height: 100vh; overflow: hidden; background: #0A0826; color: #F6ECD8; font-family: 'Oxanium', sans-serif; font-size: 17px;">
+
+  <div class="deriva" aria-hidden="true" style="position: fixed; inset: -4%; z-index: 0; pointer-events: none;">
+    <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
+      <sc-for list="{{fondo}}" as="s" hint-placeholder-count="120">
+        <circle class="{{s.k}}" cx="{{s.x}}" cy="{{s.y}}" r="{{s.r}}" fill="{{s.f}}" opacity="{{s.o}}" style="animation-delay: {{s.d}}"></circle>
+      </sc-for>
+    </svg>
+  </div>
+
+  <header style="position: relative; z-index: 5; max-width: 1240px; margin: 0 auto; padding: 18px 32px 0; box-sizing: border-box; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;">
+    <button onClick="{{vaiHome}}" aria-label="Vai alla Home" style="padding: 0; border: 0; background: transparent; cursor: pointer; color: #FFF4EA; font-family: 'Blowbrush', sans-serif; font-size: 28px; text-shadow: 0 0 12px #FF4F6A;">maJoekverse</button>
+    <nav aria-label="Navigazione principale" style="position: relative; display: grid; grid-template-columns: repeat(4, 120px);">
+      <button class="voce" onClick="{{vaiHome}}" style="color: {{cHome}}">Home</button>
+      <button class="voce" onClick="{{vaiGiochi}}" style="color: {{cGiochi}}">Giochi</button>
+      <button class="voce" onClick="{{vaiProfilo}}" style="color: {{cProfilo}}">Profilo</button>
+      <button class="voce" onClick="{{vaiHelp}}" style="color: {{cHelp}}">Help Desk</button>
+      <span class="{{pillClass}}"></span>
+    </nav>
+  </header>
+
+  <sc-if value="{{isUniverso}}" hint-placeholder-val="{{false}}">
+    <div class="cielo" aria-hidden="true" style="position: fixed; inset: 0; z-index: 0;">
+      <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
+        <sc-for list="{{stelle}}" as="s" hint-placeholder-count="60">
+          <circle cx="{{s.x}}" cy="{{s.y}}" r="{{s.r}}" fill="#F6ECD8" opacity="{{s.o}}"></circle>
+        </sc-for>
+      </svg>
+    </div>
+  </sc-if>
+
+  <div class="{{pClass}}">
+    <dc-import name="Pianeta" size="600" stile="{{stile}}" on-apri="{{apri}}" hint-size="600px,600px"></dc-import>
+    <sc-if value="{{isHome}}" hint-placeholder-val="{{true}}">
+      <span class="invito">Clicca per entrare nell'universo di Joe</span>
+    </sc-if>
+  </div>
+
+  <main style="position: relative; z-index: 2; max-width: 1240px; margin: 0 auto; padding: 0 32px 64px; box-sizing: border-box;">
+
+    <sc-if value="{{isHome}}" hint-placeholder-val="{{true}}">
+      <div>
+        <section class="hero-testo" style="max-width: 560px; min-height: 620px; padding-top: 110px; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px;">
+          <h1 class="neon" style="margin: 0; font-family: 'Blowbrush', sans-serif; font-weight: 400; font-size: clamp(52px, 7vw, 92px); line-height: 1;">maJoekverse</h1>
+          <p style="margin: 0; font-size: 20px; color: #D9CFF5;"><span class="scrivi">L'app ufficiale di maJoekoto!</span></p>
+          <div class="entra" style="margin-top: 22px; display: flex; flex-direction: column; gap: 18px;">
+            <div>
+              <p style="margin: 0; color: #D9CFF5;">Al momento offline. Prossima diretta tra</p>
+              <p style="margin: 4px 0 0; font-weight: 700; font-size: 46px; font-variant-numeric: tabular-nums; color: #FFF4EA; text-shadow: 0 0 16px #FF4F6A;">{{conto}}</p>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 24px;">
+              <a class="btn" href="https://www.twitch.tv/majoekoto">Vai al canale</a>
+              <button class="linklike" onClick="{{apri}}">Esplora l'universo di Joe!</button>
+            </div>
+          </div>
+        </section>
+
+        <div class="entra" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 28px; align-items: start;">
+          <section>
+            <h2 style="margin: 0 0 12px; font-size: 24px; font-weight: 700; color: #B9A8E6;">Schedule</h2>
+            <div class="entra" style="display: flex; flex-direction: column; gap: 6px;">
+              <div class="riga" style="display: grid; grid-template-columns: 46px minmax(0, 1fr) auto; align-items: center; min-height: 52px; padding: 0 12px; column-gap: 8px; background: #2D29A4; border-left: 3px solid #F6ECD8;"><span style="font-weight: 700;">Mar</span><span style="font-weight: 700;">???</span><span>21.00</span></div>
+              <div class="riga" style="display: grid; grid-template-columns: 46px minmax(0, 1fr) auto; align-items: center; min-height: 52px; padding: 0 12px; column-gap: 8px; background: #15123F;"><span style="font-weight: 700; color: #B9A8E6;">Mer</span><span>Shift At Midnight</span><span style="color: #D9CFF5;">21.00</span></div>
+              <div class="riga" style="display: grid; grid-template-columns: 46px minmax(0, 1fr) auto; align-items: center; min-height: 52px; padding: 0 12px; column-gap: 8px; background: #15123F;"><span style="font-weight: 700; color: #B9A8E6;">Gio</span><span>Arts &amp; Craft Stream</span><span style="color: #D9CFF5;">21.00</span></div>
+              <div class="riga" style="display: grid; grid-template-columns: 46px minmax(0, 1fr) auto; align-items: center; min-height: 52px; padding: 0 12px; column-gap: 8px; background: #15123F;"><span style="font-weight: 700; color: #B9A8E6;">Dom</span><span>Moss: The Forgotten Relic</span><span style="color: #D9CFF5;">21.00</span></div>
+            </div>
+          </section>
+          <section>
+            <h2 style="margin: 0 0 12px; font-size: 24px; font-weight: 700; color: #B9A8E6;">Ultimo video su YouTube</h2>
+            <a href="https://www.youtube.com/watch?v=Y48lJSOlzSE" style="display: block; text-decoration: none;">
+              <span class="taglio" style="display: flex; align-items: center; justify-content: center; aspect-ratio: 16 / 9; background: #15123F; color: #D9CFF5;">[Miniatura YouTube]</span>
+              <span style="display: block; margin-top: 10px; font-weight: 600;">SILENT HILL 2 | PARTE 7 | #174</span>
+            </a>
+          </section>
+          <section>
+            <h2 style="margin: 0 0 8px; font-size: 24px; font-weight: 700; color: #B9A8E6;">News</h2>
+            <a class="riga" href="https://majoekverse.com/" style="display: flex; align-items: center; min-height: 52px; text-decoration: none;">Aggiornamento: maJoekverse 2.1</a>
+            <a class="riga" href="https://majoekverse.com/" style="display: flex; align-items: center; min-height: 52px; text-decoration: none;">Halloween Marathon 2026, cambio di programma</a>
+            <a class="riga" href="https://majoekverse.com/" style="display: flex; align-items: center; min-height: 52px; font-weight: 700; color: #B9A8E6; text-decoration: none;">Mostra tutte (9)</a>
+          </section>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{isGiochi}}" hint-placeholder-val="{{false}}">
+      <div style="padding-top: 110px; min-height: 560px; display: flex; flex-direction: column; gap: 18px;">
+        <h1 style="margin: 0; font-family: 'Blowbrush', sans-serif; font-weight: 400; font-size: clamp(52px, 7vw, 84px); line-height: 1;"><sc-for list="{{tGiochi}}" as="l"><span class="lettera" style="animation-delay: {{l.d}}">{{l.c}}</span></sc-for></h1>
+        <p style="margin: 0; font-size: 19px; color: #D9CFF5;">Sfida la community (e Joe) ogni giorno e ogni settimana.</p>
+        <div class="entra" style="margin-top: 18px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 28px;">
+          <div class="taglio bordo" style="padding: 1px; background: #B9A8E6;">
+            <article class="taglio" style="box-sizing: border-box; height: 100%; padding: 26px; display: flex; flex-direction: column; gap: 10px; background: #15123F;">
+              <p style="margin: 0; color: #D9CFF5; font-size: 15px;">Gioco del giorno</p>
+              <h2 style="margin: 0; font-size: 34px; font-weight: 700;">Zip</h2>
+              <p style="margin: 0 0 8px; color: #D9CFF5; line-height: 1.5;">Collega i numeri in ordine passando da tutte le caselle. Vince chi è più veloce: i primi 3 si prendono il badge del giorno.</p>
+              <a class="btn" href="https://majoekverse.com/giochi/zip" style="margin-top: auto; align-self: flex-start;">Gioca</a>
+            </article>
+          </div>
+          <div class="taglio bordo" style="padding: 1px; background: #FF7A5C;">
+            <article class="taglio" style="box-sizing: border-box; height: 100%; padding: 26px; display: flex; flex-direction: column; gap: 10px; background: #15123F;">
+              <p style="margin: 0; color: #FFB9A6; font-size: 15px;">Solo abbonati, premio settimanale</p>
+              <h2 style="margin: 0; font-size: 34px; font-weight: 700;">Parola del giorno</h2>
+              <p style="margin: 0 0 8px; color: #D9CFF5; line-height: 1.5;">Indovina la parola segreta (in italiano) ogni giorno e accumula punti. Chi ne fa di più in settimana propone il titolo di una live di Joe.</p>
+              <a class="btn" href="https://majoekverse.com/giochi/parola" style="margin-top: auto; align-self: flex-start;">Gioca</a>
+            </article>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{isProfilo}}" hint-placeholder-val="{{false}}">
+      <div style="padding-top: 110px; min-height: 560px; max-width: 620px; display: flex; flex-direction: column; gap: 18px;">
+        <h1 style="margin: 0; font-family: 'Blowbrush', sans-serif; font-weight: 400; font-size: clamp(52px, 7vw, 84px); line-height: 1;"><sc-for list="{{tProfilo}}" as="l"><span class="lettera" style="animation-delay: {{l.d}}">{{l.c}}</span></sc-for></h1>
+        <div class="entra" style="display: flex; flex-direction: column; align-items: flex-start; gap: 18px;">
+          <p style="margin: 0; color: #D9CFF5; line-height: 1.5;">Accedi con Twitch per vedere il tuo profilo, le tue statistiche col canale e, se sei admin, gestire i contenuti del sito.</p>
+          <a class="btn" href="https://majoekverse.com/profilo">Accedi con Twitch</a>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{isHelp}}" hint-placeholder-val="{{false}}">
+      <div style="padding-top: 110px; min-height: 560px; max-width: 620px; display: flex; flex-direction: column; gap: 18px;">
+        <h1 style="margin: 0; font-family: 'Blowbrush', sans-serif; font-weight: 400; font-size: clamp(52px, 7vw, 84px); line-height: 1;"><sc-for list="{{tHelp}}" as="l"><span class="lettera" style="animation-delay: {{l.d}}">{{l.c}}</span></sc-for></h1>
+        <div class="entra" style="display: flex; flex-direction: column; align-items: flex-start; gap: 18px;">
+          <p style="margin: 0; color: #D9CFF5; line-height: 1.5;">Il supporto della community si gestisce su Discord. Apri il canale dedicato, scrivi il tuo problema e ti rispondiamo appena possibile.</p>
+          <a class="btn" href="https://majoekverse.com/helpdesk">Apri il canale supporto</a>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{isUniverso}}" hint-placeholder-val="{{false}}">
+      <div class="arriva" style="max-width: 880px; margin: 0 auto; padding-top: 40px; display: flex; flex-direction: column; gap: 26px;">
+        <button class="linklike" onClick="{{torna}}" style="align-self: flex-start; gap: 6px; color: #B9A8E6; text-decoration: none;">
+          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"></path></svg>
+          Torna alla Home
+        </button>
+        <h1 class="neon" style="margin: 0; font-family: 'Blowbrush', sans-serif; font-weight: 400; font-size: clamp(48px, 7vw, 84px); line-height: 1.05;">Universo di Joe</h1>
+        <div class="taglio" style="padding: 1px; background: #B9A8E6;">
+          <section class="taglio" style="padding: 26px; background: #15123F;">
+            <p style="margin: 0; line-height: 1.6; color: #E6DEFA;">Ciao, sono Joe! Sono un content creator napoletano che vive in Toscana e studente di Scienze dell’Educazione e della Formazione. Creo contenuti dedicati a gaming, tecnologia, lifestyle e skincare, lavoro come UGC creator e porto avanti diversi progetti creativi. Su Twitch condivido soprattutto giochi horror, indie e narrativi, insieme a una community accogliente e inclusiva. Sono anche la mente dietro Koto Mail Club, La Posta del Cuore e il podcast The Big Bear Theory: modi diversi per trasformare le mie passioni in esperienze da condividere, online e offline.</p>
+          </section>
+        </div>
+        <section>
+          <h2 style="margin: 0 0 12px; font-size: 24px; font-weight: 700; color: #B9A8E6;">Sui social</h2>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+            <a class="social" href="https://twitch.tv/majoekoto">Twitch</a>
+            <a class="social" href="https://instagram.com/majoekoto">Instagram</a>
+            <a class="social" href="https://youtube.com/@majoekoto">YouTube</a>
+            <a class="social" href="https://discord.com/invite/4FskPTnBts">Discord</a>
+          </div>
+        </section>
+        <section>
+          <h2 style="margin: 0 0 12px; font-size: 24px; font-weight: 700; color: #B9A8E6;">Progetti</h2>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px;">
+            <a class="riga" href="https://open.spotify.com/show/0Dskk8qdFBWDMtbgQb6slz" style="display: flex; flex-direction: column; gap: 10px; padding: 16px; background: #15123F; text-decoration: none;"><span style="display: flex; align-items: center; justify-content: center; width: 72px; height: 72px; box-sizing: border-box; padding: 8px; background: #F6ECD8;"><img src="/_blob/bc0499559f99f1a78c4457e4d963ca2f" alt="" style="max-width: 100%; max-height: 100%;"></span><strong>The Big Bear Theory</strong><span style="font-size: 15px; line-height: 1.45; color: #D9CFF5;">Il podcast di Joe su Spotify: cultura pop, drama di influencer e i temi che gli stanno a cuore, raccontati a modo suo.</span></a>
+            <a class="riga" href="https://www.patreon.com/cw/kotomailclub" style="display: flex; flex-direction: column; gap: 10px; padding: 16px; background: #15123F; text-decoration: none;"><span style="display: flex; align-items: center; justify-content: center; width: 72px; height: 72px; box-sizing: border-box; padding: 8px; background: #F6ECD8;"><img src="/_blob/210d55d379cdc66a2d8424cabcdfb692" alt="" style="max-width: 100%; max-height: 100%;"></span><strong>Koto Mail Club</strong><span style="font-size: 15px; line-height: 1.45; color: #D9CFF5;">Ogni mese Joe ti spedisce a casa lettere, sticker e paper goodies. Su Patreon.</span></a>
+            <a class="riga" href="https://forms.gle/6nFhSHwyy2rHiWKJ7" style="display: flex; flex-direction: column; gap: 10px; padding: 16px; background: #15123F; text-decoration: none;"><span style="display: flex; align-items: center; justify-content: center; width: 72px; height: 72px; box-sizing: border-box; padding: 8px; background: #F6ECD8;"><img src="/_blob/6b66f041200cb75ef612e0ea1a01aa75" alt="" style="max-width: 100%; max-height: 100%;"></span><strong>La Posta del Cuore</strong><span style="font-size: 15px; line-height: 1.45; color: #D9CFF5;">Lascia un pensiero, una confidenza, una poesia, in forma anonima. Verranno letti in diretta.</span></a>
+          </div>
+        </section>
+      </div>
+    </sc-if>
+  </main>
+
+  <div aria-hidden="true" class="linee" style="position: absolute; inset: 0; z-index: 8; pointer-events: none;"></div>
+
+  <sc-if value="{{tr}}" hint-placeholder-val="{{false}}">
+    <div aria-hidden="true" style="position: fixed; inset: 0; z-index: 12; overflow: hidden; pointer-events: none;">
+      <sc-for list="{{strisce}}" as="s" hint-placeholder-count="5">
+        <div class="striscia" style="left: {{s.x}}; background: {{s.c}}; animation-delay: {{s.d}}"></div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{tuffo}}" hint-placeholder-val="{{false}}">
+    <div class="warp" aria-hidden="true">
+      <sc-for list="{{raggi}}" as="g" hint-placeholder-count="28">
+        <div class="raggio-rot" style="transform: rotate({{g.r}})"><div class="raggio" style="animation-delay: {{g.d}}"></div></div>
+      </sc-for>
+      <div class="bagliore"></div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{avvio}}" hint-placeholder-val="{{false}}">
+    <div class="boot" aria-hidden="true" style="position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; background: #0A0826;">
+      <p class="neon" style="margin: 0; font-family: 'Blowbrush', sans-serif; font-size: 72px;">maJoekverse</p>
+      <div style="width: 340px; max-width: 80%; height: 6px; background: #2D29A4;"><div class="barra"></div></div>
+      <p style="margin: 0; color: #D9CFF5;">Caricamento dell'universo</p>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"stile":{"editor":"enum","options":["lava","lava-pixel","pixel","griglia","cartoon"],"default":"lava"},"$preview":{"width":1440,"height":1420}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { schermo: 'home', tr: false, avvio: true, tuffo: false, conto: this.calcola() };
+    var campo = function (n, seme, base, passo) {
+      var rnd = function () {
+        seme = (seme + 0x6d2b79f5) | 0;
+        var t = Math.imul(seme ^ (seme >>> 15), 1 | seme);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+      var out = [], tinte = ['#F6ECD8', '#F6ECD8', '#F6ECD8', '#B9A8E6', '#FFB9A6'];
+      for (var i = 0; i < n; i++) {
+        var u = rnd();
+        out.push({
+          x: (rnd() * 100).toFixed(2), y: (rnd() * 100).toFixed(2),
+          r: (base + u * u * passo).toFixed(3), o: (.3 + rnd() * .6).toFixed(2),
+          f: tinte[Math.floor(rnd() * 5)], k: rnd() < .3 ? 'tw' : '', d: (rnd() * -4).toFixed(1) + 's'
+        });
+      }
+      return out;
+    };
+    this.fondo = campo(420, 77, .04, .13);
+    this.stelle = campo(160, 19, .05, .15);
+    this.raggi = [];
+    for (var k = 0; k < 28; k++) this.raggi.push({ r: (k * 360 / 28) + 'deg', d: (250 + (k * 7 % 5) * 70) + 'ms' });
+  }
+  apri() {
+    var self = this;
+    if (this.state.tr || this.state.tuffo || this.state.schermo === 'universo') return;
+    this.setState({ tuffo: true });
+    this.t1 = setTimeout(function () { self.setState({ schermo: 'universo' }); }, 1020);
+    this.t2 = setTimeout(function () { self.setState({ tuffo: false }); }, 1700);
+  }
+  torna() {
+    if (this.state.tuffo) return;
+    this.setState({ schermo: 'home' });
+  }
+  calcola() {
+    var ora = new Date(), t = new Date(ora);
+    t.setHours(21, 0, 0, 0);
+    t.setDate(ora.getDate() + ((2 - ora.getDay() + 7) % 7));
+    if (t <= ora) t.setDate(t.getDate() + 7);
+    var s = Math.floor((t - ora) / 1000);
+    var g = Math.floor(s / 86400), h = Math.floor(s / 3600) % 24, m = Math.floor(s / 60) % 60, x = s % 60;
+    var d = function (n) { return String(n).padStart(2, '0'); };
+    return (g ? g + 'g ' : '') + d(h) + ':' + d(m) + ':' + d(x);
+  }
+  componentDidMount() {
+    var self = this;
+    this.tick = setInterval(function () { self.setState({ conto: self.calcola() }); }, 1000);
+    this.tb = setTimeout(function () { self.setState({ avvio: false }); }, 2550);
+  }
+  componentWillUnmount() { clearInterval(this.tick); clearTimeout(this.tb); clearTimeout(this.t1); clearTimeout(this.t2); }
+  vai(s) {
+    var self = this;
+    if (s === this.state.schermo || this.state.tr || this.state.tuffo) return;
+    this.setState({ tr: true });
+    this.t1 = setTimeout(function () { self.setState({ schermo: s }); }, 430);
+    this.t2 = setTimeout(function () { self.setState({ tr: false }); }, 1100);
+  }
+  lettere(p) {
+    return p.split('').map(function (c, i) { return { c: c, d: (120 + i * 55) + 'ms' }; });
+  }
+  renderVals() {
+    var self = this, sc = this.state.schermo, on = '#FFFFFF', off = '#B9A8E6';
+    var idx = { home: 0, giochi: 1, profilo: 2, help: 3 }[sc];
+    return {
+      conto: this.state.conto, tr: this.state.tr, avvio: this.state.avvio,
+      isHome: sc === 'home', isGiochi: sc === 'giochi', isProfilo: sc === 'profilo', isHelp: sc === 'help',
+      stile: this.props.stile ?? 'lava',
+      isUniverso: sc === 'universo', tuffo: this.state.tuffo, stelle: this.stelle, fondo: this.fondo, raggi: this.raggi,
+      apri: function () { self.apri(); }, torna: function () { self.torna(); },
+      pClass: (this.state.tuffo || sc === 'universo') ? 'pw tuffo' : (sc === 'home' ? 'pw' : 'pw altrove'),
+      pillClass: sc === 'universo' ? 'barretta pos0 nascosta' : 'barretta pos' + idx,
+      cHelp: sc === 'help' ? on : off, cGiochi: sc === 'giochi' ? on : off, cHome: sc === 'home' ? on : off, cProfilo: sc === 'profilo' ? on : off,
+      vaiHome: function () { self.vai('home'); }, vaiGiochi: function () { self.vai('giochi'); }, vaiProfilo: function () { self.vai('profilo'); }, vaiHelp: function () { self.vai('help'); },
+      tGiochi: this.lettere('Giochi'), tProfilo: this.lettere('Profilo'), tHelp: this.lettere('Help Desk'),
+      strisce: [
+        { x: '-2%', c: '#B9A8E6', d: '0ms' }, { x: '18%', c: '#2D29A4', d: '40ms' }, { x: '38%', c: '#FF7A5C', d: '80ms' },
+        { x: '58%', c: '#2D29A4', d: '120ms' }, { x: '78%', c: '#B9A8E6', d: '160ms' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

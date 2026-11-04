@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import { inter, blowbrush } from "./fonts";
+import { oxanium, blowbrush } from "./fonts";
 import BottomNav from "./bottomNav";
 import TopNav from "./topNav";
 import Planet from "./universoIcon";
@@ -29,7 +29,7 @@ export async function generateMetadata(): Promise<Metadata> {
 // (altrimenti la barra in basso finisce sotto la tacca della home).
 export const viewport: Viewport = {
   viewportFit: "cover",
-  themeColor: "#11102e",
+  themeColor: "#0A0826",
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
@@ -37,7 +37,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang={lang}
-      className={`${inter.variable} ${blowbrush.variable} h-full antialiased`}
+      className={`${oxanium.variable} ${blowbrush.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col pb-[calc(4rem_+_env(safe-area-inset-bottom))] md:pb-0">
         <LangProvider lang={lang}>

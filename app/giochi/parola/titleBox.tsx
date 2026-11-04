@@ -9,7 +9,7 @@ import { proposeTitle, type ProposeState } from "./actions";
 const CHIP: Record<string, string> = {
   pending: "bg-brand-lavanda/20 text-brand-lavanda",
   accepted: "bg-brand-corallo text-brand-crema",
-  rejected: "bg-brand-darkblu text-brand-lavanda/70",
+  rejected: "bg-brand-superficie text-brand-lavanda/70",
 };
 
 // Premio del vincitore della settimana scorsa: propone il titolo di una live,

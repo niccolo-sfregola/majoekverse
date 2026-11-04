@@ -250,7 +250,7 @@ function ZipBoard({
       <svg
         ref={svgRef}
         viewBox={`0 0 ${size} ${size}`}
-        className="aspect-square w-full max-w-md touch-none select-none rounded-2xl bg-brand-darkblu/40"
+        className="aspect-square w-full max-w-md touch-none select-none rounded-2xl bg-brand-superficie/40"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}

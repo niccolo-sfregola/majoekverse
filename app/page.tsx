@@ -60,10 +60,10 @@ export default async function Home() {
 function HomeCardsSkeleton() {
   return (
     <div className={GRID}>
-      <div className="h-32 rounded-2xl bg-brand-darkblu/40 motion-safe:animate-pulse" />
-      <div className="h-32 rounded-2xl bg-brand-darkblu/40 motion-safe:animate-pulse" />
-      <div className="col-span-2 h-56 rounded-2xl bg-brand-darkblu/40 motion-safe:animate-pulse md:col-span-1" />
-      <div className="col-span-2 h-56 rounded-2xl bg-brand-darkblu/40 motion-safe:animate-pulse md:col-span-1" />
+      <div className="h-32 rounded-2xl bg-brand-superficie/40 motion-safe:animate-pulse" />
+      <div className="h-32 rounded-2xl bg-brand-superficie/40 motion-safe:animate-pulse" />
+      <div className="col-span-2 h-56 rounded-2xl bg-brand-superficie/40 motion-safe:animate-pulse md:col-span-1" />
+      <div className="col-span-2 h-56 rounded-2xl bg-brand-superficie/40 motion-safe:animate-pulse md:col-span-1" />
     </div>
   );
 }

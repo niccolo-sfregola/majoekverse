@@ -1,30 +1,39 @@
 @import "tailwindcss";
 
+/* Palette di maJoekverse (vedi DESIGN.md). Nei componenti si usano sempre
+   questi token, mai esadecimali sparsi. */
 :root {
-  --fondo:      #11102e;
-  --blu:        #2E2AB5;
-  --darkblu:    #1b1872;
-  --lavanda:    #B9A8E6;
-  --corallo:    #EF6C4E;
-  --crema:      #F6ECD8;
+  --fondo:            #0A0826;
+  --superficie:       #15123F;
+  --superficie-hover: #231E63;
+  --blu:              #2D29A4;
+  --lavanda:          #B9A8E6;
+  --lavanda-chiara:   #D9CFF5;
+  --crema:            #F6ECD8;
+  --neon-testo:       #FFF4EA;
+  --neon-alone:       #FF4F6A;
+  --corallo:          #FF7A5C;
 }
 
 @theme inline {
   --color-background: var(--fondo);
   --color-foreground: var(--crema);
   --color-brand-fondo: var(--fondo);
+  --color-brand-superficie: var(--superficie);
+  --color-brand-superficie-hover: var(--superficie-hover);
   --color-brand-blu: var(--blu);
-  --color-brand-darkblu: var(--darkblu);
   --color-brand-lavanda: var(--lavanda);
-  --color-brand-corallo: var(--corallo);
+  --color-brand-lavanda-chiara: var(--lavanda-chiara);
   --color-brand-crema: var(--crema);
-  /* Inter per tutta l'interfaccia; il resto dello stack è solo un ripiego
+  --color-brand-neon-testo: var(--neon-testo);
+  --color-brand-neon-alone: var(--neon-alone);
+  --color-brand-corallo: var(--corallo);
+  /* Oxanium per tutta l'interfaccia; il resto dello stack è solo un ripiego
      mentre il font si carica o se non fosse disponibile. */
-  --font-sans: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI",
+  --font-sans: var(--font-oxanium), -apple-system, BlinkMacSystemFont, "Segoe UI",
     Roboto, Helvetica, Arial, sans-serif;
   --font-display: var(--font-blowbrush);
 }
-
 
 body {
   background: var(--fondo);
@@ -54,7 +63,7 @@ body {
   position: relative;
   overflow: hidden;
   border-radius: 1rem;
-  background-color: color-mix(in oklab, var(--darkblu) 34%, transparent);
+  background-color: color-mix(in oklab, var(--superficie) 34%, transparent);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid color-mix(in oklab, var(--crema) 12%, transparent);
@@ -75,7 +84,7 @@ body {
 .panel {
   overflow: hidden;
   border-radius: 1rem;
-  background-color: color-mix(in oklab, var(--darkblu) 34%, transparent);
+  background-color: color-mix(in oklab, var(--superficie) 34%, transparent);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid color-mix(in oklab, var(--crema) 12%, transparent);
@@ -113,6 +122,74 @@ body {
   .card-sheen:hover::after {
     transform: translateX(130%);
   }
+}
+
+/* Bottone principale (componente Button): lavanda con angoli tagliati in alto
+   a sinistra e in basso a destra. Il lampo bianco (::after) lo attraversa ogni
+   3.6s: resta fermo fuori a sinistra per il 62% del ciclo, poi scorre. */
+.btn {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 52px;
+  padding: 0 1.25rem;
+  border: 0;
+  cursor: pointer;
+  background: var(--lavanda);
+  color: var(--fondo);
+  font-weight: 700;
+  font-size: 17px;
+  text-decoration: none;
+  clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+  transition: transform 0.12s ease, background 0.2s ease;
+}
+.btn::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 60px;
+  left: -90px;
+  background: #ffffff;
+  opacity: 0.55;
+  transform: skewX(-24deg);
+  animation: btn-lampo 3.6s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes btn-lampo {
+  0%,
+  62% {
+    left: -90px;
+  }
+  88%,
+  100% {
+    left: 120%;
+  }
+}
+@media (hover: hover) {
+  .btn:hover {
+    background: var(--lavanda-chiara);
+  }
+}
+.btn:active {
+  transform: scale(0.96);
+}
+.btn:focus-visible {
+  outline: 2px solid var(--crema);
+  outline-offset: 2px;
+}
+/* Disattivato (es. form in invio): niente lampo e niente pressione. */
+.btn:disabled {
+  cursor: default;
+  opacity: 0.6;
+  transform: none;
+}
+.btn:disabled::after {
+  animation: none;
+  display: none;
 }
 
 /* Galassia a spirale (tipo Via Lattea): cielo scuro + bagliore esterno.
@@ -420,8 +497,12 @@ body {
   .card-sheen::after {
     transition: none;
   }
-  .universo-galaxy-svg {
+  .universo-galaxy-svg,
+  .btn::after {
     animation: none;
+  }
+  .btn {
+    transition: none;
   }
   .page-enter,
   .onboard-step,

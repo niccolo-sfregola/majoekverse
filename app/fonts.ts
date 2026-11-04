@@ -1,9 +1,10 @@
-import { Inter } from "next/font/google";
+import { Oxanium } from "next/font/google";
 import localFont from "next/font/local";
 
-// Font di tutta l'interfaccia: open source, stesso aspetto su ogni dispositivo.
-export const inter = Inter({
-  variable: "--font-inter",
+// Font di tutta l'interfaccia: squadrato e "da videogioco", ma leggibile anche
+// a corpo piccolo. Variabile, quindi un solo file copre tutti i pesi.
+export const oxanium = Oxanium({
+  variable: "--font-oxanium",
   subsets: ["latin"],
 });
 

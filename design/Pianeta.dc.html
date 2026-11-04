@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Pianeta con logo neon</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+@font-face { font-family: "Blowbrush"; src: url("/_blob/0da105dcef3cbff20a1ab314a73c6bc5") format("woff2"); font-display: swap; }
+body { margin: 0; }
+</style>
+</helmet>
+<div style="position: relative; width: {{px}}; height: {{px}}; font-family: sans-serif;">
+  <canvas ref="{{rif}}" role="img" aria-label="Pianeta che gira con il logo maJoekverse al neon" style="display: block; width: 100%; height: 100%; cursor: pointer; touch-action: pan-y;"></canvas>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"size":{"editor":"int","default":640,"min":160,"max":1200},"stile":{"editor":"enum","options":["lava","lava-pixel","pixel","griglia","cartoon"],"default":"lava"},"onApri":{"editor":null},"$preview":{"width":640,"height":640}}'>
+class Component extends DCLogic {
+  avvia(el) {
+    if (this.partito) return;
+    this.partito = true;
+    var gl = el.getContext('webgl', { alpha: true, antialias: false, premultipliedAlpha: true });
+    if (!gl) {
+      el.style.borderRadius = '50%';
+      el.style.background = 'radial-gradient(circle at 35% 30%, #B9A8E6, #2D29A4 60%, #0A0826)';
+      return;
+    }
+    var vs = 'attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
+    var fs = [
+      'precision highp float;uniform vec2 uR;uniform float uA;uniform float uT;uniform float uS;uniform sampler2D uL;',
+      'float h(vec3 p){p=fract(p*.3183099+.1);p*=17.;return fract(p.x*p.y*p.z*(p.x+p.y+p.z));}',
+      'float n3(vec3 x){vec3 i=floor(x),f=fract(x);f=f*f*(3.-2.*f);',
+      'return mix(mix(mix(h(i),h(i+vec3(1,0,0)),f.x),mix(h(i+vec3(0,1,0)),h(i+vec3(1,1,0)),f.x),f.y),',
+      'mix(mix(h(i+vec3(0,0,1)),h(i+vec3(1,0,1)),f.x),mix(h(i+vec3(0,1,1)),h(i+vec3(1,1,1)),f.x),f.y),f.z);}',
+      'float fbm(vec3 p){float a=.5,s=0.;for(int i=0;i<4;i++){s+=a*n3(p);p=p*2.03+vec3(1.7,9.2,3.1);a*=.5;}return s;}',
+      'const vec3 L=vec3(-.583,.535,.61);',
+      'vec3 ruota(vec3 n){vec3 q=n;float c=cos(.11),s=sin(.11);q.xy=mat2(c,-s,s,c)*q.xy;',
+      'c=cos(.04);s=sin(.04);q.yz=mat2(c,s,-s,c)*q.yz;',
+      'c=cos(uA);s=sin(uA);return vec3(c*q.x+s*q.z,q.y,-s*q.x+c*q.z);}',
+      'float b2(vec2 a){a=floor(a);return fract(a.x/2.+a.y*a.y*.75);}',
+      'float b4(vec2 a){return b2(.5*a)*.25+b2(a);}',
+      'vec3 griglia(vec3 n,vec3 q){',
+      'float lon=atan(q.x,q.z),lat=asin(clamp(q.y,-1.,1.)),cl=cos(lat);',
+      'float ga=lon/6.28318*32.,gb=lat/3.14159*16.;',
+      'float da=(.5-abs(fract(ga)-.5))*.19635*cl,db=(.5-abs(fract(gb)-.5))*.19635;',
+      'if(abs(lat)>1.25)da=1.;',
+      'float w=.0024/max(n.z,.25),li=1.-smoothstep(w,w*2.5,min(da,db));',
+      'vec2 id=floor(vec2(ga,gb));float hh=fract(sin(dot(id,vec2(12.9898,78.233)))*43758.5453);',
+      'float acc=step(.87,hh)*(.55+.45*sin(uT*1.6+hh*40.));',
+      'vec3 ce=mix(vec3(.72,.60,.96),vec3(1.,.48,.33),step(.93,hh));',
+      'float lum=max(dot(n,L),0.);',
+      'vec3 c=vec3(.035,.03,.16)+vec3(.12,.10,.42)*lum;',
+      'c+=ce*acc*.85*(.45+.55*lum);',
+      'c+=vec3(.50,.42,1.)*li*(.55+.6*lum);',
+      'float sw=(q.y-sin(uT*.5)*.9)*14.;c+=vec3(.35,.7,1.)*exp(-sw*sw)*.18;',
+      'c+=vec3(.42,.5,1.)*pow(1.-n.z,4.)*.5;',
+      'return c;}',
+      'vec3 pixel(vec3 n,vec3 q,vec2 pp){',
+      'float f=fbm(q*1.7+3.),b=b4(floor(pp*62.));f+=(b-.5)*.02;vec3 c;',
+      'if(f<.42)c=vec3(.106,.094,.447);else if(f<.48)c=vec3(.176,.161,.643);',
+      'else if(f<.52)c=vec3(.37,.33,.85);else if(f<.58)c=vec3(.725,.659,.902);else c=vec3(.965,.925,.847);',
+      'float r=1.-abs(2.*fbm(q*2.1+9.)-1.);if(r>.982)c=vec3(1.,.48,.36);',
+      'float lum=max(dot(n,L),0.),l=floor(lum*3.+b*.99)/3.;',
+      'return c*(.28+.85*l);}',
+      'vec3 cartoon(vec3 n,vec3 q){',
+      'float f=fbm(q*1.5+2.);vec3 c=vec3(.18,.165,.71);',
+      'if(f>.40)c=vec3(.30,.28,.85);if(f>.43)c=vec3(1.,.62,.5);if(f>.445)c=vec3(.60,.50,.93);if(f>.53)c=vec3(.96,.92,.85);',
+      'float cf=fbm(q*2.+vec3(uT*.05,0.,0.)+5.);if(cf>.6)c=vec3(.98,.97,1.);',
+      'float lum=max(dot(n,L),0.);',
+      'c*=.42+.33*step(.22,lum)+.30*step(.62,lum);',
+      'if(n.z<.13)c=vec3(.04,.03,.15);',
+      'return c;}',
+      'vec3 lava(vec3 n,vec3 q,float b){',
+      'vec3 w=q*1.55;',
+      'vec3 v=vec3(fbm(w+1.+uT*.018),fbm(w+7.-uT*.014),fbm(w+13.+uT*.01));',
+      'float f=fbm(w*1.15+v*2.6)+b;',
+      'vec3 c=vec3(.045,.018,.10);',
+      'if(f>.40)c=vec3(.13,.05,.26);if(f>.47)c=vec3(.27,.11,.47);if(f>.53)c=vec3(.47,.24,.72);if(f>.60)c=vec3(.74,.58,.93);',
+      'float lum=max(dot(n,L),0.);',
+      'c*=.5+.3*step(.2,lum)+.3*step(.6,lum);',
+      'float m=fbm(q*1.25+v*1.5+20.+vec3(0.,uT*.012,0.))+b-q.y*.11-.05*exp(-q.y*q.y*26.);',
+      'float t=.5;',
+      'c+=vec3(.9,.2,.05)*exp(-max(t-m,0.)*24.)*.32*step(m,t);',
+      'if(m>t)c=vec3(.62,.07,.09);if(m>t+.018)c=vec3(.95,.27,.05);if(m>t+.05)c=vec3(1.,.53,.06);if(m>t+.09)c=vec3(1.,.77,.18);if(m>t+.13)c=vec3(1.,.95,.62);',
+      'vec3 g=q*34.;vec3 id=floor(g);float e=h(id+3.);',
+      'if(e>.965){float r=length(fract(g)-.5);float z=step(r,.12+(e-.965)*5.);c=mix(c,m>t?vec3(.3,.05,.1):vec3(.97,.94,1.),z);}',
+      'c+=vec3(.55,.36,1.)*pow(1.-n.z,4.)*.55;',
+      'return c;}',
+      'void main(){',
+      'vec2 p0=(gl_FragCoord.xy-.5*uR)/(.5*min(uR.x,uR.y))/.78;',
+      'bool px=(uS>.5&&uS<1.5)||uS>3.5;',
+      'vec2 p=px?(floor(p0*62.)+.5)/62.:p0;float d=length(p),d0=length(p0);',
+      'vec3 cAl=vec3(.46,.42,1.);vec3 col=vec3(0.);float a=0.;',
+      'float k=uS<.5?.36:(uS<1.5?0.:(uS>3.5?0.:.26));',
+      'float alone=exp(-max(d0-1.,0.)*17.)*(1.-smoothstep(1.03,1.22,d0));',
+      'if(d<1.){',
+      'vec3 n=vec3(p,sqrt(1.-d*d));vec3 q=ruota(n);',
+      'if(uS<.5)col=griglia(n,q);else if(uS<1.5)col=pixel(n,q,p);else if(uS<2.5)col=cartoon(n,q);',
+      'else if(uS<3.5)col=lava(n,q,0.);else col=lava(n,q,(b4(floor(p*62.))-.5)*.03);',
+      'if(d0<1.){',
+      'vec3 m=vec3(p0,sqrt(1.-d0*d0));vec3 w=ruota(m);',
+      'float lon=atan(w.x,w.z),lat=asin(clamp(w.y,-1.,1.));',
+      'vec2 uv=vec2(fract(lon/6.28318+.75),lat/.7854+.5);',
+      'vec2 ne=(uv.y>0.&&uv.y<1.)?texture2D(uL,uv).rg:vec2(0.);',
+      'float fl=.93+.07*sin(uT*41.)*sin(uT*17.);',
+      'fl*=mix(1.,.35,step(.94,fract(sin(floor(uT*8.))*43758.5453)));',
+      'float fr=smoothstep(.02,.3,m.z);',
+      'col+=(vec3(1.,.95,.88)*ne.r*1.8+vec3(1.,.24,.30)*ne.g*1.15)*fl*fr;',
+      '}',
+      'a=px?1.:1.-smoothstep(.99,1.,d);',
+      '}',
+      'gl_FragColor=vec4(col*a+cAl*alone*k*(1.-a),a+alone*k*(1.-a));',
+      '}'
+    ].join('\n');
+    var sh = function (t, s) { var o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o); return o; };
+    var pr = gl.createProgram();
+    gl.attachShader(pr, sh(gl.VERTEX_SHADER, vs));
+    gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, fs));
+    gl.linkProgram(pr);
+    if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) {
+      el.style.borderRadius = '50%';
+      el.style.background = 'radial-gradient(circle at 35% 30%, #B9A8E6, #2D29A4 60%, #0A0826)';
+      return;
+    }
+    gl.useProgram(pr);
+    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    var loc = gl.getAttribLocation(pr, 'a');
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+    var uR = gl.getUniformLocation(pr, 'uR'), uA = gl.getUniformLocation(pr, 'uA'), uT = gl.getUniformLocation(pr, 'uT'), uS = gl.getUniformLocation(pr, 'uS');
+
+    var logo = document.createElement('canvas');
+    logo.width = 2048; logo.height = 256;
+    var ctx = logo.getContext('2d');
+    var tex = gl.createTexture();
+    var carica = function () {
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.fillStyle = '#000'; ctx.fillRect(0, 0, 2048, 256);
+      ctx.font = '104px Blowbrush, sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.globalCompositeOperation = 'lighter';
+      [512, 1536].forEach(function (cx) {
+        ctx.shadowColor = '#00ff00'; ctx.shadowBlur = 18; ctx.strokeStyle = '#00ff00'; ctx.lineWidth = 8;
+        ctx.strokeText('maJoekverse', cx, 132); ctx.strokeText('maJoekverse', cx, 132);
+        ctx.shadowBlur = 0; ctx.strokeStyle = '#ff0000'; ctx.lineWidth = 4.5;
+        ctx.strokeText('maJoekverse', cx, 132);
+      });
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, logo);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    };
+    carica();
+    if (document.fonts && document.fonts.load) document.fonts.load('104px Blowbrush').then(carica, function () {});
+
+    var fermo = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var self = this, t0 = performance.now();
+    var extra = 0, drag = null, mosso = 0;
+    el.addEventListener('pointerdown', function (e) { drag = e.clientX; mosso = 0; el.style.cursor = 'grabbing'; });
+    window.addEventListener('pointermove', function (e) { if (drag !== null) { extra -= (e.clientX - drag) * .008; mosso += Math.abs(e.clientX - drag); drag = e.clientX; } });
+    window.addEventListener('pointerup', function () {
+      var clic = drag !== null && mosso < 6;
+      drag = null; el.style.cursor = 'pointer';
+      if (clic && self.props.onApri) self.props.onApri();
+    });
+
+    var frame = function (now) {
+      var w = Math.round(el.clientWidth * Math.min(window.devicePixelRatio || 1, 1.5));
+      var hh = Math.round(el.clientHeight * Math.min(window.devicePixelRatio || 1, 1.5));
+      if (w && hh && (el.width !== w || el.height !== hh)) { el.width = w; el.height = hh; }
+      gl.viewport(0, 0, el.width, el.height);
+      var t = fermo ? 0 : (now - t0) / 1000;
+      gl.uniform2f(uR, el.width, el.height);
+      gl.uniform1f(uA, t * .22 + extra);
+      gl.uniform1f(uT, t);
+      gl.uniform1f(uS, { griglia: 0, pixel: 1, cartoon: 2, lava: 3, 'lava-pixel': 4 }[self.props.stile] ?? 3);
+      gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+      self.raf = requestAnimationFrame(frame);
+    };
+    self.raf = requestAnimationFrame(frame);
+  }
+  componentWillUnmount() { cancelAnimationFrame(this.raf); }
+  renderVals() {
+    var self = this;
+    if (!this.rif) this.rif = function (el) { if (el) self.avvia(el); };
+    return { px: Number(this.props.size ?? 640) + 'px', rif: this.rif };
+  }
+}
+</script>
+</body>
+</html>

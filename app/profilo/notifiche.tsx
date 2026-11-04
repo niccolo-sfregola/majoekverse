@@ -180,7 +180,7 @@ export default function Notifiche() {
       </p>
 
       {status === "loading" ? (
-        <div className="h-10 rounded-xl bg-brand-darkblu/40 motion-safe:animate-pulse" />
+        <div className="h-10 rounded-xl bg-brand-superficie/40 motion-safe:animate-pulse" />
       ) : status === "on" ? (
         <>
           <p className="text-sm text-brand-lavanda">{n.on}</p>
@@ -194,7 +194,7 @@ export default function Notifiche() {
                 type="checkbox"
                 checked={prefs[key]}
                 onChange={() => toggle(key)}
-                className="h-5 w-5 shrink-0 accent-[#EF6C4E]"
+                className="h-5 w-5 shrink-0 accent-brand-corallo"
               />
             </label>
           ))}

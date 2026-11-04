@@ -388,7 +388,7 @@ async function StatsCard({
 function StatsSkeleton() {
   return (
     <div className="card-glass flex flex-col gap-3 p-5 md:p-6">
-      <div className="h-3 w-28 rounded bg-brand-darkblu/60 motion-safe:animate-pulse" />
+      <div className="h-3 w-28 rounded bg-brand-superficie/60 motion-safe:animate-pulse" />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
         {[0, 1, 2, 3].map((i) => (
           <div

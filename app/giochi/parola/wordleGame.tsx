@@ -13,7 +13,7 @@ type Stato = "playing" | "won" | "lost";
 const TILE_COLORS: Record<Esito, string> = {
   giusta: "border-brand-corallo bg-brand-corallo text-brand-crema",
   presente: "border-brand-lavanda bg-brand-lavanda text-brand-fondo",
-  assente: "border-brand-darkblu bg-brand-darkblu text-brand-lavanda/60",
+  assente: "border-brand-superficie bg-brand-superficie text-brand-lavanda/60",
 };
 
 const KEY_ROWS = ["qwertyuiop", "asdfghjkl", "⏎zxcvbnm⌫"];
