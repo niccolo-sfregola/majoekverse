@@ -60,63 +60,6 @@ body {
   overflow-x: clip;
 }
 
-/* Card in "vetro": sfondo semitrasparente + sfocatura di ciò che sta dietro.
-   Sopra l'immagine dell'hero lascia intravedere lo sfondo; sul fondo pieno
-   resta un pannello appena più chiaro con un bordo sottile. */
-.card-glass {
-  position: relative;
-  overflow: hidden;
-  border-radius: 1rem;
-  background-color: color-mix(in oklab, var(--superficie) 34%, transparent);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid color-mix(in oklab, var(--crema) 12%, transparent);
-  box-shadow: 0 8px 30px rgb(0 0 0 / 0.25);
-  transition: transform 0.25s ease, border-color 0.25s ease;
-}
-
-/* Come card-glass ma senza effetti al passaggio del mouse: per pannelli
-   che contengono form (area admin), dove il sollevamento darebbe fastidio. */
-.panel {
-  overflow: hidden;
-  border-radius: 1rem;
-  background-color: color-mix(in oklab, var(--superficie) 34%, transparent);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid color-mix(in oklab, var(--crema) 12%, transparent);
-}
-
-/* La striscia di luce ("riflesso") che scorre sulla card al passaggio del mouse. */
-.card-glass::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    115deg,
-    transparent 35%,
-    rgb(255 255 255 / 0.14) 48%,
-    rgb(255 255 255 / 0.03) 54%,
-    transparent 68%
-  );
-  transform: translateX(-130%);
-  transition: transform 0.7s ease;
-  pointer-events: none;
-}
-
-/* Solo dispositivi con un vero mouse: sul telefono (tap) niente hover che
-   "si incastra". */
-@media (hover: hover) {
-  .card-glass:hover {
-    transform: translateY(-3px);
-  }
-  .card-glass:hover {
-    border-color: color-mix(in oklab, var(--crema) 26%, transparent);
-  }
-  .card-glass:hover::after {
-    transform: translateX(130%);
-  }
-}
-
 /* Componenti (bottone, pannelli, righe, titoli) in un layer: così le classi
    Tailwind scritte nei componenti possono sovrascriverli quando serve. */
 @layer components {
@@ -954,17 +897,9 @@ html[data-avviato] .avvio {
   animation: page-enter 0.2s ease-out both;
 }
 
-/* Spazio in cima alle pagine senza hero: almeno 2.5rem, di più su iPhone per
-   scendere sotto la status bar / tacca. La Home non lo usa: la sua immagine
-   deve arrivare fino al bordo alto. */
-.safe-top {
-  padding-top: max(2.5rem, calc(env(safe-area-inset-top) + 1rem));
-}
-
-/* Comparsa a cascata: i figli diretti salgono di pochi px uno dopo l'altro.
-   Da mettere sul contenitore (es. la griglia della home). */
-/* Usa la proprietà `translate` (non `transform`) così l'hover-lift delle card,
-   che usa `transform`, resta libero e non va in conflitto. */
+/* Salita di pochi px con dissolvenza (usata da .zip-result). Usa la
+   proprietà `translate` (non `transform`) per non litigare con altre
+   trasformazioni. */
 @keyframes rise-in {
   from {
     opacity: 0;
@@ -974,31 +909,6 @@ html[data-avviato] .avvio {
     opacity: 1;
     translate: 0 0;
   }
-}
-
-.rise-in > * {
-  animation: rise-in 0.4s ease-out both;
-}
-.rise-in > *:nth-child(2) {
-  animation-delay: 0.05s;
-}
-.rise-in > *:nth-child(3) {
-  animation-delay: 0.1s;
-}
-.rise-in > *:nth-child(4) {
-  animation-delay: 0.15s;
-}
-.rise-in > *:nth-child(5) {
-  animation-delay: 0.2s;
-}
-.rise-in > *:nth-child(6) {
-  animation-delay: 0.25s;
-}
-.rise-in > *:nth-child(7) {
-  animation-delay: 0.3s;
-}
-.rise-in > *:nth-child(n + 8) {
-  animation-delay: 0.35s;
 }
 
 /* Apertura fluida dei pannelli a scomparsa (Collapsible, ScheduleCard):
@@ -1184,10 +1094,6 @@ html[data-avviato] .avvio {
        la chiusura si smonta all'evento animationend. */
     animation-duration: 0.01s;
   }
-  .card-glass,
-  .card-glass::after {
-    transition: none;
-  }
   .btn::after {
     animation: none;
   }
@@ -1214,8 +1120,7 @@ html[data-avviato] .avvio {
     animation: none;
   }
   .page-enter,
-  .onboard-step,
-  .rise-in > * {
+  .onboard-step {
     animation: none;
   }
   .zip-seg,

@@ -10,15 +10,30 @@ export default function TitoloPagina({
   children: string;
   className?: string;
 }) {
+  // Le lettere sono raggruppate per parola (whitespace-nowrap): ogni lettera
+  // è un blocco a sé, e senza il gruppo un titolo lungo potrebbe andare a
+  // capo a metà parola. Il ritardo invece continua da una parola all'altra.
+  let indice = 0;
+  const parole = children.split(" ").map((parola) =>
+    Array.from(parola).map((c) => ({ c, ritardo: 120 + indice++ * 55 })),
+  );
+
   return (
     <h1
       className={`${blowbrush.className} text-[46px] leading-none text-brand-crema lg:text-[clamp(52px,7vw,84px)] ${className}`}
     >
       <span className="sr-only">{children}</span>
       <span aria-hidden>
-        {Array.from(children).map((c, i) => (
-          <span key={i} className="lettera" style={{ animationDelay: `${120 + i * 55}ms` }}>
-            {c}
+        {parole.map((lettere, p) => (
+          <span key={p}>
+            {p > 0 ? " " : null}
+            <span className="inline-block whitespace-nowrap">
+              {lettere.map(({ c, ritardo }, i) => (
+                <span key={i} className="lettera" style={{ animationDelay: `${ritardo}ms` }}>
+                  {c}
+                </span>
+              ))}
+            </span>
           </span>
         ))}
       </span>

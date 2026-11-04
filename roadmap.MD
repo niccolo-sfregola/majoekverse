@@ -131,6 +131,7 @@ Hai già superato la parte più ostica. Da qui è costruire.
 - [X] Aggiungere il **manifest** (nome, icona = logo J, colore tema scuro) così compare "Installa / Aggiungi a Home".
 - [X] Aggiungere il **service worker** (con Serwist) per l'installabilità e un minimo di funzionamento offline.
 - [ ] ~~(Opzionale) notifiche push "sono live"~~ → spostate nella **Fase 9** (sistema di notifiche completo).
+- [X] **Redesign "menu di videogioco"** secondo `DESIGN.md` (novembre 2026): pianeta WebGL con logo neon in `layout.tsx`, cielo stellato, Oxanium, angoli tagliati, strisce tra le pagine, tuffo nell'Universo, schermata di avvio, e tutte le pagine rifatte (Home, Giochi, Zip, Parola, Profilo, Help Desk, Universo, Admin, onboarding, Privacy). Un branch `design/*` per tappa.
 
 **Cosa impari:** rifinitura di design con Tailwind, cosa rende un sito una PWA, service worker e manifest.
 
@@ -246,7 +247,9 @@ Fase 8 fatta: tab Giochi con Zip del giorno (classifica + badge podio) e parola 
 
 Fase 9 quasi fatta: notifiche push (iscrizione per dispositivo nel Profilo, notifiche del titolo, notifiche a orario via pg_cron → `/api/cron`). Provate in locale.
 
-Prossimo: **mettere online la Fase 9** e chiuderla:
+Redesign del `DESIGN.md` finito: le tappe stanno sui branch `design/*`, uno dopo l'altro (l'ultimo, `design/onboarding-privacy`, contiene tutto). Da fare: unirlo in `main`, provare il pianeta su un telefono economico vero (lo chiede il `DESIGN.md` prima del rilascio) e poi pubblicare.
+
+Poi: **mettere online la Fase 9** e chiuderla:
 1. Su Vercel → Environment Variables: `GAMES_SECRET`, `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`, `CRON_SECRET` (stessi valori di `.env.local`).
 2. `git push` → aspettare il deploy.
 3. Supabase: `cron_secret` nel Vault = `CRON_SECRET` vero; `cron.job` con l'indirizzo vero del sito.

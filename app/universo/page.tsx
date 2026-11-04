@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
+import { getChannelInfo } from "@/lib/twitch";
 import { blowbrush } from "@/app/fonts";
 import { getDict } from "@/lib/i18n/server";
 import { tipoLogo, type TipoLogo } from "@/lib/logo";
@@ -48,10 +49,11 @@ const progetti: {
 export default async function Universo() {
   const supabase = await createClient();
   const t = await getDict();
-  const { data: sponsor } = await supabase
-    .from("sponsors")
-    .select("*")
-    .order("created_at", { ascending: true });
+  // In parallelo: la foto di Joe (da Twitch) non rallenta gli sponsor.
+  const [{ data: sponsor }, channel] = await Promise.all([
+    supabase.from("sponsors").select("*").order("created_at", { ascending: true }),
+    getChannelInfo(),
+  ]);
 
   // Per ogni logo: com'è fatto (chiaro, scuro, su riquadro bianco), così
   // sul pannello scuro si vede sempre bene. Vedi lib/logo.ts.
@@ -67,11 +69,31 @@ export default async function Universo() {
   return (
     <main className="arriva pagina max-w-[880px] gap-[18px] pt-[calc(env(safe-area-inset-top)_+_20px)] md:pt-10 lg:min-h-0 lg:gap-[26px] lg:pt-10">
       <TornaHome />
-      <h1
-        className={`${blowbrush.className} neon text-[42px] leading-[1.05] lg:text-[clamp(48px,7vw,84px)]`}
-      >
-        {t.universo.title}
-      </h1>
+      {/* Foto di Joe accanto al titolo, con un alone neon come il titolo.
+          Se Twitch non risponde, il logo J al suo posto. */}
+      <div className="flex items-center gap-4 lg:gap-6">
+        {channel.profileImageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={channel.profileImageUrl}
+            alt={channel.displayName ?? "maJoekoto"}
+            className="h-20 w-20 shrink-0 rounded-full object-cover ring-2 ring-brand-lavanda [box-shadow:0_0_24px_var(--neon-alone)] lg:h-28 lg:w-28"
+          />
+        ) : (
+          <Image
+            src="/j.png"
+            alt="maJoekoto"
+            width={112}
+            height={112}
+            className="h-20 w-20 shrink-0 object-contain lg:h-28 lg:w-28"
+          />
+        )}
+        <h1
+          className={`${blowbrush.className} neon min-w-0 text-balance text-[42px] leading-[1.05] lg:text-[clamp(48px,7vw,84px)]`}
+        >
+          {t.universo.title}
+        </h1>
+      </div>
 
       <Pannello className="p-[18px] lg:p-[26px]">
         <p className="leading-normal text-brand-lavanda-chiara lg:leading-[1.6]">{t.universo.bio}</p>
