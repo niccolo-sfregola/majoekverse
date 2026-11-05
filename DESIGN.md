@@ -62,6 +62,7 @@ Requisiti di prestazione:
 
 - Cielo fisso dietro tutta l'app, generato con un seme fisso (`mulberry32`, come in `app/universo/cosmicBackground.tsx`). Non usare `Math.random()` nel rendering, per evitare differenze tra server e client.
 - 260 stelle su telefono, 420 su desktop, con grandezze diverse e qualche tinta lavanda o pesca.
+- In Home il cielo è zoomato a `scale(1.22)`. Andando in un'altra pagina torna a 1 insieme al pianeta che rimpicciolisce, con la stessa durata e la stessa curva. Tornando alla Home si riavvicina.
 - Circa il 30% brilla con un ciclo di 3.6 s. Tutto il cielo deriva lentamente in 90 s.
 
 ## Movimento

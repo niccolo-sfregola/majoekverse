@@ -780,6 +780,32 @@ html[data-avviato] .avvio {
   pointer-events: none;
   animation: cielo-deriva 90s ease-in-out infinite alternate;
 }
+/* Zoom del cielo (app/cieloArrivo.tsx): in Home è più vicino, altrove si
+   allontana insieme al pianeta, con la stessa durata e la stessa curva di
+   .pianeta. Il centro dello zoom sta più o meno dove si trova il pianeta
+   grande, così sembra che la "telecamera" si stacchi da lui. Si usa la
+   proprietà scale (non transform) per non litigare con la deriva di .cielo. */
+.cielo-zoom {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 18%;
+  transition: scale 0.9s cubic-bezier(0.7, 0, 0.2, 1);
+}
+.cielo-zoom[data-home] {
+  scale: 1.22;
+}
+@media (min-width: 64rem) {
+  .cielo-zoom {
+    transform-origin: 74% 32%;
+    transition-duration: 1s;
+  }
+}
+/* Dopo il tuffo il pianeta è al centro dello schermo: lì lo zoom d'arrivo
+   parte dal centro. Due classi insieme, così vince sulle regole qui sopra
+   (anche su quella del desktop). */
+.cielo-zoom.cielo-arrivo {
+  transform-origin: 50% 50%;
+}
 @keyframes cielo-deriva {
   from {
     transform: translate3d(0, 0, 0);
@@ -1103,6 +1129,7 @@ html[data-avviato] .avvio {
     animation: none;
   }
   .btn,
+  .cielo-zoom,
   .pianeta,
   .pianeta[data-stato],
   .nav-pastiglia,
