@@ -4,11 +4,11 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdmin } from "@/lib/auth";
 import { formatSchedule } from "@/lib/announce";
 import { longDayIt, ddmm } from "@/lib/schedule";
+import { PIATTAFORME, pulisciPiattaforme, nomiPiattaforme } from "@/lib/piattaforme";
 import {
   normalizeRows,
   diffSchedule,
   changeLine,
-  type ScheduleRow,
 } from "@/lib/schedule-diff";
 import TitoloPagina from "@/app/titoloPagina";
 import {
@@ -31,6 +31,8 @@ type Section = {
   table: string;
   title: string;
   fields: Field[];
+  // I valori in realtà sono misti (booleani, array delle piattaforme…):
+  // "string" basta per costruire le etichette.
   label: (row: Record<string, string>) => string;
   announce?: "schedule" | "news" | "event";
   orderBy?: string;
@@ -45,6 +47,15 @@ const SECTIONS: Section[] = [
     fields: [
       { name: "titolo", placeholder: "Titolo", required: true },
       { name: "testo", placeholder: "Testo", required: true, type: "textarea" },
+      {
+        name: "titolo_en",
+        placeholder: "Titolo in inglese (facoltativo, se vuoto si usa quello italiano)",
+      },
+      {
+        name: "testo_en",
+        placeholder: "Testo in inglese (facoltativo)",
+        type: "textarea",
+      },
       { name: "immagine", placeholder: "Foto (facoltativa)", type: "photo" },
     ],
     label: (r) => r.titolo,
@@ -59,6 +70,15 @@ const SECTIONS: Section[] = [
         name: "descrizione",
         placeholder: "Descrizione",
         required: true,
+        type: "textarea",
+      },
+      {
+        name: "titolo_en",
+        placeholder: "Titolo in inglese (facoltativo, se vuoto si usa quello italiano)",
+      },
+      {
+        name: "descrizione_en",
+        placeholder: "Descrizione in inglese (facoltativa)",
         type: "textarea",
       },
       { name: "data", placeholder: "Data", type: "date", required: true },
@@ -80,11 +100,21 @@ const SECTIONS: Section[] = [
       { name: "data", placeholder: "Data", type: "date", required: true },
       { name: "orario", placeholder: "Orario", type: "time", required: true },
       { name: "gioco", placeholder: "Gioco", required: true },
+      {
+        name: "piattaforme",
+        placeholder: "Dove va in diretta",
+        type: "multi",
+        options: PIATTAFORME.map((p) => ({ value: p.id, label: p.nome })),
+        // Una diretta nuova parte da Twitch, com'era sempre stato.
+        defaultValues: ["twitch"],
+      },
     ],
-    label: (r) =>
-      r.data
-        ? `${longDayIt(r.data)} ${ddmm(r.data)} ${r.orario} · ${r.gioco}`
-        : `${r.orario} · ${r.gioco}`,
+    label: (r) => {
+      const su = nomiPiattaforme(pulisciPiattaforme(r.piattaforme));
+      return r.data
+        ? `${longDayIt(r.data)} ${ddmm(r.data)} ${r.orario} · ${r.gioco} · ${su}`
+        : `${r.orario} · ${r.gioco} · ${su}`;
+    },
     announce: "schedule",
     orderBy: "data",
   },
@@ -139,14 +169,14 @@ export default async function Admin() {
   // Schedule: confronto con l'ultima versione annunciata su Discord.
   const scheduleIdx = SECTIONS.findIndex((s) => s.table === "schedule");
   const scheduleRows = normalizeRows(
-    (results[scheduleIdx].data ?? []) as Record<string, string>[],
+    results[scheduleIdx].data ?? [],
   );
   const { data: snap } = await supabase
     .from("schedule_announcement")
     .select("snapshot")
     .eq("id", 1)
     .single();
-  const previousSchedule = (snap?.snapshot ?? []) as ScheduleRow[];
+  const previousSchedule = normalizeRows(snap?.snapshot ?? []);
   const scheduleChanges =
     previousSchedule.length > 0
       ? diffSchedule(scheduleRows, previousSchedule)

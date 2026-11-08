@@ -53,7 +53,7 @@ async function Diretta() {
   const supabase = await createClient();
   const [liveStatus, scheduleRes] = await Promise.all([
     getStreamStatus(),
-    supabase.from("schedule").select("data, orario").order("data", { ascending: true }),
+    supabase.from("schedule").select("data, orario, piattaforme").order("data", { ascending: true }),
   ]);
   const prossime = (scheduleRes.data ?? []).filter(
     (item) => item.data && item.orario && isUpcoming(item.data),

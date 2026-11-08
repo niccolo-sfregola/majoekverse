@@ -8,12 +8,20 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdmin } from "@/lib/auth";
 import { sendToDiscord, editDiscordMessage } from "@/lib/discord";
-import { formatSchedule, formatNews, formatEvent } from "@/lib/announce";
+import {
+  formatSchedule,
+  formatNews,
+  formatEvent,
+  discordLength,
+  DISCORD_MAX,
+} from "@/lib/announce";
+import { pulisciPiattaforme } from "@/lib/piattaforme";
 import {
   normalizeRows,
   diffSchedule,
   formatScheduleChanges,
   scheduleChangesPlainText,
+  scheduleChangesPlainTextEn,
   type ScheduleRow,
   type ScheduleChange,
 } from "@/lib/schedule-diff";
@@ -21,9 +29,17 @@ import {
 // Le colonne modificabili per ogni tabella. Tutto ciò che non è qui non
 // viene toccato (id e created_at restano al database).
 const FIELDS: Record<string, string[]> = {
-  news: ["icona", "titolo", "testo", "immagine"],
-  events: ["titolo", "descrizione", "data", "solo_abbonati", "immagine"],
-  schedule: ["data", "orario", "gioco"],
+  news: ["icona", "titolo", "testo", "titolo_en", "testo_en", "immagine"],
+  events: [
+    "titolo",
+    "descrizione",
+    "titolo_en",
+    "descrizione_en",
+    "data",
+    "solo_abbonati",
+    "immagine",
+  ],
+  schedule: ["data", "orario", "gioco", "piattaforme"],
   sponsors: ["name", "link", "code", "sconto", "logo", "ufficiale"],
 };
 
@@ -31,6 +47,22 @@ const FIELDS: Record<string, string[]> = {
 const BOOL_FIELDS: Record<string, string[]> = {
   events: ["solo_abbonati"],
   sponsors: ["ufficiale"],
+};
+
+// Campi a scelta multipla (più checkbox con lo stesso name): si salvano come
+// array. Ognuno ha la sua funzione che pulisce i valori.
+const LIST_FIELDS: Record<string, Record<string, (v: string[]) => string[]>> = {
+  schedule: { piattaforme: pulisciPiattaforme },
+};
+
+// Campi facoltativi: se vuoti si salva null invece di "" (così "non c'è
+// l'inglese" è chiaro anche guardando il database).
+const OPTIONAL_FIELDS = ["titolo_en", "testo_en", "descrizione_en"];
+
+// Tabelle il cui messaggio Discord va tenuto sotto i 2000 caratteri.
+const DISCORD_FORMAT: Record<string, (row: Record<string, unknown>) => string> = {
+  news: formatNews,
+  events: formatEvent,
 };
 
 // Ogni azione ricontrolla is_admin lato server: il database (RLS) lo impone
@@ -69,12 +101,32 @@ export async function saveRow(
 
     const id = text(formData, "id");
     const bools = BOOL_FIELDS[table] ?? [];
+    const lists = LIST_FIELDS[table] ?? {};
     const row = Object.fromEntries(
-      fields.map((f) => [
-        f,
-        bools.includes(f) ? formData.get(f) === "on" : text(formData, f),
-      ]),
+      fields.map((f) => {
+        if (bools.includes(f)) return [f, formData.get(f) === "on"];
+        if (lists[f]) return [f, lists[f](formData.getAll(f).map(String))];
+        const value = text(formData, f);
+        return [f, OPTIONAL_FIELDS.includes(f) && !value ? null : value];
+      }),
     );
+
+    if (table === "schedule" && formData.getAll("piattaforme").length === 0) {
+      return { ok: false, message: "Scegli almeno una piattaforma." };
+    }
+
+    // Stesso controllo del contatore nel form, ripetuto qui perché il form
+    // si può aggirare. Meglio fermarsi che far tagliare il messaggio a Discord.
+    const format = DISCORD_FORMAT[table];
+    if (format) {
+      const length = discordLength(format(row));
+      if (length > DISCORD_MAX) {
+        return {
+          ok: false,
+          message: `Troppo lungo per Discord: ${length}/${DISCORD_MAX} caratteri (italiano + inglese insieme).`,
+        };
+      }
+    }
 
     const supabase = await createClient();
     const { error } = id
@@ -205,7 +257,7 @@ export async function previewScheduleChanges(): Promise<ScheduleChange[]> {
     .select("snapshot")
     .eq("id", 1)
     .single();
-  const previous = (snap?.snapshot ?? []) as ScheduleRow[];
+  const previous = normalizeRows(snap?.snapshot ?? []);
   if (previous.length === 0) return [];
 
   return diffSchedule(rows, previous);
@@ -226,7 +278,7 @@ export async function announceScheduleChanges(
     .select("snapshot")
     .eq("id", 1)
     .single();
-  const previous = (snap?.snapshot ?? []) as ScheduleRow[];
+  const previous = normalizeRows(snap?.snapshot ?? []);
 
   if (previous.length === 0) {
     return {
@@ -246,6 +298,8 @@ export async function announceScheduleChanges(
       icona: "📅",
       titolo: "Modifica alla schedule",
       testo: scheduleChangesPlainText(changes),
+      titolo_en: "Schedule update",
+      testo_en: scheduleChangesPlainTextEn(changes),
     });
     await saveSnapshot(supabase, rows);
     refresh();

@@ -5,6 +5,7 @@ import { longDay, ddmm } from "@/lib/schedule";
 import { useDict, useLang } from "./langProvider";
 import Sheet from "./sheet";
 import Button from "./button";
+import { inLingua } from "@/lib/i18n/testo";
 
 const DISCORD_INVITE = "https://discord.com/invite/4FskPTnBts";
 const TWITCH_SUB = "https://www.twitch.tv/subs/majoekoto";
@@ -13,6 +14,8 @@ type EventRow = {
   id: string | number;
   titolo: string;
   descrizione: string | null;
+  titolo_en: string | null;
+  descrizione_en: string | null;
   data: string | null;
   solo_abbonati: boolean | null;
   immagine: string | null;
@@ -33,6 +36,7 @@ export default function EventList({
   const t = useDict();
   const lang = useLang();
 
+  const titolo = (e: EventRow) => inLingua(lang, e.titolo, e.titolo_en);
   const when = (data: string) => `${longDay(data, lang)} ${ddmm(data)}`;
   const locked = active?.solo_abbonati && !subscribed;
 
@@ -49,7 +53,7 @@ export default function EventList({
               <span className="font-bold tabular-nums text-brand-lavanda">
                 {item.data ? ddmm(item.data) : ""}
               </span>
-              <span className="min-w-0 truncate text-brand-crema">{item.titolo}</span>
+              <span className="min-w-0 truncate text-brand-crema">{titolo(item)}</span>
               {item.solo_abbonati ? (
                 <span className="text-sm font-semibold text-brand-corallo">
                   {t.eventi.subsOnly}
@@ -90,10 +94,10 @@ export default function EventList({
             ) : null}
           </p>
           <h2 className="mt-2 text-xl font-bold text-brand-crema">
-            {active.titolo}
+            {titolo(active)}
           </h2>
           <p className="mt-3 whitespace-pre-line text-brand-lavanda-chiara">
-            {active.descrizione}
+            {inLingua(lang, active.descrizione, active.descrizione_en)}
           </p>
         </Sheet>
       ) : null}

@@ -3,14 +3,18 @@
 import { useEffect, useState } from "react";
 import type { LiveStatus } from "@/lib/twitch";
 import { inizioDiretta } from "@/lib/schedule";
+import {
+  PIATTAFORME,
+  pulisciPiattaforme,
+  nomiPiattaforme,
+  type Piattaforma,
+} from "@/lib/piattaforme";
 import { useDict } from "./langProvider";
 import { useTransizione } from "./transizione";
 import Button from "./button";
 import Pannello from "./pannello";
 
-const TWITCH_URL = "https://www.twitch.tv/majoekoto";
-
-type Diretta = { data: string; orario: string };
+type Diretta = { data: string; orario: string; piattaforme: string[] | null };
 
 // Blocco in cima alla Home: conto alla rovescia verso la prossima diretta
 // vera della schedule, oppure "In diretta ora" se Joe è live. Lo stato live
@@ -48,9 +52,18 @@ export default function ProssimaDiretta({
   }, [conta]);
 
   // La prima diretta che deve ancora iniziare (quelle di oggi già partite no).
-  const prossima = prossime
-    .map((d) => inizioDiretta(d.data, d.orario).getTime())
-    .find((inizio) => inizio > ora);
+  const diretta = prossime
+    .map((d) => ({ ...d, inizio: inizioDiretta(d.data, d.orario).getTime() }))
+    .find((d) => d.inizio > ora);
+  const prossima = diretta?.inizio;
+
+  // Dove mandare chi clicca. Se Joe è live su Twitch → Twitch (lo stato live
+  // lo sappiamo solo per Twitch). Se no, le piattaforme della prossima diretta
+  // della schedule (anche tutte e due); senza schedule → Twitch.
+  const dove: Piattaforma[] = status.isLive
+    ? ["twitch"]
+    : pulisciPiattaforme(diretta?.piattaforme);
+  const canali = PIATTAFORME.filter((p) => dove.includes(p.id));
 
   const esplora = (className: string) => (
     <button type="button" onClick={tuffo} className={`link-azione ${className}`}>
@@ -104,12 +117,23 @@ export default function ProssimaDiretta({
             >
               {formatta(prossima - ora, t.live.days)}
             </p>
+            <p className="text-brand-lavanda-chiara">{t.live.on(nomiPiattaforme(dove))}</p>
           </>
         ) : (
           <p className="text-brand-lavanda-chiara">{t.live.offline}</p>
         )}
         <div className="mt-2 flex flex-wrap items-center gap-6">
-          <Button href={TWITCH_URL}>{status.isLive ? t.live.watch : t.live.goToChannel}</Button>
+          {/* Con una sola piattaforma il testo resta quello di sempre; con due
+              ogni bottone dice dove porta. */}
+          {canali.map((p) => (
+            <Button key={p.id} href={p.url}>
+              {status.isLive
+                ? t.live.watch
+                : canali.length > 1
+                  ? t.live.goTo(p.nome)
+                  : t.live.goToChannel}
+            </Button>
+          ))}
           {esplora("hidden lg:inline-flex lg:underline lg:underline-offset-[5px]")}
         </div>
       </Pannello>

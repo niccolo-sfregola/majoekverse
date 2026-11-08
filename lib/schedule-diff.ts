@@ -1,9 +1,17 @@
 // Confronto tra la schedule attuale e l'ultima annunciata su Discord.
 import { longDayIt, longDayEn, ddmm, timeIt, timeEn } from "./schedule";
+import { pulisciPiattaforme, nomiPiattaforme, type Piattaforma } from "./piattaforme";
 
-export type ScheduleRow = { data: string; orario: string; gioco: string };
+export type ScheduleRow = {
+  data: string;
+  orario: string;
+  gioco: string;
+  piattaforme: Piattaforma[];
+};
 
-export type ScheduleChange =
+// Ogni modifica si porta dietro le piattaforme attuali della diretta (per
+// "removed" quelle che aveva), così le righe del messaggio le possono citare.
+export type ScheduleChange = { piattaforme: Piattaforma[] } & (
   | { kind: "added"; data: string; orario: string; gioco: string }
   | { kind: "removed"; data: string; orario: string; gioco: string }
   | { kind: "moved"; data: string; from: string; to: string; gioco: string }
@@ -21,19 +29,34 @@ export type ScheduleChange =
       to: string;
       fromGioco: string;
       toGioco: string;
-    };
+    }
+  // Cambiata SOLO la piattaforma (stesso orario, stesso gioco).
+  | {
+      kind: "platform";
+      data: string;
+      orario: string;
+      gioco: string;
+      fromPiattaforme: Piattaforma[];
+    }
+);
 
 // Pulisce le righe che arrivano dal database: scarta quelle incomplete e
 // taglia l'orario a "HH:MM" (a volte il DB restituisce "21:00:00").
-export function normalizeRows(rows: Record<string, string>[]): ScheduleRow[] {
+// Va bene anche per gli snapshot vecchi, salvati prima che esistessero le
+// piattaforme: senza il campo diventano "solo Twitch".
+export function normalizeRows(rows: Record<string, unknown>[]): ScheduleRow[] {
   return rows
     .filter((r) => r.data && r.orario && r.gioco)
     .map((r) => ({
-      data: r.data,
-      orario: r.orario.slice(0, 5),
-      gioco: r.gioco,
+      data: String(r.data),
+      orario: String(r.orario).slice(0, 5),
+      gioco: String(r.gioco),
+      piattaforme: pulisciPiattaforme(r.piattaforme),
     }));
 }
+
+const stessePiattaforme = (a: Piattaforma[], b: Piattaforma[]) =>
+  a.join() === b.join();
 
 export function diffSchedule(
   current: ScheduleRow[],
@@ -51,10 +74,12 @@ export function diffSchedule(
     }
     const timeChanged = prev.orario !== cur.orario;
     const gameChanged = prev.gioco.toLowerCase() !== cur.gioco.toLowerCase();
+    const piattaforme = cur.piattaforme;
 
     if (timeChanged && gameChanged) {
       changes.push({
         kind: "movedGame",
+        piattaforme,
         data: cur.data,
         from: prev.orario,
         to: cur.orario,
@@ -64,6 +89,7 @@ export function diffSchedule(
     } else if (timeChanged) {
       changes.push({
         kind: "moved",
+        piattaforme,
         data: cur.data,
         from: prev.orario,
         to: cur.orario,
@@ -72,10 +98,20 @@ export function diffSchedule(
     } else if (gameChanged) {
       changes.push({
         kind: "game",
+        piattaforme,
         data: cur.data,
         orario: cur.orario,
         fromGioco: prev.gioco,
         toGioco: cur.gioco,
+      });
+    } else if (!stessePiattaforme(prev.piattaforme, cur.piattaforme)) {
+      changes.push({
+        kind: "platform",
+        data: cur.data,
+        orario: cur.orario,
+        gioco: cur.gioco,
+        piattaforme,
+        fromPiattaforme: prev.piattaforme,
       });
     }
   }
@@ -97,35 +133,46 @@ function dayEn(dataStr: string): string {
   return `${longDayEn(dataStr)} ${ddmm(dataStr)}`;
 }
 
+// " (Twitch)", " (Twitch + TikTok)": in coda a ogni riga.
+function su(lista: Piattaforma[]): string {
+  return ` (${nomiPiattaforme(lista)})`;
+}
+
 // Una riga leggibile per ogni modifica (italiano).
 export function changeLine(c: ScheduleChange): string {
+  const p = su(c.piattaforme);
   switch (c.kind) {
     case "added":
-      return `➕ ${dayIt(c.data)}: nuova diretta dalle ${timeIt(c.orario)} - ${c.gioco.toUpperCase()}`;
+      return `➕ ${dayIt(c.data)}: nuova diretta dalle ${timeIt(c.orario)} - ${c.gioco.toUpperCase()}${p}`;
     case "removed":
-      return `❌ ${dayIt(c.data)}: diretta annullata (${c.gioco.toUpperCase()})`;
+      return `❌ ${dayIt(c.data)}: diretta annullata (${c.gioco.toUpperCase()})${p}`;
     case "moved":
-      return `🕘 ${dayIt(c.data)}: spostata dalle ${timeIt(c.from)} alle ${timeIt(c.to)} - ${c.gioco.toUpperCase()}`;
+      return `🕘 ${dayIt(c.data)}: spostata dalle ${timeIt(c.from)} alle ${timeIt(c.to)} - ${c.gioco.toUpperCase()}${p}`;
     case "game":
-      return `🎮 ${dayIt(c.data)} dalle ${timeIt(c.orario)}: ora ${c.toGioco.toUpperCase()} (prima ${c.fromGioco.toUpperCase()})`;
+      return `🎮 ${dayIt(c.data)} dalle ${timeIt(c.orario)}: ora ${c.toGioco.toUpperCase()} (prima ${c.fromGioco.toUpperCase()})${p}`;
     case "movedGame":
-      return `🔄 ${dayIt(c.data)}: ora dalle ${timeIt(c.to)} con ${c.toGioco.toUpperCase()} (prima dalle ${timeIt(c.from)}, ${c.fromGioco.toUpperCase()})`;
+      return `🔄 ${dayIt(c.data)}: ora dalle ${timeIt(c.to)} con ${c.toGioco.toUpperCase()} (prima dalle ${timeIt(c.from)}, ${c.fromGioco.toUpperCase()})${p}`;
+    case "platform":
+      return `📺 ${dayIt(c.data)} dalle ${timeIt(c.orario)} - ${c.gioco.toUpperCase()}: ora su ${nomiPiattaforme(c.piattaforme)} (prima su ${nomiPiattaforme(c.fromPiattaforme)})`;
   }
 }
 
 // Stessa riga in inglese.
 export function changeLineEn(c: ScheduleChange): string {
+  const p = su(c.piattaforme);
   switch (c.kind) {
     case "added":
-      return `➕ ${dayEn(c.data)}: new stream from ${timeEn(c.orario)} (CEST / Italy) - ${c.gioco.toUpperCase()}`;
+      return `➕ ${dayEn(c.data)}: new stream from ${timeEn(c.orario)} (CEST / Italy) - ${c.gioco.toUpperCase()}${p}`;
     case "removed":
-      return `❌ ${dayEn(c.data)}: stream cancelled (${c.gioco.toUpperCase()})`;
+      return `❌ ${dayEn(c.data)}: stream cancelled (${c.gioco.toUpperCase()})${p}`;
     case "moved":
-      return `🕘 ${dayEn(c.data)}: moved from ${timeEn(c.from)} to ${timeEn(c.to)} (CEST / Italy) - ${c.gioco.toUpperCase()}`;
+      return `🕘 ${dayEn(c.data)}: moved from ${timeEn(c.from)} to ${timeEn(c.to)} (CEST / Italy) - ${c.gioco.toUpperCase()}${p}`;
     case "game":
-      return `🎮 ${dayEn(c.data)} from ${timeEn(c.orario)}: now ${c.toGioco.toUpperCase()} (was ${c.fromGioco.toUpperCase()})`;
+      return `🎮 ${dayEn(c.data)} from ${timeEn(c.orario)}: now ${c.toGioco.toUpperCase()} (was ${c.fromGioco.toUpperCase()})${p}`;
     case "movedGame":
-      return `🔄 ${dayEn(c.data)}: now from ${timeEn(c.to)} with ${c.toGioco.toUpperCase()} (was ${timeEn(c.from)}, ${c.fromGioco.toUpperCase()})`;
+      return `🔄 ${dayEn(c.data)}: now from ${timeEn(c.to)} with ${c.toGioco.toUpperCase()} (was ${timeEn(c.from)}, ${c.fromGioco.toUpperCase()})${p}`;
+    case "platform":
+      return `📺 ${dayEn(c.data)} from ${timeEn(c.orario)} - ${c.gioco.toUpperCase()}: now on ${nomiPiattaforme(c.piattaforme)} (was on ${nomiPiattaforme(c.fromPiattaforme)})`;
   }
 }
 
@@ -148,7 +195,12 @@ export function formatScheduleChanges(changes: ScheduleChange[]): string {
   ].join("\n");
 }
 
-// Testo per la news creata in automatico (in-app, solo italiano).
+// Testo per la news creata in automatico (in-app): italiano e inglese,
+// l'app mostra quello della lingua scelta.
 export function scheduleChangesPlainText(changes: ScheduleChange[]): string {
   return changes.map(changeLine).join("\n");
+}
+
+export function scheduleChangesPlainTextEn(changes: ScheduleChange[]): string {
+  return changes.map(changeLineEn).join("\n");
 }

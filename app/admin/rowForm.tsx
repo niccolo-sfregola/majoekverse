@@ -4,15 +4,19 @@ import { useActionState, useCallback, useEffect, useRef, useState } from "react"
 import { saveRow, type MutateState } from "./actions";
 import ImageField from "./imageField";
 import { useNotifyScheduleChanged } from "./scheduleAnnounceContext";
-import { DISCORD_MAX, formatEvent, formatNews } from "@/lib/announce";
+import { DISCORD_MAX, discordLength, formatEvent, formatNews } from "@/lib/announce";
 
 export type Field = {
   name: string;
   placeholder: string;
   // "text" (default), "date", "time", "url", "checkbox", "textarea",
-  // "image" (logo sponsor) o "photo" (foto di news/eventi).
+  // "image" (logo sponsor), "photo" (foto di news/eventi) o "multi"
+  // (una spunta per ogni opzione, se ne possono scegliere più di una).
   type?: string;
   required?: boolean;
+  // Solo per "multi": le opzioni e quelle già spuntate in una riga nuova.
+  options?: { value: string; label: string }[];
+  defaultValues?: string[];
 };
 
 
@@ -46,8 +50,7 @@ export default function RowForm({
     const values = Object.fromEntries(
       [...new FormData(formRef.current)].map(([k, v]) => [k, String(v)]),
     );
-    // [...testo] conta le emoji come 1 carattere, come fa Discord.
-    setLength([...format(values)].length);
+    setLength(discordLength(format(values)));
   }, [format]);
   useEffect(measure, [measure]);
 
@@ -77,6 +80,34 @@ export default function RowForm({
       <input type="hidden" name="table" value={table} />
       {row ? <input type="hidden" name="id" value={String(row.id)} /> : null}
       {fields.map((f) => {
+        if (f.type === "multi") {
+          // Stesso name per tutte le spunte: il server le legge con getAll().
+          const current = Array.isArray(row?.[f.name])
+            ? (row[f.name] as string[])
+            : (f.defaultValues ?? []);
+          return (
+            <fieldset key={f.name} className="flex flex-col gap-2">
+              <legend className="mb-2 text-brand-lavanda-chiara">{f.placeholder}</legend>
+              <div className="flex flex-wrap gap-2">
+                {f.options?.map((o) => (
+                  <label
+                    key={o.value}
+                    className="flex min-h-11 cursor-pointer items-center gap-3 border border-brand-lavanda/40 bg-brand-fondo px-4 text-brand-crema transition-colors has-[:checked]:border-brand-lavanda has-[:checked]:bg-brand-superficie-hover"
+                  >
+                    <input
+                      type="checkbox"
+                      name={f.name}
+                      value={o.value}
+                      defaultChecked={current.includes(o.value)}
+                      className="h-5 w-5 accent-[var(--lavanda)]"
+                    />
+                    {o.label}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          );
+        }
         if (f.type === "checkbox") {
           return (
             <label
@@ -145,12 +176,16 @@ export default function RowForm({
             length > DISCORD_MAX ? "text-brand-pesca" : "text-brand-lavanda-chiara"
           }`}
         >
-          Discord: {length}/{DISCORD_MAX}
-          {length > DISCORD_MAX ? " — verrà tagliato" : ""}
+          Discord (italiano + inglese): {length}/{DISCORD_MAX}
+          {length > DISCORD_MAX ? " — accorcia il testo per salvare" : ""}
         </span>
       ) : null}
       {/* Azione principale del form: il .btn (senza lampo nell'admin). */}
-      <button type="submit" disabled={pending} className="btn lg:self-start">
+      <button
+        type="submit"
+        disabled={pending || length > DISCORD_MAX}
+        className="btn lg:self-start"
+      >
         {pending ? "Salvataggio…" : row ? "Salva modifiche" : "Aggiungi"}
       </button>
       {state ? (

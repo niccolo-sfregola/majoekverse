@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useDict } from "./langProvider";
+import { useDict, useLang } from "./langProvider";
+import { inLingua } from "@/lib/i18n/testo";
 import Sheet from "./sheet";
 
 type NewsRow = {
@@ -9,6 +10,8 @@ type NewsRow = {
   icona: string | null;
   titolo: string;
   testo: string;
+  titolo_en: string | null;
+  testo_en: string | null;
   immagine: string | null;
 };
 
@@ -22,6 +25,8 @@ export default function NewsList({ items }: { items: NewsRow[] }) {
   const [active, setActive] = useState<NewsRow | null>(null);
   const [espanso, setEspanso] = useState(false);
   const t = useDict();
+  const lang = useLang();
+  const titolo = (n: NewsRow) => inLingua(lang, n.titolo, n.titolo_en);
 
   if (!items || items.length === 0) {
     return <p className="text-brand-lavanda-chiara">{t.news.empty}</p>;
@@ -34,7 +39,7 @@ export default function NewsList({ items }: { items: NewsRow[] }) {
       <button type="button" onClick={() => setActive(item)} className="riga">
         {/* min-w-0 + flex-1: senza, alcuni browser (Safari) danno al testo
             troncato larghezza zero dentro un <button> in flex. */}
-        <span className="min-w-0 flex-1 truncate text-brand-crema">{item.titolo}</span>
+        <span className="min-w-0 flex-1 truncate text-brand-crema">{titolo(item)}</span>
       </button>
     </li>
   );
@@ -96,10 +101,10 @@ export default function NewsList({ items }: { items: NewsRow[] }) {
             />
           ) : null}
           <h2 className="text-xl font-bold text-brand-crema">
-            {active.titolo}
+            {titolo(active)}
           </h2>
           <p className="mt-3 whitespace-pre-line text-brand-lavanda-chiara">
-            {active.testo}
+            {inLingua(lang, active.testo, active.testo_en)}
           </p>
         </Sheet>
       ) : null}
