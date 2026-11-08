@@ -8,9 +8,11 @@ import CopyCode from "./copyCode";
 import TornaHome from "./tornaHome";
 import Pannello from "@/app/pannello";
 import Button from "@/app/button";
+import { PIATTAFORME } from "@/lib/piattaforme";
 
+// Prima le piattaforme delle dirette (stessi link della Home), poi il resto.
 const socials = [
-  { name: "Twitch", link: "https://twitch.tv/majoekoto" },
+  ...PIATTAFORME.map((p) => ({ name: p.nome, link: p.url })),
   { name: "Instagram", link: "https://instagram.com/majoekoto" },
   { name: "YouTube", link: "https://youtube.com/@majoekoto" },
   { name: "Discord", link: "https://discord.com/invite/4FskPTnBts" },
@@ -101,7 +103,8 @@ export default async function Universo() {
 
       <section className="flex flex-col gap-2.5 lg:gap-3">
         <h2 className="titolo-sezione">{t.universo.socials}</h2>
-        <div className="grid grid-cols-2 gap-2 lg:grid-cols-4 lg:gap-2.5">
+        {/* 5 social: su telefono l'ultimo (rimasto da solo) prende tutta la riga. */}
+        <div className="grid grid-cols-2 gap-2 [&>:last-child:nth-child(odd)]:col-span-2 lg:grid-cols-5 lg:gap-2.5 lg:[&>:last-child:nth-child(odd)]:col-span-1">
           {socials.map((s) => (
             <a key={s.name} href={s.link} target="_blank" rel="noopener noreferrer" className="social">
               {s.name}

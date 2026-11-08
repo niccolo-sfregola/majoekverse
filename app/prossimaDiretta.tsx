@@ -57,13 +57,13 @@ export default function ProssimaDiretta({
     .find((d) => d.inizio > ora);
   const prossima = diretta?.inizio;
 
-  // Dove mandare chi clicca. Se Joe è live su Twitch → Twitch (lo stato live
-  // lo sappiamo solo per Twitch). Se no, le piattaforme della prossima diretta
-  // della schedule (anche tutte e due); senza schedule → Twitch.
+  // I bottoni di Twitch e TikTok ci sono sempre; quello "principale" (lavanda,
+  // col lampo) è dove si va in diretta: Twitch se Joe è live lì (lo stato
+  // live lo sappiamo solo per Twitch), se no le piattaforme della prossima
+  // diretta della schedule (anche tutte e due); senza schedule → Twitch.
   const dove: Piattaforma[] = status.isLive
     ? ["twitch"]
     : pulisciPiattaforme(diretta?.piattaforme);
-  const canali = PIATTAFORME.filter((p) => dove.includes(p.id));
 
   const esplora = (className: string) => (
     <button type="button" onClick={tuffo} className={`link-azione ${className}`}>
@@ -122,21 +122,20 @@ export default function ProssimaDiretta({
         ) : (
           <p className="text-brand-lavanda-chiara">{t.live.offline}</p>
         )}
-        <div className="mt-2 flex flex-wrap items-center gap-6">
-          {/* Con una sola piattaforma il testo resta quello di sempre; con due
-              ogni bottone dice dove porta. */}
-          {canali.map((p) => (
-            <Button key={p.id} href={p.url}>
-              {status.isLive
-                ? t.live.watch
-                : canali.length > 1
-                  ? t.live.goTo(p.nome)
-                  : t.live.goToChannel}
+        <div className="mt-2 flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-center">
+          {PIATTAFORME.map((p) => (
+            <Button
+              key={p.id}
+              href={p.url}
+              className={dove.includes(p.id) ? undefined : "btn-secondario"}
+            >
+              {status.isLive && p.id === "twitch" ? t.live.watch : t.live.goTo(p.nome)}
             </Button>
           ))}
-          {esplora("hidden lg:inline-flex lg:underline lg:underline-offset-[5px]")}
         </div>
       </Pannello>
+      {/* Da desktop il link non c'è: al suo posto il bottone di TikTok, e
+          all'Universo si arriva cliccando il pianeta lì accanto. */}
       {esplora("w-full justify-between lg:hidden")}
     </div>
   );

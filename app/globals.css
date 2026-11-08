@@ -120,6 +120,21 @@ body {
     outline: 2px solid var(--crema);
     outline-offset: 2px;
   }
+  /* Variante secondaria (es. la piattaforma dove NON c'è la prossima diretta):
+     stessa forma e misura, ma scura e senza lampo, così il bottone principale
+     resta quello che salta all'occhio. */
+  .btn.btn-secondario {
+    background: var(--superficie-hover);
+    color: var(--crema);
+  }
+  .btn.btn-secondario::after {
+    display: none;
+  }
+  @media (hover: hover) {
+    .btn.btn-secondario:hover {
+      background: var(--blu);
+    }
+  }
   /* Disattivato (es. form in invio): niente lampo e niente pressione. */
   .btn:disabled {
     cursor: default;
@@ -394,8 +409,7 @@ body {
   transform-origin: top right;
   transition:
     transform 0.9s cubic-bezier(0.7, 0, 0.2, 1),
-    opacity 0.5s ease,
-    filter 0.25s ease;
+    opacity 0.5s ease;
 }
 /* Piccolo nell'angolo: la sfera è il 78% del canvas, quindi attorno c'è
    un 11% vuoto (l'alone). Spostando l'angolo del canvas quasi sul bordo,
@@ -417,6 +431,7 @@ body {
     opacity 0.3s ease 0.85s;
 }
 .pianeta-bottone {
+  position: relative;
   display: block;
   width: 100%;
   height: 100%;
@@ -426,11 +441,29 @@ body {
   background: transparent;
   cursor: pointer;
 }
+/* Alone viola dietro la sfera, spento finché non ci si passa sopra col mouse.
+   È disegnato una volta sola e poi si anima SOLO l'opacità, che il browser
+   gestisce senza ricalcolare niente: con un filter (drop-shadow) sul canvas,
+   che si ridisegna a ogni fotogramma, l'alone andava ricalcolato ogni volta
+   e l'animazione scattava. La sfera è il 78% del canvas → inset 11%. */
+.pianeta-bottone::before {
+  content: "";
+  position: absolute;
+  inset: 11%;
+  border-radius: 50%;
+  box-shadow:
+    0 0 50px 10px color-mix(in srgb, var(--pianeta-viola-chiaro) 75%, transparent),
+    0 0 120px 40px color-mix(in srgb, var(--pianeta-viola) 60%, transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
 .pianeta-bottone:focus-visible {
   outline: 2px solid var(--crema);
   outline-offset: -12%;
 }
 .pianeta canvas {
+  position: relative; /* sopra l'alone (::before) */
   display: block;
   width: 100%;
   height: 100%;
@@ -456,7 +489,7 @@ body {
     top: 96px;
     left: auto;
     right: 4%;
-    transition-duration: 1s, 0.5s, 0.25s;
+    transition-duration: 1s, 0.5s;
   }
   /* Dal bordo destro (right: 4%) fin quasi al bordo dello schermo, e su
      fino a stare appena sotto la nav. */
@@ -465,8 +498,10 @@ body {
   }
 }
 @media (hover: hover) {
-  .pianeta:not([data-stato="nascosto"]):hover {
-    filter: brightness(1.14);
+  /* Al passaggio del mouse si accende l'alone dietro il pianeta: si capisce
+     che è cliccabile. Cambia solo l'opacità (vedi .pianeta-bottone::before). */
+  .pianeta:not([data-stato="nascosto"]):hover .pianeta-bottone::before {
+    opacity: 1;
   }
 }
 

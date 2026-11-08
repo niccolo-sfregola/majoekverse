@@ -1,6 +1,7 @@
 import { shortDay, formatTime } from "@/lib/schedule";
 import { getDict, getLang } from "@/lib/i18n/server";
 import { pulisciPiattaforme, nomiPiattaforme } from "@/lib/piattaforme";
+import RigaSchedule from "./rigaSchedule";
 
 type ScheduleRow = {
   id: string | number;
@@ -11,7 +12,8 @@ type ScheduleRow = {
 };
 
 // Schedule della Home: una riga per diretta (giorno, gioco + piattaforma, orario).
-// La prima è la prossima e si distingue (.riga-attiva).
+// La prima è la prossima e si distingue (.riga-attiva). Ogni riga è un
+// piccolo componente client (RigaSchedule) che si apre se il gioco è tagliato.
 export default async function ScheduleList({ items }: { items: ScheduleRow[] }) {
   const [t, lang] = await Promise.all([getDict(), getLang()]);
 
@@ -23,30 +25,15 @@ export default async function ScheduleList({ items }: { items: ScheduleRow[] }) 
       ) : (
         <ul className="entra flex flex-col gap-1.5">
           {items.map((item, i) => {
-            const prossima = i === 0;
             return (
-              <li
+              <RigaSchedule
                 key={item.id}
-                className={`riga grid grid-cols-[46px_minmax(0,1fr)_auto] gap-x-2 ${
-                  prossima ? "riga-attiva" : ""
-                }`}
-              >
-                <span className={`font-bold ${prossima ? "" : "text-brand-lavanda"}`}>
-                  {shortDay(item.data, lang)}
-                </span>
-                {/* Il gioco si tronca, la piattaforma resta sempre intera. */}
-                <span className="flex min-w-0 items-baseline gap-2">
-                  <span className={`truncate ${prossima ? "font-bold" : ""}`}>
-                    {item.gioco || t.schedule.tbd}
-                  </span>
-                  <span className="shrink-0 text-xs text-brand-lavanda-chiara">
-                    {nomiPiattaforme(pulisciPiattaforme(item.piattaforme))}
-                  </span>
-                </span>
-                <span className={`tabular-nums ${prossima ? "" : "text-brand-lavanda-chiara"}`}>
-                  {formatTime(item.orario, lang)}
-                </span>
-              </li>
+                giorno={shortDay(item.data, lang)}
+                gioco={item.gioco || t.schedule.tbd}
+                piattaforme={nomiPiattaforme(pulisciPiattaforme(item.piattaforme))}
+                orario={formatTime(item.orario, lang)}
+                prossima={i === 0}
+              />
             );
           })}
         </ul>

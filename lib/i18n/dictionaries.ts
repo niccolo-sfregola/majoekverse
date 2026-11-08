@@ -38,7 +38,6 @@ const it = {
     // Suffisso dei giorni nel conto alla rovescia: "2g 03:15:20".
     days: "g",
     noStream: "Nessuna diretta in corso.",
-    goToChannel: "Vai al canale",
     goTo: (nome: string) => `Vai su ${nome}`,
     // Sotto il conto alla rovescia: "su Twitch", "su Twitch + TikTok".
     on: (nomi: string) => `su ${nomi}`,
@@ -353,7 +352,6 @@ const en: Dict = {
     nextIn: "Currently offline. Next stream in",
     days: "d",
     noStream: "No stream right now.",
-    goToChannel: "Go to channel",
     goTo: (nome: string) => `Go to ${nome}`,
     on: (nomi: string) => `on ${nomi}`,
   },

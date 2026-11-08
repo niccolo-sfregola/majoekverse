@@ -2,7 +2,10 @@
 // compaiono ovunque (admin, Home, Discord).
 export const PIATTAFORME = [
   { id: "twitch", nome: "Twitch", url: "https://www.twitch.tv/majoekoto" },
-  { id: "tiktok", nome: "TikTok", url: "https://www.tiktok.com/@majoekoto/live" },
+  // Il profilo e non /live: il bottone in Home c'è anche quando Joe non è in
+  // diretta, e /live da offline mostra solo "LIVE terminata". Dal profilo,
+  // quando è live, l'avatar ha il bollino LIVE.
+  { id: "tiktok", nome: "TikTok", url: "https://www.tiktok.com/@majoekoto" },
 ] as const;
 
 export type Piattaforma = (typeof PIATTAFORME)[number]["id"];
