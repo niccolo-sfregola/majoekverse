@@ -1,0 +1,56 @@
+Copyright (c) 2026 Niccolò Sfregola. Tutti i diritti riservati.
+All rights reserved.
+
+Progetto: maJoekverse
+Sito / app: majoekverse.vercel.app
+
+Questo software e tutti i file che lo compongono (codice sorgente, HTML, CSS,
+JavaScript/TypeScript, grafica originale, testi e ogni altro contenuto
+originale, di seguito "l'Opera") sono di proprietà esclusiva dell'autore
+Niccolò Sfregola e sono protetti dalla legge italiana sul diritto d'autore
+(L. 22 aprile 1941, n. 633), dal D.Lgs. 518/1992 sulla tutela del software e
+dalle convenzioni internazionali applicabili.
+
+L'Opera è concessa in uso ai soggetti autorizzati dall'autore per il solo
+funzionamento della community e dei canali di maJoekoto. Tale uso non
+trasferisce la proprietà né alcun diritto di sfruttamento del codice.
+
+È VIETATO, in tutto o in parte, senza il preventivo consenso scritto
+dell'autore:
+  - copiare, riprodurre o duplicare l'Opera o parti di essa;
+  - distribuire, pubblicare o rendere disponibile l'Opera a terzi;
+  - modificare, adattare, tradurre o creare opere derivate;
+  - decompilare, disassemblare o tentare di risalire al codice sorgente;
+  - riutilizzare il codice, la struttura, i nomi o le soluzioni tecniche in
+    altri progetti, siti o applicazioni.
+
+La visione del codice reso pubblico dal browser per il normale funzionamento
+del sito/app non costituisce in alcun modo concessione di licenza d'uso.
+
+Per richieste di autorizzazione contattare l'autore.
+
+Il mancato rispetto di queste condizioni costituisce violazione del diritto
+d'autore e sarà perseguito nelle sedi civili e penali competenti.
+
+COMPONENTI DI TERZE PARTI
+L'Opera include componenti di terze parti distribuiti con licenze proprie
+(in particolare le librerie elencate in package.json, come Next.js, React,
+Supabase e Tailwind CSS, ciascuna con la propria licenza open source). Tali
+licenze prevalgono, limitatamente ai componenti a cui si riferiscono, sulle
+condizioni qui esposte.
+
+In particolare non sono coperti dalla presente licenza, e restano dei
+rispettivi titolari:
+  - il nome, il marchio e l'immagine di maJoekoto, nonché le immagini del
+    canale presenti in "public/" (tra cui profile_pic.jpg e il materiale
+    grafico del canale), che restano di maJoekoto;
+  - i loghi degli sponsor in "public/sponsor/", che restano dei rispettivi
+    titolari e sono usati solo per identificarli;
+  - i marchi, i loghi e i colori di Twitch, YouTube, TikTok, Instagram,
+    Discord e Telegram, richiamati solo per identificare i canali;
+  - i contenuti e i dati forniti dalle API di Twitch e YouTube, soggetti alle
+    condizioni d'uso delle rispettive piattaforme;
+  - il carattere tipografico Oxanium, servito tramite Google Fonts e
+    distribuito con licenza SIL Open Font License;
+  - il carattere tipografico Blowbrush ("public/fonts/"), soggetto alla
+    licenza del suo autore.

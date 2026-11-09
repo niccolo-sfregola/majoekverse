@@ -293,6 +293,7 @@ const it = {
   },
   privacy: {
     link: "Privacy e regole",
+    copyright: "© 2026 Niccolò Sfregola · Tutti i diritti riservati",
   },
   onboarding: {
     skip: "Salta",
@@ -604,6 +605,7 @@ const en: Dict = {
   },
   privacy: {
     link: "Privacy & rules",
+    copyright: "© 2026 Niccolò Sfregola · All rights reserved",
   },
   onboarding: {
     skip: "Skip",

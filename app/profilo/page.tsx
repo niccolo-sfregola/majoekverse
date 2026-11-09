@@ -179,6 +179,9 @@ export default async function Profilo() {
           <LangSwitch className="md:hidden" />
         </div>
       )}
+
+      {/* Diritti d'autore: il testo completo è nel file LICENSE del repo. */}
+      <p className="mt-10 text-xs text-brand-lavanda-chiara/70">{t.privacy.copyright}</p>
     </main>
   );
 }
