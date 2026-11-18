@@ -141,9 +141,11 @@ export default function Cielo() {
 
   return (
     <div aria-hidden className="cielo">
-      <CieloArrivo>
-        <canvas ref={canvasRef} className="h-full w-full" />
-      </CieloArrivo>
+      <div className="cielo-deriva">
+        <CieloArrivo>
+          <canvas ref={canvasRef} className="h-full w-full" />
+        </CieloArrivo>
+      </div>
     </div>
   );
 }

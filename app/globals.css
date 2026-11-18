@@ -810,11 +810,20 @@ html[data-avviato] .avvio {
 
 /* Cielo stellato dietro tutta l'app (app/cielo.tsx): il canvas con le
    stelle che brillano, e qui solo la deriva lentissima di tutto il cielo. */
+/* Lo strato fisso è grande esattamente quanto lo schermo e ritaglia il resto:
+   la deriva (inset -4%) e lo zoom della Home (1.22) farebbero uscire il cielo
+   di ~160px sotto lo schermo, e su iPhone (app installata) questo sposta
+   tutti gli elementi fissi, nav compresa, verso l'alto. */
 .cielo {
   position: fixed;
-  inset: -4%;
+  inset: 0;
   z-index: -10;
+  overflow: hidden;
   pointer-events: none;
+}
+.cielo-deriva {
+  position: absolute;
+  inset: -4%;
   animation: cielo-deriva 90s ease-in-out infinite alternate;
 }
 /* Zoom del cielo (app/cieloArrivo.tsx): in Home è più vicino, altrove si
@@ -1214,7 +1223,7 @@ html[data-avviato] .avvio {
   .reveal {
     transition: none;
   }
-  .cielo,
+  .cielo-deriva,
   .lettera,
   .entra > *,
   .scrivi-car {
