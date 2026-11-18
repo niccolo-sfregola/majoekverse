@@ -8,7 +8,6 @@ import Onboarding from "./onboarding";
 import PwaRegister from "./pwaRegister";
 import Avvio, { AVVIO_SCRIPT } from "./avvio";
 import Cielo from "./cielo";
-import DebugViewport from "./debugViewport";
 import { LangProvider } from "./langProvider";
 import { TransizioneProvider } from "./transizione";
 import { getLang, getDict } from "@/lib/i18n/server";
@@ -49,7 +48,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: AVVIO_SCRIPT }} />
       </head>
-      <body className="relative flex min-h-full flex-col pb-[calc(4.5rem_+_env(safe-area-inset-bottom))] md:pb-0">
+      <body className="relative flex min-h-dvh flex-col pb-[calc(4.5rem_+_env(safe-area-inset-bottom))] md:pb-0">
         <LangProvider lang={lang}>
           <TransizioneProvider>
             <Cielo />
@@ -65,7 +64,6 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
             <Onboarding />
             <PwaRegister />
             <Avvio />
-            <DebugViewport />
           </TransizioneProvider>
         </LangProvider>
       </body>
