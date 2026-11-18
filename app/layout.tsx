@@ -48,14 +48,19 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: AVVIO_SCRIPT }} />
       </head>
-      <body className="flex min-h-full flex-col pb-[calc(4.5rem_+_env(safe-area-inset-bottom))] md:pb-0">
+      <body className="relative flex min-h-full flex-col pb-[calc(4.5rem_+_env(safe-area-inset-bottom))] md:pb-0">
         <LangProvider lang={lang}>
           <TransizioneProvider>
             <Cielo />
             <TopNav />
             {children}
             <BottomNav />
-            <Pianeta />
+            {/* Durante il tuffo il pianeta diventa 7 volte più grande: anche se
+                trasparente, allungherebbe la pagina (scroll e rimbalzi sul
+                telefono). Questo strato, grande quanto il body, lo ritaglia. */}
+            <div className="pointer-events-none absolute inset-0 overflow-clip">
+              <Pianeta />
+            </div>
             <Onboarding />
             <PwaRegister />
             <Avvio />
