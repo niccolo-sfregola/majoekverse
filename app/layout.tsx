@@ -8,6 +8,7 @@ import Onboarding from "./onboarding";
 import PwaRegister from "./pwaRegister";
 import Avvio, { AVVIO_SCRIPT } from "./avvio";
 import Cielo from "./cielo";
+import DebugViewport from "./debugViewport";
 import { LangProvider } from "./langProvider";
 import { TransizioneProvider } from "./transizione";
 import { getLang, getDict } from "@/lib/i18n/server";
@@ -64,6 +65,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
             <Onboarding />
             <PwaRegister />
             <Avvio />
+            <DebugViewport />
           </TransizioneProvider>
         </LangProvider>
       </body>
